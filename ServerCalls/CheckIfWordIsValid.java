@@ -1,4 +1,4 @@
-package ClientCalls;
+package ServerCalls;
 import kong.unirest.HttpResponse;
 import kong.unirest.JsonNode;
 import kong.unirest.Unirest;
