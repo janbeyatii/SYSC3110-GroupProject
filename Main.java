@@ -1,4 +1,4 @@
-import static ClientCalls.CheckIfWordIsValid.*;
+import static ServerCalls.CheckIfWordIsValid.*;
 
 public static void main(String[] args) {
     String word = "jacket";  // Example word
