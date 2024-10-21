@@ -3,9 +3,39 @@ import src.DisplayBoard;
 import src.WordPlacementLogic;
 import src.WordValidity;
 import java.util.Scanner;
+import java.util.List;
+import java.util.ArrayList;
+
 
 public class Main {
     public static void main(String[] args) {
+
+        System.out.println("Welcome to our Scrabble game!!");
+        System.out.println("Made by Kaif Ali - 101180909");
+        System.out.println("Made by Milad Zazai - 101185228");
+        System.out.println("Made by Jan Beyati - 101186335");
+
+        Scanner scanner = new Scanner(System.in);
+
+        int numPlayers = 0;
+        while (numPlayers < 2 || numPlayers > 4) {
+            System.out.print("Enter the number of players (2-4): ");
+            numPlayers = scanner.nextInt();
+            scanner.nextLine();
+            if (numPlayers < 2 || numPlayers > 4) {
+                System.out.println("Invalid number of players. Please enter a number between 2 and 4 inclusive.");
+            }
+        }
+
+        List<String> playerNames = new ArrayList<>();
+        for (int i = 0; i < numPlayers; i++) {
+            System.out.print("Enter the name of player " + (i + 1) + ": ");
+            String playerName = scanner.nextLine();
+            playerNames.add(playerName);
+        }
+
+        System.out.println("Players in the game: " + playerNames);
+
         BoardSetup boardSetup = new BoardSetup();
         DisplayBoard display = new DisplayBoard();
         WordPlacementLogic wordLogic = new WordPlacementLogic();
@@ -14,7 +44,7 @@ public class Main {
         String wordListFilePath = "wordLists/wordlist.txt";
         WordValidity.loadWordsFromFile(wordListFilePath);
 
-        Scanner scanner = new Scanner(System.in);
+        
 
         // Track the total score of the player
         int totalScore = 0;
