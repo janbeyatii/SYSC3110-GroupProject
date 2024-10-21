@@ -2,11 +2,11 @@ import src.BoardSetup;
 import src.DisplayBoard;
 import src.WordPlacementLogic;
 import src.WordValidity;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.List;
 import java.util.ArrayList;
 import src.TileBag;
-
 
 public class Main {
     public static void main(String[] args) {
@@ -20,11 +20,16 @@ public class Main {
 
         int numPlayers = 0;
         while (numPlayers < 2 || numPlayers > 4) {
-            System.out.print("Enter the number of players (2-4): ");
-            numPlayers = scanner.nextInt();
-            scanner.nextLine();
-            if (numPlayers < 2 || numPlayers > 4) {
-                System.out.println("Invalid number of players. Please enter a number between 2 and 4 inclusive.");
+            try {
+                System.out.print("Enter the number of players (2-4): ");
+                numPlayers = scanner.nextInt();
+                scanner.nextLine(); // Consume the newline character after entering the number
+                if (numPlayers < 2 || numPlayers > 4) {
+                    System.out.println("Invalid number of players. Please enter a number between 2 and 4 inclusive.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a valid number between 2 and 4.");
+                scanner.nextLine(); // Clear the invalid input from the scanner
             }
         }
 
@@ -54,15 +59,21 @@ public class Main {
         String wordListFilePath = "wordLists/wordlist.txt";
         WordValidity.loadWordsFromFile(wordListFilePath);
 
-        
+        // Track the total scores for each player
+        int[] playerScores = new int[numPlayers];
+        int currentPlayer = 0;
 
         while (true) {
             display.displayBoard(boardSetup.getBoard());
-            System.out.println("Enter a word, row, column, and direction (H/V), or 'pass' to skip turn:");
+
+            // Show the prompt for the current player
+            String currentPlayerName = playerNames.get(currentPlayer);
+            System.out.println(currentPlayerName + ": Enter a word, row, column, and direction (H/V), or 'pass' to skip turn:");
             String input = scanner.nextLine();
 
             if (input.equalsIgnoreCase("pass")) {
-                System.out.println("Turn passed.");
+                System.out.println(currentPlayerName + " passed the turn.");
+                currentPlayer = (currentPlayer + 1) % numPlayers; // Move to the next player
                 continue;
             }
 
@@ -77,7 +88,22 @@ public class Main {
             int col = Integer.parseInt(inputs[2]) - 1;
             char direction = inputs[3].charAt(0);
 
-            if (!wordLogic.placeWord(word, row, col, direction, boardSetup.getBoard())) {
+            // Call placeWord and get the score for the word placed
+            int score = wordLogic.placeWord(word, row, col, direction, boardSetup.getBoard());
+            if (score != -1) {
+                playerScores[currentPlayer] += score; // Add to the current player's score
+                System.out.println(currentPlayerName + "'s total score: " + playerScores[currentPlayer]);
+
+                // Check if the player has reached the score limit
+                if (playerScores[currentPlayer] >= 150) {
+                    System.out.println(currentPlayerName + " has won the game with a total score of " + playerScores[currentPlayer] + "!");
+                    break;
+                }
+
+                // Move to the next player
+                currentPlayer = (currentPlayer + 1) % numPlayers;
+
+            } else {
                 System.out.println("Invalid word placement. Try again.");
             }
         }
