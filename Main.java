@@ -1,10 +1,13 @@
 import src.BoardSetup;
 import java.util.Scanner;
+import src.WordValidity;
 
 public class Main {
     public static void main(String[] args) {
         BoardSetup board = new BoardSetup();
         Scanner scanner = new Scanner(System.in);
+
+        WordValidity.loadWordsFromFile("wordLists/wordlist.txt");
 
         while (true) {
             board.displayBoard();
@@ -26,6 +29,12 @@ public class Main {
             int row = Integer.parseInt(inputs[1]) - 1; // Adjust to zero-based index
             int col = Integer.parseInt(inputs[2]) - 1; // Adjust to zero-based index
             char direction = inputs[3].charAt(0);
+
+            if (!WordValidity.isWordValid(word)) {
+                System.out.println("Invalid word. The word is not accepted in the dictionary");
+                continue;
+
+            }
 
             if (!board.placeWord(word, row, col, direction)) {
                 System.out.println("Invalid word placement. Try again.");
