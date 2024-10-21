@@ -1,9 +1,18 @@
 package src;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class WordPlacementLogic {
 
     // Method to place a word on the board and calculate the score
-    public int placeWord(String word, int row, int col, char direction, char[][] board) {
+    public int placeWord(String word, int row, int col, char direction, char[][] board, List<Character> playerTiles, TileBag tileBag) {
+        // Check if the player has the necessary tiles to place the word
+        if (!canPlaceWord(word, playerTiles)) {
+            System.out.println("You don't have the necessary tiles to place this word.");
+            return -1; // Return -1 to indicate invalid move due to lack of tiles
+        }
+
         // Check if the word is valid by referencing the provided word list
         if (!WordValidity.isWordValid(word)) {
             System.out.println("Invalid word. " + word + " is not accepted in the dictionary.");
@@ -74,6 +83,9 @@ public class WordPlacementLogic {
             return -1; // Return -1 to indicate invalid direction
         }
 
+        // Update player's tiles after the word is placed
+        updatePlayerTilesAfterMove(word, playerTiles, tileBag);
+
         // Now that the combined word is successfully placed, calculate the score
         ScoreCalculation scoreCalculation = new ScoreCalculation(combinedWord);
         int combinedWordScore = scoreCalculation.getTotalScore();
@@ -82,14 +94,26 @@ public class WordPlacementLogic {
         return combinedWordScore; // Return the calculated score for the combined word
     }
 
-    
+    // Check if the player has the necessary tiles to place the word
+    public boolean canPlaceWord(String word, List<Character> playerTiles) {
+        List<Character> tempTiles = new ArrayList<>(playerTiles);
+        for (char c : word.toCharArray()) {
+            if (tempTiles.contains(c)) {
+                tempTiles.remove((Character) c); // Remove the tile if the player has it
+            } else {
+                return false; // Player doesn't have the necessary tiles
+            }
+        }
+        return true;
+    }
 
-
-
-
-
-
-
-
+    // Update player's tiles after successfully placing a word
+    public void updatePlayerTilesAfterMove(String word, List<Character> playerTiles, TileBag tileBag) {
+        for (char c : word.toCharArray()) {
+            playerTiles.remove((Character) c); // Remove the used tile
+        }
+        // Draw new tiles to replace the used ones
+        playerTiles.addAll(tileBag.drawTiles(word.length()));
+    }
 
 }

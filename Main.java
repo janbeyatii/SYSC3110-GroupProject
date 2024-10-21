@@ -34,22 +34,17 @@ public class Main {
         }
 
         List<String> playerNames = new ArrayList<>();
+        List<List<Character>> playerTiles = new ArrayList<>(); // Store each player's tiles
+        TileBag tileBag = new TileBag();
+
         for (int i = 0; i < numPlayers; i++) {
             System.out.print("Enter the name of player " + (i + 1) + ": ");
             String playerName = scanner.nextLine();
             playerNames.add(playerName);
+            playerTiles.add(tileBag.drawTiles(7)); // Draw 7 tiles for each player
         }
 
         System.out.println("Players in the game: " + playerNames);
-
-        TileBag tileBag = new TileBag();
-
-        //drawing for each player
-
-        for (String playerName : playerNames) {
-            List<Character> playerTiles = tileBag.drawTiles(7);
-            System.out.println(playerName + "'s tiles: " + playerTiles);
-        }
 
         BoardSetup boardSetup = new BoardSetup();
         DisplayBoard display = new DisplayBoard();
@@ -59,20 +54,21 @@ public class Main {
         String wordListFilePath = "wordLists/wordlist.txt";
         WordValidity.loadWordsFromFile(wordListFilePath);
 
-        // Track the total scores for each player
         int[] playerScores = new int[numPlayers];
         int currentPlayer = 0;
 
         while (true) {
             display.displayBoard(boardSetup.getBoard());
 
-            // Show the prompt for the current player
-            String currentPlayerName = playerNames.get(currentPlayer);
-            System.out.println(currentPlayerName + ": Enter a word, row, column, and direction (H/V), or 'pass' to skip turn:");
-            String input = scanner.nextLine();
+            // Show only the current player's tiles
+            List<Character> currentPlayerTiles = playerTiles.get(currentPlayer);
+            System.out.println(playerNames.get(currentPlayer) + "'s tiles: " + currentPlayerTiles);
+
+            System.out.println(playerNames.get(currentPlayer) + ": Enter a word, row, column, and direction (H/V), or 'pass' to skip turn:");
+            String input = scanner.nextLine().toUpperCase();
 
             if (input.equalsIgnoreCase("pass")) {
-                System.out.println(currentPlayerName + " passed the turn.");
+                System.out.println(playerNames.get(currentPlayer) + " passed the turn.");
                 currentPlayer = (currentPlayer + 1) % numPlayers; // Move to the next player
                 continue;
             }
@@ -88,21 +84,26 @@ public class Main {
             int col = Integer.parseInt(inputs[2]) - 1;
             char direction = inputs[3].charAt(0);
 
-            // Call placeWord and get the score for the word placed
-            int score = wordLogic.placeWord(word, row, col, direction, boardSetup.getBoard());
-            if (score != -1) {
-                playerScores[currentPlayer] += score; // Add to the current player's score
-                System.out.println(currentPlayerName + "'s total score: " + playerScores[currentPlayer]);
+            // Check if the current player has the necessary tiles to place the word
+            if (!wordLogic.canPlaceWord(word, currentPlayerTiles)) {
+                System.out.println("You don't have the tiles to place this word.");
+                continue;
+            }
 
-                // Check if the player has reached the score limit
+            int score = wordLogic.placeWord(word, row, col, direction, boardSetup.getBoard(), currentPlayerTiles, tileBag);
+            if (score != -1) {
+                playerScores[currentPlayer] += score;
+                System.out.println(playerNames.get(currentPlayer) + "'s total score: " + playerScores[currentPlayer]);
+
+                // Update the current player's tiles after word placement
+                wordLogic.updatePlayerTilesAfterMove(word, currentPlayerTiles, tileBag);
+
                 if (playerScores[currentPlayer] >= 150) {
-                    System.out.println(currentPlayerName + " has won the game with a total score of " + playerScores[currentPlayer] + "!");
+                    System.out.println(playerNames.get(currentPlayer) + " HAS WON! YAY!");
                     break;
                 }
 
-                // Move to the next player
                 currentPlayer = (currentPlayer + 1) % numPlayers;
-
             } else {
                 System.out.println("Invalid word placement. Try again.");
             }
