@@ -16,6 +16,9 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
+        // Track the total score of the player
+        int totalScore = 0;
+
         while (true) {
             display.displayBoard(boardSetup.getBoard());
             System.out.println("Enter a word, row, column, and direction (H/V), or 'pass' to skip turn:");
@@ -37,7 +40,18 @@ public class Main {
             int col = Integer.parseInt(inputs[2]) - 1;
             char direction = inputs[3].charAt(0);
 
-            if (!wordLogic.placeWord(word, row, col, direction, boardSetup.getBoard())) {
+            // Call placeWord and get the score for the word placed
+            int score = wordLogic.placeWord(word, row, col, direction, boardSetup.getBoard());
+            if (score != -1) {
+                totalScore += score; // Add to the total score
+                if (totalScore > 150) {
+                    System.out.println("Total score: " + totalScore);
+                }
+                else {
+                    break;
+                }
+
+            } else {
                 System.out.println("Invalid word placement. Try again.");
             }
         }
