@@ -5,6 +5,7 @@ import src.WordValidity;
 import java.util.Scanner;
 import java.util.List;
 import java.util.ArrayList;
+import src.TileBag;
 
 
 public class Main {
@@ -35,6 +36,15 @@ public class Main {
         }
 
         System.out.println("Players in the game: " + playerNames);
+
+        TileBag tileBag = new TileBag();
+
+        //drawing for each player
+
+        for (String playerName : playerNames) {
+            List<Character> playerTiles = tileBag.drawTiles(7);
+            System.out.println(playerName + "'s tiles: " + playerTiles);
+        }
 
         BoardSetup boardSetup = new BoardSetup();
         DisplayBoard display = new DisplayBoard();
