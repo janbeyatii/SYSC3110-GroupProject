@@ -22,6 +22,6 @@ public class WordValidity {
         if (wordList == null) {
             throw new IllegalStateException("Word list is not loaded. Please load the word list first.");
         }
-        return wordList.contains(word);
+        return wordList.contains(word.toLowerCase());
     }
 }
