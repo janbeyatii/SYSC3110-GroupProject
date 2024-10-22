@@ -1,10 +1,19 @@
 package src;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
+/**
+ * The ScoreCalculation class calculates the total score of a Scrabble word based on the standard letter scoring.
+ */
 public class ScoreCalculation {
     private int totalscore;
 
-    // Constructor that calculates the total score of the word
+    /**
+     * Constructs a ScoreCalculation object and calculates the total score of the given word.
+     * Each letter in the word is assigned a score based on Scrabble letter values, and the total score is computed.
+     *
+     * @param word the word for which the score is to be calculated.
+     */
     public ScoreCalculation(String word) {
         ArrayList<Character> score1 = new ArrayList<>(Arrays.asList('A', 'E', 'I', 'O', 'U', 'L', 'N', 'S', 'T', 'R'));
         ArrayList<Character> score2 = new ArrayList<>(Arrays.asList('G', 'D'));
@@ -14,6 +23,7 @@ public class ScoreCalculation {
         ArrayList<Character> score8 = new ArrayList<>(Arrays.asList('J', 'X'));
         ArrayList<Character> score10 = new ArrayList<>(Arrays.asList('Q', 'Z'));
 
+        // Iterate through each letter in the word and calculate its score
         for (int k = 0; k < word.length(); k++) {
             char letter = Character.toUpperCase(word.charAt(k));  // Convert to uppercase
             if (score1.contains(letter)) {
@@ -34,7 +44,11 @@ public class ScoreCalculation {
         }
     }
 
-    // return the total score of a word
+    /**
+     * Returns the total score of the word.
+     *
+     * @return the total score of the word.
+     */
     public int getTotalScore() {
         return totalscore;
     }

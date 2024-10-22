@@ -2,31 +2,60 @@ package src;
 
 import java.util.List;
 
+/**
+ * The WordPlacementLogic class handles the logic of placing words on the Scrabble board.
+ * It verifies whether the word can be placed, checks word validity and connections to existing words,
+ * updates the board, and calculates the score for the word placed.
+ */
 public class WordPlacementLogic {
-    private boolean isFirstMove = true;  // flag to check if it is the first move
+    private boolean isFirstMove = true;  // Flag to check if it is the first move
     private Helpers helpers = new Helpers();  // Create instance of Helpers
 
+    /**
+     * Default constructor for the WordPlacementLogic class.
+     * Initializes the WordPlacementLogic object without any specific setup.
+     */
+    public WordPlacementLogic() {
+        // Default constructor
+    }
+
+    /**
+     * Places a word on the Scrabble board if it meets the game's placement rules.
+     * It checks if the player has the necessary tiles, validates the word, checks if it's connected to other words,
+     * and calculates the score of the placed word.
+     *
+     * @param word the word to be placed on the board.
+     * @param row the starting row for the word.
+     * @param col the starting column for the word.
+     * @param direction the direction of the word ('H' for horizontal, 'V' for vertical).
+     * @param board the current state of the Scrabble board.
+     * @param playerTiles the tiles the player has.
+     * @param tileBag the TileBag object to draw additional tiles.
+     * @return the score of the placed word, or -1 if the placement is invalid.
+     */
     public int placeWord(String word, int row, int col, char direction, char[][] board, List<Character> playerTiles, TileBag tileBag) {
 
+        // Check if the player has the necessary tiles to place the word
         if (!helpers.canPlaceWord(word, playerTiles)) {
             System.out.println("You don't have the necessary tiles to place this word.");
             return -1;
         }
 
+        // Check if the word is valid
         if (!WordValidity.isWordValid(word)) {
             System.out.println("Invalid word. " + word + " was not found in the word list.");
             return -1;
         }
 
-        // first word must pass through the center
+        // First word must pass through the center
         if (isFirstMove) {
             if (!helpers.passesThroughCenter(row, col, direction, word.length())) {
                 System.out.println("The first word must be placed on the center of the board. (8 x 8)");
                 return -1;
             }
-            isFirstMove = false; // update flag
+            isFirstMove = false; // Update flag
         } else {
-            // check if word is connected to existing words
+            // Check if the word is connected to existing words
             if (!helpers.isWordConnected(row, col, direction, word, board)) {
                 System.out.println("The word must connect to existing words on the board.");
                 return -1;
@@ -35,9 +64,9 @@ public class WordPlacementLogic {
 
         String combinedWord = word;
 
-        // horizontal placement
+        // Horizontal placement
         if (direction == 'H' || direction == 'h') {
-            if (col + word.length() > board.length) return -1; // out of bounds
+            if (col + word.length() > board.length) return -1; // Out of bounds
 
             // Check the board for conflicts and build the combined word
             for (int i = 0; i < word.length(); i++) {
@@ -64,7 +93,7 @@ public class WordPlacementLogic {
                 rightCol++;
             }
 
-        //repeat for vertical
+            // Vertical placement
         } else if (direction == 'V' || direction == 'v') {
             if (row + word.length() > board.length) return -1;
 
@@ -78,12 +107,14 @@ public class WordPlacementLogic {
                 }
             }
 
+            // Extend the word upwards
             int upRow = row - 1;
             while (upRow >= 0 && board[upRow][col] != '.') {
                 combinedWord = board[upRow][col] + combinedWord;
                 upRow--;
             }
 
+            // Extend the word downwards
             int downRow = row + word.length();
             while (downRow < board.length && board[downRow][col] != '.') {
                 combinedWord = combinedWord + board[downRow][col];
