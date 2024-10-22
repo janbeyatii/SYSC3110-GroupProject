@@ -6,6 +6,7 @@ Welcome to our Scrabble game! This repository contains the progress and implemen
 - [Project Members](#project-members)
 - [Installation](#installation)
 - [Rules](#rules)
+- [How To Play](#how-to-play)
 
 ## Project Members
 - **Kaif Ali** - 101180909
@@ -21,13 +22,19 @@ The goal of Scrabble is to create words on the game board using letter tiles and
 ## Installation
 
 1. **Clone the Repository**: 
-   Clone this GitHub repository to your local machine and open it using your preferred Java IDE (e.g., IntelliJ IDEA, Eclipse).
+   Clone this GitHub repository to your local machine and open it using your IDE.
 
 2. **Build the Project**: 
    Once opened in your IDE, build the project to ensure all dependencies and files are compiled.
 
 3. **Run the Game**: 
    Run the `Main` class to start the game.
+
+## How To Play
+
+1. Select the number of players and give each player a name
+   
+2. To place a word use the following format (word, row#, col#, direction (using H or V))
 
 ## Rules
 
