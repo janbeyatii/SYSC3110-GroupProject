@@ -4,17 +4,13 @@ Welcome to our Scrabble game! This repository contains the progress and implemen
 
 ## Table of Contents
 - [Project Members](#project-members)
-- [How to Play](#how-to-play)
-- [Game Rules](#game-rules)
 - [Installation](#installation)
-- [Gameplay Instructions](#gameplay-instructions)
+- [Rules](#rules)
 
 ## Project Members
 - **Kaif Ali** - 101180909
 - **Milad Zazai** - 101185228
 - **Jan Beyati** - 101186335
-
-## How to Play
 
 ### Objective
 The goal of Scrabble is to create words on the game board using letter tiles and score points. The player with the most points at the end of the game wins!
@@ -22,7 +18,7 @@ The goal of Scrabble is to create words on the game board using letter tiles and
 ### Number of Players
 2-4 players can play the game. Each player takes turns to place a word on the board, scoring points based on the letters used and their placement.
 
-## Instructions
+## Installation
 
 1. **Clone the Repository**: 
    Clone this GitHub repository to your local machine and open it using your preferred Java IDE (e.g., IntelliJ IDEA, Eclipse).
@@ -33,7 +29,7 @@ The goal of Scrabble is to create words on the game board using letter tiles and
 3. **Run the Game**: 
    Run the `Main` class to start the game.
 
-## Rules of the Game
+## Rules
 
 1. **Player Turns**: 
    The game supports 2 to 4 players. Each player takes turns placing words on the board.
