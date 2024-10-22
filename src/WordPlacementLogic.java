@@ -1,119 +1,131 @@
 package src;
 
-import java.util.ArrayList;
 import java.util.List;
+import src.Helpers;
 
 public class WordPlacementLogic {
+    private boolean isFirstMove = true;  // flag to check if it is the first move
+    private Helpers helpers = new Helpers();  // Create an instance of Helpers
 
-    // Method to place a word on the board and calculate the score
+    // place a word on the board and calculate the score
     public int placeWord(String word, int row, int col, char direction, char[][] board, List<Character> playerTiles, TileBag tileBag) {
+
         // Check if the player has the necessary tiles to place the word
-        if (!canPlaceWord(word, playerTiles)) {
+        if (!helpers.canPlaceWord(word, playerTiles)) {
             System.out.println("You don't have the necessary tiles to place this word.");
-            return -1; // Return -1 to indicate invalid move due to lack of tiles
+            return -1;
         }
 
-        // Check if the word is valid by referencing the provided word list
+        // Check if word is valid
         if (!WordValidity.isWordValid(word)) {
-            System.out.println("Invalid word. " + word + " is not accepted in the dictionary.");
-            return -1; // Return -1 to indicate an invalid word
+            System.out.println("Invalid word. " + word + " was not found in the word list.");
+            return -1;
+        }
+
+        // first word must pass through the center
+        if (isFirstMove) {
+            if (!helpers.passesThroughCenter(row, col, direction, word.length())) {
+                System.out.println("The first word must be placed on the center of the board. (8 x 8)");
+                return -1;
+            }
+            isFirstMove = false; //update flag
+        } else {
+            // check if next words are connected to original
+            if (!helpers.isWordConnected(row, col, direction, word, board)) {
+                System.out.println("The word must connect to existing words on the board.");
+                return -1;
+            }
         }
 
         String combinedWord = word;
 
-        // Check for horizontal placement
+        // horizontal placement
         if (direction == 'H' || direction == 'h') {
-            if (col + word.length() > board.length) return -1; // Out of bounds
+            if (col + word.length() > board.length) return -1; // out of bounds
 
-            // Extend the word to the left if there are existing letters
+            for (int i = 0; i < word.length(); i++) {
+                char boardChar = board[row][col + i];
+                char wordChar = word.charAt(i);
+
+                // check available board location
+                if (boardChar != '.' && boardChar != wordChar) {
+                    System.out.println("You cannot place a tile on an occupied space.");
+                    return -1;
+                }
+            }
+
+            // Extend word to left if there are existing letters
             int leftCol = col - 1;
             while (leftCol >= 0 && board[row][leftCol] != '.') {
-                combinedWord = board[row][leftCol] + combinedWord; // Add to the beginning
+                combinedWord = board[row][leftCol] + combinedWord;
                 leftCol--;
             }
 
-            // Extend the word to the right if there are existing letters
+            // Extend word to right if there are existing letters
             int rightCol = col + word.length();
             while (rightCol < board.length && board[row][rightCol] != '.') {
-                combinedWord = combinedWord + board[row][rightCol]; // Add to the end
+                combinedWord = combinedWord + board[row][rightCol];
                 rightCol++;
             }
 
-            // Check if the combined word is valid
+            // Check if combined word is found in word list
             if (!WordValidity.isWordValid(combinedWord)) {
-                System.out.println("Invalid combined word: " + combinedWord + " is not accepted in the dictionary.");
-                return -1; // Return -1 if the combined word is invalid
+                System.out.println("Invalid combined word: " + combinedWord + " was not found in the word list.");
+                return -1;
             }
 
-            // Now place the word since it's valid
+            // all checks pass, place word
             for (int i = 0; i < word.length(); i++) {
                 board[row][col + i] = word.charAt(i);
             }
 
+        //repeat above steps for vertical positions
         } else if (direction == 'V' || direction == 'v') {
-            if (row + word.length() > board.length) return -1; // Out of bounds
+            if (row + word.length() > board.length) return -1;
 
-            // Extend the word upwards if there are existing letters
+            for (int i = 0; i < word.length(); i++) {
+                char boardChar = board[row][col + i];
+                char wordChar = word.charAt(i);
+
+                if (boardChar != '.' && boardChar != wordChar) {
+                    System.out.println("You cannot place a tile on an occupied space.");
+                    return -1;
+                }
+            }
             int upRow = row - 1;
             while (upRow >= 0 && board[upRow][col] != '.') {
-                combinedWord = board[upRow][col] + combinedWord; // Add to the beginning
+                combinedWord = board[upRow][col] + combinedWord;
                 upRow--;
             }
 
-            // Extend the word downwards if there are existing letters
             int downRow = row + word.length();
             while (downRow < board.length && board[downRow][col] != '.') {
-                combinedWord = combinedWord + board[downRow][col]; // Add to the end
+                combinedWord = combinedWord + board[downRow][col];
                 downRow++;
             }
 
-            // Check if the combined word is valid
             if (!WordValidity.isWordValid(combinedWord)) {
                 System.out.println("Invalid combined word: " + combinedWord + " is not accepted in the dictionary.");
-                return -1; // Return -1 if the combined word is invalid
+                return -1;
             }
 
-            // Now place the word since it's valid
             for (int i = 0; i < word.length(); i++) {
                 board[row + i][col] = word.charAt(i);
             }
 
         } else {
             System.out.println("Invalid direction. Please use H for horizontal or V for vertical.");
-            return -1; // Return -1 to indicate invalid direction
+            return -1;
         }
 
-        // Update player's tiles after the word is placed
-        updatePlayerTilesAfterMove(word, playerTiles, tileBag);
+        // Update the players tiles after a word is placed
+        helpers.updatePlayerTilesAfterMove(word, playerTiles, tileBag);
 
-        // Now that the combined word is successfully placed, calculate the score
+        // calculate the score
         ScoreCalculation scoreCalculation = new ScoreCalculation(combinedWord);
         int combinedWordScore = scoreCalculation.getTotalScore();
         System.out.println("Word placed: " + combinedWord + " | Score: " + combinedWordScore);
 
-        return combinedWordScore; // Return the calculated score for the combined word
+        return combinedWordScore;
     }
-
-    // Check if the player has the necessary tiles to place the word
-    public boolean canPlaceWord(String word, List<Character> playerTiles) {
-        List<Character> tempTiles = new ArrayList<>(playerTiles);
-        for (char c : word.toCharArray()) {
-            if (tempTiles.contains(c)) {
-                tempTiles.remove((Character) c); // Remove the tile if the player has it
-            } else {
-                return false; // Player doesn't have the necessary tiles
-            }
-        }
-        return true;
-    }
-
-    // Update player's tiles after successfully placing a word
-    public void updatePlayerTilesAfterMove(String word, List<Character> playerTiles, TileBag tileBag) {
-        for (char c : word.toCharArray()) {
-            playerTiles.remove((Character) c); // Remove the used tile
-        }
-        // Draw new tiles to replace the used ones
-        playerTiles.addAll(tileBag.drawTiles(word.length()));
-    }
-
 }

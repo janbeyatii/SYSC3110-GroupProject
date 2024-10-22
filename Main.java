@@ -2,6 +2,7 @@ import src.BoardSetup;
 import src.DisplayBoard;
 import src.WordPlacementLogic;
 import src.WordValidity;
+import src.Helpers;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.List;
@@ -17,44 +18,23 @@ public class Main {
         System.out.println("Made by Jan Beyati - 101186335");
 
         Scanner scanner = new Scanner(System.in);
-
-        int numPlayers = 0;
-        while (numPlayers < 2 || numPlayers > 4) {
-            try {
-                System.out.print("Enter the number of players (2-4): ");
-                numPlayers = scanner.nextInt();
-                scanner.nextLine(); // Consume the newline character after entering the number
-                if (numPlayers < 2 || numPlayers > 4) {
-                    System.out.println("Invalid number of players. Please enter a number between 2 and 4 inclusive.");
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a valid number between 2 and 4.");
-                scanner.nextLine(); // Clear the invalid input from the scanner
-            }
-        }
-
         List<String> playerNames = new ArrayList<>();
-        List<List<Character>> playerTiles = new ArrayList<>(); // Store each player's tiles
+        List<List<Character>> playerTiles = new ArrayList<>();
         TileBag tileBag = new TileBag();
 
-        for (int i = 0; i < numPlayers; i++) {
-            System.out.print("Enter the name of player " + (i + 1) + ": ");
-            String playerName = scanner.nextLine();
-            playerNames.add(playerName);
-            playerTiles.add(tileBag.drawTiles(7)); // Draw 7 tiles for each player
-        }
-
-        System.out.println("Players in the game: " + playerNames);
+        // player setup
+        Helpers.setupPlayers(scanner, playerNames, playerTiles, tileBag);
 
         BoardSetup boardSetup = new BoardSetup();
         DisplayBoard display = new DisplayBoard();
         WordPlacementLogic wordLogic = new WordPlacementLogic();
+        Helpers helpers = new Helpers();
 
         // Load the word list
         String wordListFilePath = "wordLists/wordlist.txt";
         WordValidity.loadWordsFromFile(wordListFilePath);
 
-        int[] playerScores = new int[numPlayers];
+        int[] playerScores = new int[playerNames.size()];
         int currentPlayer = 0;
 
         while (true) {
@@ -69,7 +49,7 @@ public class Main {
 
             if (input.equalsIgnoreCase("pass")) {
                 System.out.println(playerNames.get(currentPlayer) + " passed the turn.");
-                currentPlayer = (currentPlayer + 1) % numPlayers; // Move to the next player
+                currentPlayer = (currentPlayer + 1) % playerNames.size(); // Move to the next player
                 continue;
             }
 
@@ -85,7 +65,7 @@ public class Main {
             char direction = inputs[3].charAt(0);
 
             // Check if the current player has the necessary tiles to place the word
-            if (!wordLogic.canPlaceWord(word, currentPlayerTiles)) {
+            if (!helpers.canPlaceWord(word, currentPlayerTiles)) {
                 System.out.println("You don't have the tiles to place this word.");
                 continue;
             }
@@ -96,14 +76,14 @@ public class Main {
                 System.out.println(playerNames.get(currentPlayer) + "'s total score: " + playerScores[currentPlayer]);
 
                 // Update the current player's tiles after word placement
-                wordLogic.updatePlayerTilesAfterMove(word, currentPlayerTiles, tileBag);
+                helpers.updatePlayerTilesAfterMove(word, currentPlayerTiles, tileBag);
 
                 if (playerScores[currentPlayer] >= 150) {
                     System.out.println(playerNames.get(currentPlayer) + " HAS WON! YAY!");
                     break;
                 }
 
-                currentPlayer = (currentPlayer + 1) % numPlayers;
+                currentPlayer = (currentPlayer + 1) % playerNames.size();
             } else {
                 System.out.println("Invalid word placement. Try again.");
             }

@@ -1,7 +1,5 @@
 package src;
 import java.util.*;
-import java.util.List;
-import java.util.ArrayList;
 
 public class TileBag {
     private final Map<Character, Integer> tileCounts = new HashMap<>();
@@ -28,16 +26,14 @@ public class TileBag {
     public List<Character> drawTiles(int numTiles) {
         List<Character> drawnTile = new ArrayList<>();
         Random random = new Random();
-    
-
 
         for (int i = 0; i < numTiles; i++) {
-            if (totalTiles == 0) break; // No more tiles to draw
+            if (totalTiles == 0) break;
 
             // Get a random tile
             char tile = getRandomTile(random);
 
-            // Add tile to player's hand and update tile count
+            // Add tile to players hand and update tile count
             drawnTile.add(tile);
             updateTileCount(tile);
         }
@@ -67,9 +63,9 @@ public class TileBag {
         totalTiles--;
     }
 
-    // Method to check how many tiles are left
-    public int getTotalTiles() {
-        return totalTiles;
+    // replenish any missing tiles
+    public void refillTiles(List<Character> playerTiles, int usedTiles) {
+        int tilesNeeded = 7 - playerTiles.size();
+        playerTiles.addAll(drawTiles(tilesNeeded));
     }
-
 }
