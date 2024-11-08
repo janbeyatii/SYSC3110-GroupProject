@@ -10,15 +10,8 @@ public class ScrabbleView extends JFrame {
     private JLabel[] playerScores;
     private JPanel boardPanel, controlPanel, tilePanel;
     private JButton tileBagButton;
-    int playercount = Integer.parseInt(JOptionPane.showInputDialog(this,"Number of players (2-4): "));
-    public ScrabbleView(int boardSize, int numPlayers) {
-        numPlayers = playercount;
-        if (numPlayers > 4 || numPlayers < 2) {
-                while (numPlayers > 4 || numPlayers < 2 ){
-                    playercount = Integer.parseInt(JOptionPane.showInputDialog(this,"Number of players: "));
-                    numPlayers = playercount;
-                }
-            }
+
+    public ScrabbleView(int boardSize) {
         setTitle("Scrabble Game");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,9 +31,9 @@ public class ScrabbleView extends JFrame {
         // Initialize control panel for score and tiles
         controlPanel = new JPanel(new GridLayout(2, 1));
 
-        JPanel scorePanel = new JPanel(new GridLayout(numPlayers, 1));
-        playerScores = new JLabel[numPlayers];
-        for (int i = 0; i < numPlayers; i++) {
+        JPanel scorePanel = new JPanel(new GridLayout(ScrabbleController.getPlayercount(), 1));
+        playerScores = new JLabel[ScrabbleController.getPlayercount()];
+        for (int i = 0; i < ScrabbleController.getPlayercount(); i++) {
             playerScores[i] = new JLabel("Player " + (i + 1) + " Score: 0");
             scorePanel.add(playerScores[i]);
         }
@@ -84,6 +77,6 @@ public class ScrabbleView extends JFrame {
         playerScores[playerIndex].setText("Player " + (playerIndex + 1) + " Score: " + score);
     }
     public static void main(String[] args) {
-        new ScrabbleView(15, 0);
+        new ScrabbleView(15);
     }
 }
