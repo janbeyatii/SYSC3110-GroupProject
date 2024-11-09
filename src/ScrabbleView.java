@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+import static src.ScrabbleController.playerTiles;
+
 public class ScrabbleView extends JFrame {
     private JPanel boardPanel;
     private JButton[][] boardButtons;
@@ -73,6 +75,7 @@ public class ScrabbleView extends JFrame {
             }
         }
 
+
         // Control panel for player scores and buttons
         controlPanel = new JPanel(new GridBagLayout());
         GridBagConstraints controlGbc = new GridBagConstraints();
@@ -117,12 +120,10 @@ public class ScrabbleView extends JFrame {
         tileGbc.weightx = 1.0;
         tileGbc.insets = new Insets(2, 2, 2, 2);
 
-        playertileButtons = new JButton[5];
-        for (int i = 0; i < 5; i++) {
+        playertileButtons = new JButton[7];
+        for (int i = 0; i < 7; i++) {
             playertileButtons[i] = new JButton();
-            if (i < tileCharacters.size()) {
-                playertileButtons[i].setText(tileCharacters.get(i).toString());
-            }
+            playertileButtons[i].setText(playerTiles.get(i).toString());
 
             int index = i;
             playertileButtons[i].addActionListener(new ActionListener() {
@@ -143,13 +144,13 @@ public class ScrabbleView extends JFrame {
     }
 
     public static void main(String[] args) {
-        ArrayList<Character> player1tiles = new ArrayList<>();
-        player1tiles.add('A');
+        ArrayList<Character> playerTiles = ScrabbleController.getPlayerTiles();
+       /* player1tiles.add('A');
         player1tiles.add('B');
         player1tiles.add('C');
         player1tiles.add('D');
-        player1tiles.add('E');
+        player1tiles.add('E');*/
 
-        new ScrabbleView(15, player1tiles);
+        new ScrabbleView(15, playerTiles);
     }
 }

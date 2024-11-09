@@ -18,7 +18,7 @@ public class ScrabbleController {
     private static String selectedCharacter = null;
     private static JButton selectedButton = null;
     private static TileBag tileBag = new TileBag();
-    private static ArrayList<Character> playerTiles;
+    public static ArrayList<Character> playerTiles;
 
     public static ArrayList<Character> getPlayerTiles() {
 
