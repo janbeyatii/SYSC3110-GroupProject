@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import static src.ScrabbleController.playerTiles;
 
 public class ScrabbleView extends JFrame {
     private JPanel boardPanel;
@@ -123,7 +122,7 @@ public class ScrabbleView extends JFrame {
         playertileButtons = new JButton[7];
         for (int i = 0; i < 7; i++) {
             playertileButtons[i] = new JButton();
-            playertileButtons[i].setText(playerTiles.get(i).toString());
+            playertileButtons[i].setText(ScrabbleController.playerTiles.get(i).toString());
 
             int index = i;
             playertileButtons[i].addActionListener(new ActionListener() {
