@@ -24,11 +24,6 @@ public class ScrabbleController {
         return playerNames;
     }
 
-    public static void main(String[] args) {
-         List<List<Character>> playerTiles = new ArrayList<>();
-         int currentPlayer = 0;
-         List<Character> currentPlayerTiles = playerTiles.get(currentPlayer);
-    }
     }
 
 
