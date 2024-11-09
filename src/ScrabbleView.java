@@ -34,7 +34,7 @@ public class ScrabbleView extends JFrame {
         JPanel scorePanel = new JPanel(new GridLayout(ScrabbleController.getPlayercount(), 1));
         playerScores = new JLabel[ScrabbleController.getPlayercount()];
         for (int i = 0; i < ScrabbleController.getPlayercount(); i++) {
-            playerScores[i] = new JLabel("Player " + (i + 1) + " Score: 0");
+            playerScores[i] = new JLabel(ScrabbleController.getPlayerNames().get(i) + " Score: 0");
             scorePanel.add(playerScores[i]);
         }
 
@@ -74,7 +74,7 @@ public class ScrabbleView extends JFrame {
     }
 
     public void updateScore(int playerIndex, int score) {
-        playerScores[playerIndex].setText("Player " + (playerIndex + 1) + " Score: " + score);
+        playerScores[playerIndex].setText(ScrabbleController.getPlayerNames().get(playerIndex + 1) + " Score: " + score);
     }
     public static void main(String[] args) {
         new ScrabbleView(15);
