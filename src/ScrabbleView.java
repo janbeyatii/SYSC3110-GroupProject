@@ -35,6 +35,7 @@ public class ScrabbleView extends JFrame {
                 boardButtons[i][j] = new JButton();
                 if (i == middle && j == middle) {
                     boardButtons[i][j].setBackground(Color.BLUE);
+                    boardButtons[i][j].setOpaque(true);
                 }
 
                 int row = i;
