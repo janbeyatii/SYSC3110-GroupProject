@@ -35,9 +35,14 @@ public class WordPlacementLogic {
      */
     public int placeWord(String word, int row, int col, char direction, char[][] board, List<Character> playerTiles, TileBag tileBag) {
 
-        // Check if the player has the necessary tiles to place the word
-        if (!helpers.canPlaceWord(word, playerTiles)) {
-            System.out.println("You don't have the necessary tiles to place this word.");
+        if (!helpers.canPlaceWord(word, row, col, direction, board, playerTiles)) {
+            System.out.println("You don't have the tiles to place this word.");
+            return -1;
+        }
+
+        // Proceed with actual placement if validation passed
+        if (!helpers.validateWordPlacement(row, col, word, direction, board)) {
+            System.out.println("Invalid word placement due to adjacent word violations.");
             return -1;
         }
 

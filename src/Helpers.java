@@ -81,24 +81,45 @@ public class Helpers {
         return false;
     }
 
-    /**
-     * Checks if the player has the necessary tiles to place the word.
-     *
-     * @param word the word the player wants to place.
-     * @param playerTiles the list of tiles the player currently holds.
-     * @return true if the player has the necessary tiles, false otherwise.
-     */
-    public boolean canPlaceWord(String word, List<Character> playerTiles) {
+    public boolean canPlaceWord(String word, int row, int col, char direction, char[][] board, List<Character> playerTiles) {
         List<Character> tempTiles = new ArrayList<>(playerTiles);
-        for (char c : word.toCharArray()) {
-            if (tempTiles.contains(c)) {
-                tempTiles.remove((Character) c); // Remove the tile if the player has it
+
+        for (int i = 0; i < word.length(); i++) {
+            int currentRow = row;
+            int currentCol = col;
+
+            // Adjust position based on the direction
+            if (direction == 'H') {
+                currentCol += i;
+            } else if (direction == 'V') {
+                currentRow += i;
+            }
+
+            char boardChar = board[currentRow][currentCol];
+            char wordChar = word.charAt(i);
+
+            // If the board already has the letter we need, skip it (we don't need it in the inventory)
+            if (boardChar == wordChar) {
+                continue;
+            }
+
+            // If the position is empty, we need to use a tile from the player's inventory
+            if (boardChar == '.') {
+                if (tempTiles.contains(wordChar)) {
+                    tempTiles.remove((Character) wordChar); // Use the tile from player's tiles
+                } else {
+                    return false; // Player does not have the necessary tile
+                }
             } else {
-                return false; // Player doesn't have the necessary tiles
+                // Conflict with an existing letter on the board that doesn't match
+                return false;
             }
         }
-        return true;
+
+        return true; // All tiles needed are either on the board or available to the player
     }
+
+
 
     /**
      * Updates the player's tiles after they successfully place a word.
@@ -168,4 +189,108 @@ public class Helpers {
 
         System.out.println("Players in the game: " + playerNames);
     }
+
+    private String buildFullHorizontalWord(int row, int col, char[][] board) {
+        StringBuilder word = new StringBuilder();
+
+        // Move left
+        int currentCol = col;
+        while (currentCol >= 0 && board[row][currentCol] != '.') {
+            word.insert(0, board[row][currentCol]);
+            currentCol--;
+        }
+
+        // Move right
+        currentCol = col + 1;
+        while (currentCol < board[row].length && board[row][currentCol] != '.') {
+            word.append(board[row][currentCol]);
+            currentCol++;
+        }
+
+        return word.toString();
+    }
+
+    private String buildFullVerticalWord(int row, int col, char[][] board) {
+        StringBuilder word = new StringBuilder();
+
+        // Move up
+        int currentRow = row;
+        while (currentRow >= 0 && board[currentRow][col] != '.') {
+            word.insert(0, board[currentRow][col]);
+            currentRow--;
+        }
+
+        // Move down
+        currentRow = row + 1;
+        while (currentRow < board.length && board[currentRow][col] != '.') {
+            word.append(board[currentRow][col]);
+            currentRow++;
+        }
+
+        return word.toString();
+    }
+
+    public boolean validateAllWordsOnBoard(char[][] board) {
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                // Check for horizontal words starting at each position
+                if (col == 0 || board[row][col - 1] == '.') {
+                    String horizontalWord = buildFullHorizontalWord(row, col, board);
+                    if (horizontalWord.length() > 1 && !WordValidity.isWordValid(horizontalWord)) {
+                        System.out.println("Invalid horizontal word: " + horizontalWord);
+                        return false;
+                    }
+                }
+
+                // Check for vertical words starting at each position
+                if (row == 0 || board[row - 1][col] == '.') {
+                    String verticalWord = buildFullVerticalWord(row, col, board);
+                    if (verticalWord.length() > 1 && !WordValidity.isWordValid(verticalWord)) {
+                        System.out.println("Invalid vertical word: " + verticalWord);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public boolean validateWordPlacement(int row, int col, String word, char direction, char[][] board) {
+        // Create a temporary board as a copy of the original
+        char[][] tempBoard = copyBoard(board);
+
+        // Place the word on the temporary board
+        for (int i = 0; i < word.length(); i++) {
+            int currentRow = row;
+            int currentCol = col;
+
+            if (direction == 'H') {
+                currentCol += i;
+            } else if (direction == 'V') {
+                currentRow += i;
+            }
+
+            // If the tile is already occupied, it must match the existing letter
+            if (tempBoard[currentRow][currentCol] != '.' && tempBoard[currentRow][currentCol] != word.charAt(i)) {
+                System.out.println("Invalid move: existing tile doesn't match the letter.");
+                return false; // Reject if the existing tile doesn't match
+            }
+
+            // Place the letter temporarily if it's either empty or already matches
+            tempBoard[currentRow][currentCol] = word.charAt(i);
+        }
+
+        // Validate all affected words on the temporary board
+        return validateAllWordsOnBoard(tempBoard);
+    }
+
+
+    private char[][] copyBoard(char[][] board) {
+        char[][] tempBoard = new char[board.length][board[0].length];
+        for (int i = 0; i < board.length; i++) {
+            System.arraycopy(board[i], 0, tempBoard[i], 0, board[0].length);
+        }
+        return tempBoard;
+    }
+
 }

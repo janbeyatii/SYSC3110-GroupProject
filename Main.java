@@ -40,6 +40,14 @@ public class Main {
         List<List<Character>> playerTiles = new ArrayList<>();
         TileBag tileBag = new TileBag();
 
+        // Initialize the board
+        char[][] board = new char[15][15];
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                board[i][j] = '.'; // Empty tile
+            }
+        }
+
         // Player setup
         Helpers.setupPlayers(scanner, playerNames, playerTiles, tileBag);
 
@@ -86,7 +94,7 @@ public class Main {
             char direction = inputs[3].charAt(0);
 
             // Check if the current player has the necessary tiles to place the word
-            if (!helpers.canPlaceWord(word, currentPlayerTiles)) {
+            if (!helpers.canPlaceWord(word, row, col, direction, board, currentPlayerTiles)) {
                 System.out.println("You don't have the tiles to place this word.");
                 continue;
             }
