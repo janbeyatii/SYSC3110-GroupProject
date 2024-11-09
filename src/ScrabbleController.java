@@ -4,9 +4,12 @@ package src;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ScrabbleController {
+
     static int playercount = Integer.parseInt(JOptionPane.showInputDialog("Number of players (2-4): "));
     static ArrayList<String> playerNames = new ArrayList<>();
     private static boolean firstMove = true;
@@ -14,6 +17,14 @@ public class ScrabbleController {
     private static final int MIDDLE_POSITION = BOARD_SIZE / 2;
     private static String selectedCharacter = null;
     private static JButton selectedButton = null;
+    private static TileBag tileBag = new TileBag();
+    private static ArrayList<Character> playerTiles;
+
+    public static ArrayList<Character> getPlayerTiles() {
+
+        playerTiles = new ArrayList<>(tileBag.drawTiles(7));
+        return playerTiles;
+    }
 
     public static int getPlayercount() {
         if (playercount > 4 || playercount < 2) {
