@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-
 public class ScrabbleView extends JFrame {
     private JPanel boardPanel;
     private JButton[][] boardButtons;
@@ -47,23 +46,10 @@ public class ScrabbleView extends JFrame {
                         JButton boardTile = (JButton) e.getSource();
                         String selectedCharacter = ScrabbleController.getSelectedCharacter();
 
+                        // Don't check for valid move on individual button click
                         if (selectedCharacter != null && boardTile.getText().isEmpty()) {
-                            if (ScrabbleController.isFirstMove()) {
-                                if (ScrabbleController.isCenterPosition(row, col)) {
-                                    boardTile.setText(selectedCharacter);
-                                    ScrabbleController.clearSelectedCharacter();
-                                    ScrabbleController.setFirstMoveDone();
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "The first letter must be placed in the center (8,8)!");
-                                }
-                            } else {
-                                if (ScrabbleController.isAdjacentToLetter(boardButtons, row, col)) {
-                                    boardTile.setText(selectedCharacter);
-                                    ScrabbleController.clearSelectedCharacter();
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Letters must be placed next to existing letters.");
-                                }
-                            }
+                            boardTile.setText(selectedCharacter);
+                            ScrabbleController.clearSelectedCharacter();
                         }
                     }
                 });
@@ -73,7 +59,6 @@ public class ScrabbleView extends JFrame {
                 boardPanel.add(boardButtons[i][j], gbc);
             }
         }
-
 
         // Control panel for player scores and buttons
         controlPanel = new JPanel(new GridBagLayout());
@@ -139,17 +124,43 @@ public class ScrabbleView extends JFrame {
         add(boardPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.EAST);
         add(tilePanel, BorderLayout.SOUTH);
+
+        // Action listener for Submit button
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Now, check if the move is valid only when submit is clicked
+                for (int i = 0; i < boardSize; i++) {
+                    for (int j = 0; j < boardSize; j++) {
+                        JButton boardTile = boardButtons[i][j];
+                        if (!boardTile.getText().isEmpty()) {
+                            String selectedCharacter = ScrabbleController.getSelectedCharacter();
+
+                            // First move check
+                            if (ScrabbleController.isFirstMove() && !ScrabbleController.isCenterPosition(i, j)) {
+                                JOptionPane.showMessageDialog(null, "The first letter must be placed in the center (8,8)!");
+                                return; // exit early if the move is invalid
+                            }
+
+                            // Adjacent letter check
+                            if (!ScrabbleController.isFirstMove() && !ScrabbleController.isAdjacentToLetter(boardButtons, i, j)) {
+                                JOptionPane.showMessageDialog(null, "Letters must be placed next to existing letters.");
+                                return; // exit early if the move is invalid
+                            }
+
+                            ScrabbleController.clearSelectedCharacter();
+                            ScrabbleController.setFirstMoveDone();
+                        }
+                    }
+                }
+            }
+        });
+
         setVisible(true);
     }
 
     public static void main(String[] args) {
         ArrayList<Character> playerTiles = ScrabbleController.getPlayerTiles();
-       /* player1tiles.add('A');
-        player1tiles.add('B');
-        player1tiles.add('C');
-        player1tiles.add('D');
-        player1tiles.add('E');*/
-
         new ScrabbleView(15, playerTiles);
     }
 }

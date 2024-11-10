@@ -1,6 +1,4 @@
 package src;
-
-import java.util.List;
 import java.util.ArrayList;
 import javax.swing.*;
 
@@ -17,7 +15,6 @@ public class ScrabbleController {
     public static ArrayList<Character> playerTiles;
 
     public static ArrayList<Character> getPlayerTiles() {
-
         playerTiles = new ArrayList<>(tileBag.drawTiles(7));
         return playerTiles;
     }
@@ -30,6 +27,7 @@ public class ScrabbleController {
         }
         return playercount;
     }
+
     public static ArrayList<String> getPlayerNames() {
         String player = JOptionPane.showInputDialog("Player Name: ");
         playerNames.add(player);
@@ -84,5 +82,4 @@ public class ScrabbleController {
         selectedCharacter = null;
         selectedButton = null;
     }
-
 }
