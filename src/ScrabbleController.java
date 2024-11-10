@@ -1,6 +1,7 @@
 package src;
 import java.util.ArrayList;
 import javax.swing.*;
+import java.awt.Point;
 
 public class ScrabbleController {
 
@@ -82,4 +83,27 @@ public class ScrabbleController {
         selectedCharacter = null;
         selectedButton = null;
     }
+    public static boolean areTilesInStraightLine(ArrayList<Point> placedTiles) {
+        if (placedTiles.isEmpty()) {
+            return false;
+        }
+
+        boolean isSameRow = true;
+        boolean isSameColumn = true;
+
+        int firstRow = placedTiles.get(0).x;
+        int firstCol = placedTiles.get(0).y;
+
+        for (Point tile : placedTiles) {
+            if (tile.x != firstRow) {
+                isSameRow = false;
+            }
+            if (tile.y != firstCol) {
+                isSameColumn = false;
+            }
+        }
+
+        return isSameRow || isSameColumn;  // Return true if all tiles are in the same row or column
+    }
+
 }

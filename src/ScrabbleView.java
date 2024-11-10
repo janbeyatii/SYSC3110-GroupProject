@@ -125,10 +125,26 @@ public class ScrabbleView extends JFrame {
         add(controlPanel, BorderLayout.EAST);
         add(tilePanel, BorderLayout.SOUTH);
 
-        // Action listener for Submit button
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                ArrayList<Point> placedTiles = new ArrayList<>();
+
+                // Collect the positions of all placed letters
+                for (int i = 0; i < boardSize; i++) {
+                    for (int j = 0; j < boardSize; j++) {
+                        JButton boardTile = boardButtons[i][j];
+                        if (!boardTile.getText().isEmpty()) {
+                            placedTiles.add(new Point(i, j));  // Store the coordinates of the placed tile
+                        }
+                    }
+                }
+
+                if (placedTiles.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "No letters have been placed.");
+                    return;
+                }
+
                 // Now, check if the move is valid only when submit is clicked
                 for (int i = 0; i < boardSize; i++) {
                     for (int j = 0; j < boardSize; j++) {
@@ -136,16 +152,22 @@ public class ScrabbleView extends JFrame {
                         if (!boardTile.getText().isEmpty()) {
                             String selectedCharacter = ScrabbleController.getSelectedCharacter();
 
+                            // Adjacent letter check
+                            if (!ScrabbleController.isFirstMove() && !ScrabbleController.isAdjacentToLetter(boardButtons, i, j)) {
+                                JOptionPane.showMessageDialog(null, "Letters must be placed next to existing letters.");
+                                return; // exit early if the move is invalid
+                            }
+
                             // First move check
                             if (ScrabbleController.isFirstMove() && !ScrabbleController.isCenterPosition(i, j)) {
                                 JOptionPane.showMessageDialog(null, "The first letter must be placed in the center (8,8)!");
                                 return; // exit early if the move is invalid
                             }
 
-                            // Adjacent letter check
-                            if (!ScrabbleController.isFirstMove() && !ScrabbleController.isAdjacentToLetter(boardButtons, i, j)) {
-                                JOptionPane.showMessageDialog(null, "Letters must be placed next to existing letters.");
-                                return; // exit early if the move is invalid
+                            // Call the controller method to check if the placed tiles are in a straight line
+                            if (!ScrabbleController.areTilesInStraightLine(placedTiles)) {
+                                JOptionPane.showMessageDialog(null, "The letters must be placed in a straight line: either horizontally or vertically.");
+                                return;  // Exit early if the move is invalid
                             }
 
                             ScrabbleController.clearSelectedCharacter();
