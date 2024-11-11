@@ -26,7 +26,7 @@ public class Main {
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            String wordListFilePath = "wordLists/wordlist.txt";  // Update this path if needed
+            String wordListFilePath = "wordLists/wordlist.txt";
             WordValidity.loadWordsFromFile(wordListFilePath);
 
             ScrabbleController.initializeGameSettings();

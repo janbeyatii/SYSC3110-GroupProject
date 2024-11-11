@@ -1,9 +1,14 @@
 package src;
+
+import GUI.ScrabbleController;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
+
+import static GUI.ScrabbleController.*;
 
 /**
  * The TileBag class represents the collection of tiles used in a Scrabble game.
@@ -32,11 +37,10 @@ public class TileBag {
         tileCounts.put('F', 2); tileCounts.put('H', 2); tileCounts.put('V', 2); tileCounts.put('W', 2);
         tileCounts.put('Y', 2); tileCounts.put('K', 1); tileCounts.put('J', 1); tileCounts.put('X', 1);
         tileCounts.put('Q', 1); tileCounts.put('Z', 1);
-        //tileCounts.put(' ', 2); Blank tiles can be added for later milestones.
     }
 
     /**
-     * Draws a specified number of random tiles from the bag.
+     * Draws a specified number of random tiles from the bag for a player.
      * Each tile is chosen randomly, and the tile counts are updated to reflect the tiles drawn.
      *
      * @param numTiles the number of tiles to draw.
@@ -92,14 +96,18 @@ public class TileBag {
         totalTiles--;
     }
 
-    /**
-     * Refills a player's tiles by drawing new tiles from the bag until they have 7 tiles.
-     *
-     * @param playerTiles a list of the player's current tiles.
-     * @param usedTiles the number of tiles used in the last move.
-     */
-    public void refillTiles(List<Character> playerTiles, int usedTiles) {
+    public static void removeUsedTiles(String word) {
+        String currentPlayer = getCurrentPlayerName();
+        List<Character> playerTiles = ScrabbleController.getPlayerTilesMap().get(currentPlayer);
+
+        for (char c : word.toCharArray()) {
+            playerTiles.remove((Character) c); // Remove each used tile
+        }
+
+        // Refill tiles to ensure the player has 7
         int tilesNeeded = 7 - playerTiles.size();
-        playerTiles.addAll(drawTiles(tilesNeeded));
+        playerTiles.addAll(tileBag.drawTiles(tilesNeeded));
     }
+
+
 }

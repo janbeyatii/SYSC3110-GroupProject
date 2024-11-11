@@ -5,6 +5,7 @@ import src.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ScrabbleView extends JFrame {
     private JPanel boardPanel;
@@ -21,7 +22,7 @@ public class ScrabbleView extends JFrame {
     private ArrayList<JButton> placedButtons = new ArrayList<>(); // Track placed buttons
 
     public ScrabbleView(int boardSize, ArrayList<Character> tileCharacters) {
-        setTitle("Scrabble Game");
+        setTitle("SYSC3110 Group20 Scrabble Game");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -43,6 +44,11 @@ public class ScrabbleView extends JFrame {
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
                 boardButtons[i][j] = new JButton();
+
+                // Set the row and column properties
+                boardButtons[i][j].putClientProperty("row", i);
+                boardButtons[i][j].putClientProperty("col", j);
+
                 boardButtons[i][j].setPreferredSize(buttonSize);
                 boardButtons[i][j].setMinimumSize(buttonSize);
                 boardButtons[i][j].setMaximumSize(buttonSize);
@@ -60,12 +66,14 @@ public class ScrabbleView extends JFrame {
 
                 final int row = i;
                 final int col = j;
-                boardButtons[i][j].addActionListener(e -> placeLetterOnBoard(row, col));
+                boardButtons[i][j].addActionListener(e -> Helpers.placeLetterOnBoard(row, col, boardButtons, placedButtons));
+
                 gbc.gridx = j;
                 gbc.gridy = i;
                 boardPanel.add(boardButtons[i][j], gbc);
             }
         }
+
 
         // Initialize control panel
         controlPanel = new JPanel(new GridBagLayout());
@@ -105,19 +113,25 @@ public class ScrabbleView extends JFrame {
         // Control buttons
         passButton = new JButton("Pass");
         passButton.setFont(new Font("Arial", Font.PLAIN, 14)); // Font for control buttons
-        passButton.addActionListener(e -> passTurn());
+        passButton.addActionListener(e -> {
+            Helpers.passTurn(placedButtons, playerTileButtons, turnLabel);
+            updatePlayerTiles(); // Refresh the tiles for the next player after passing the turn
+        });
         controlGbc.gridy = 3;
         controlPanel.add(passButton, controlGbc);
 
         clearButton = new JButton("Clear");
         clearButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        clearButton.addActionListener(e -> clearPlacedLetters());
+        clearButton.addActionListener(_ -> Helpers.clearPlacedLetters(placedButtons, playerTileButtons));
         controlGbc.gridy = 4;
         controlPanel.add(clearButton, controlGbc);
 
         submitButton = new JButton("Submit");
         submitButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        submitButton.addActionListener(e -> submitWord());
+        submitButton.addActionListener(_ -> {
+            Helpers.submitWord(this, wordHistoryArea, turnLabel, placedButtons, playerScoresLabels, playerTileButtons);
+            updatePlayerTiles(); // Refresh the tiles for the current player after submitting a word
+        });
         controlGbc.gridy = 5;
         controlPanel.add(submitButton, controlGbc);
 
@@ -134,7 +148,7 @@ public class ScrabbleView extends JFrame {
             playerTileButtons[i].setFont(new Font("Arial", Font.BOLD, 18)); // Bold font for player tiles
             playerTileButtons[i].setPreferredSize(new Dimension(40, 40)); // Fixed size for tile buttons
             int index = i;
-            playerTileButtons[i].addActionListener(e -> selectLetterFromTiles(index));
+            playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
             tileGbc.gridx = i;
             tilePanel.add(playerTileButtons[i], tileGbc);
         }
@@ -146,77 +160,34 @@ public class ScrabbleView extends JFrame {
         setVisible(true);
     }
 
-    private void selectLetterFromTiles(int index) {
-        selectedLetter = playerTileButtons[index].getText();
-        playerTileButtons[index].setEnabled(false);  // Disable the tile to show it's in use
-    }
-
-    private void placeLetterOnBoard(int row, int col) {
-        if (selectedLetter != null && boardButtons[row][col].getText().isEmpty()) {
-            boardButtons[row][col].setText(selectedLetter);
-            placedButtons.add(boardButtons[row][col]);  // Track the button for clearing
-            selectedLetter = null;
-        } else {
-            JOptionPane.showMessageDialog(this, "Select a letter first or choose an empty tile.");
+    public void updatePlayerTiles() {
+        List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
+        if (currentPlayerTiles == null) {
+            currentPlayerTiles = new ArrayList<>();
+        }
+        for (int i = 0; i < playerTileButtons.length; i++) {
+            if (i < currentPlayerTiles.size()) {
+                playerTileButtons[i].setText(String.valueOf(currentPlayerTiles.get(i)));
+                playerTileButtons[i].setEnabled(true); // Enable buttons that have tiles
+            } else {
+                playerTileButtons[i].setText(""); // Clear buttons without tiles
+                playerTileButtons[i].setEnabled(false);
+            }
         }
     }
 
-    private void submitWord() {
-        StringBuilder wordBuilder = new StringBuilder();
-        for (JButton button : placedButtons) {
-            wordBuilder.append(button.getText());
-        }
-        String word = wordBuilder.toString();
-
-        if (WordValidity.isWordValid(word)) {
-            // Use ScoreCalculation to calculate the score based on placed letters
-            ScoreCalculation scoreCalculation = new ScoreCalculation(word, placedButtons);
-            int score = scoreCalculation.getTotalScore();  // Calculate score using letter values
-
-            // Update current player's score
-            ScrabbleController.addScoreToCurrentPlayer(score);
-            updateScores();
-
-            // Add word to the history
-            String playerName = ScrabbleController.getCurrentPlayerName();
-            wordHistoryArea.append(playerName + ": " + word + " (" + score + " points)\n");
-
-            // Switch to the next player
-            ScrabbleController.switchToNextPlayer();
-            turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
-        } else {
-            JOptionPane.showMessageDialog(this, "Invalid word. Try again.");
-        }
-
-        clearPlacedLetters();
-    }
-
-    private void passTurn() {
-        clearPlacedLetters();  // Ensure no letters remain on the board
-        ScrabbleController.switchToNextPlayer();
-        turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
-    }
-
-    private void clearPlacedLetters() {
-        // Clear the letters placed on the board during this turn
-        for (JButton button : placedButtons) {
-            button.setText("");
-        }
-        placedButtons.clear();
-
-        // Re-enable the player's tile buttons
-        resetTileButtons();
-    }
-
-    private void resetTileButtons() {
-        for (JButton button : playerTileButtons) {
-            button.setEnabled(true);
-        }
-    }
-
-    private void updateScores() {
-        for (int i = 0; i < ScrabbleController.getPlayercount(); i++) {
-            playerScoresLabels[i].setText(ScrabbleController.getPlayerNames().get(i) + " Score: " + ScrabbleController.getPlayerScore(i));
+    public void updateBoardDisplay() {
+        for (int row = 0; row < boardButtons.length; row++) {
+            for (int col = 0; col < boardButtons[row].length; col++) {
+                char letter = ScrabbleController.board[row][col];
+                if (letter != '\0') {
+                    // Set the button's text to the letter from the board array if it exists
+                    boardButtons[row][col].setText(String.valueOf(letter));
+                } else {
+                    // Clear the button's text if there's no letter in that position
+                    boardButtons[row][col].setText("");
+                }
+            }
         }
     }
 }
