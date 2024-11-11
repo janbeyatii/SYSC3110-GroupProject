@@ -34,10 +34,8 @@ public class Helpers {
 
             // Reset selected letter and previously selected button
             selectedLetter = null;
-            if (previouslySelectedButton != null) {
-                previouslySelectedButton.setEnabled(true);
-                previouslySelectedButton = null;
-            }
+            previouslySelectedButton = null;
+
         } else {
             JOptionPane.showMessageDialog(null, "Select a letter first or choose an empty tile.");
         }
@@ -112,7 +110,10 @@ public class Helpers {
                     // Confirm placement on the board
                     confirmedButtons.addAll(placedButtons);
                     placedButtons.clear();  // Clear the temporary list for the next turn
-
+                    if (WordPlacementLogic.isPlacementValid(startRow, startCol, word, isHorizontal, view)) {
+                        // Only clear placed letters if the submission is invalid
+                        clearPlacedLetters(placedButtons, playerTileButtons);
+                    }
                     view.updateBoardDisplay();
                     view.updatePlayerTiles();
                 } else {
@@ -149,7 +150,9 @@ public class Helpers {
         placedButtons.clear();
 
         for (JButton tileButton : playerTileButtons) {
-            tileButton.setEnabled(true);
+            if (tileButton.getText() != null && !tileButton.getText().isEmpty()) {
+                tileButton.setEnabled(true);
+            }
         }
     }
 
