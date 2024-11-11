@@ -20,6 +20,7 @@ public class ScrabbleController {
     public static TileBag tileBag = new TileBag();
     public static ArrayList<Character> playerTiles;
     public static char[][] board = new char[15][15];
+    private ScrabbleView view; // Reference to the GUI
 
     public static void initializeGameSettings() {
         // Check if already initialized
@@ -34,6 +35,10 @@ public class ScrabbleController {
             }
             isInitialized = true;  // Set flag to prevent reinitialization
         }
+    }
+
+    public ScrabbleController(ScrabbleView view) {
+        this.view = view;
     }
 
     public static ArrayList<Character> getPlayerTiles() {

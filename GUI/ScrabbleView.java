@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ScrabbleView extends JFrame {
     private JPanel boardPanel;
-    private JButton[][] boardButtons;
+    public JButton[][] boardButtons;
     private JPanel controlPanel;
     private JLabel[] playerScoresLabels;
     private JLabel turnLabel;
@@ -18,7 +18,6 @@ public class ScrabbleView extends JFrame {
     private JButton[] playerTileButtons;
     private JTextArea wordHistoryArea;  // New JTextArea for word history
 
-    private String selectedLetter = null;  // Track selected letter
     private ArrayList<JButton> placedButtons = new ArrayList<>(); // Track placed buttons
 
     public ScrabbleView(int boardSize, ArrayList<Character> tileCharacters) {
