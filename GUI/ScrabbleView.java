@@ -11,12 +11,12 @@ public class ScrabbleView extends JFrame {
     private JPanel boardPanel;
     public JButton[][] boardButtons;
     private JPanel controlPanel;
-    private JLabel[] playerScoresLabels;
-    private JLabel turnLabel;
+    public JLabel[] playerScoresLabels;
+    public JLabel turnLabel;
     private JButton passButton, clearButton, submitButton;
     private JPanel tilePanel;
-    private JButton[] playerTileButtons;
-    private JTextArea wordHistoryArea;  // New JTextArea for word history
+    public JButton[] playerTileButtons;
+    public JTextArea wordHistoryArea;  // New JTextArea for word history
 
     private ArrayList<JButton> placedButtons = new ArrayList<>(); // Track placed buttons
 
@@ -121,13 +121,13 @@ public class ScrabbleView extends JFrame {
 
         clearButton = new JButton("Clear");
         clearButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        clearButton.addActionListener(_ -> Helpers.clearPlacedLetters(placedButtons, playerTileButtons));
+        clearButton.addActionListener(e -> Helpers.clearPlacedLetters(placedButtons, playerTileButtons));
         controlGbc.gridy = 4;
         controlPanel.add(clearButton, controlGbc);
 
         submitButton = new JButton("Submit");
         submitButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        submitButton.addActionListener(_ -> {
+        submitButton.addActionListener(e -> {
             Helpers.submitWord(this, wordHistoryArea, turnLabel, placedButtons, playerScoresLabels, playerTileButtons);
             updatePlayerTiles(); // Refresh the tiles for the current player after submitting a word
         });
