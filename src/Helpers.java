@@ -48,13 +48,12 @@ public class Helpers {
         int startCol = -1;
         boolean isHorizontal = true;
 
-        // Build the word from placed buttons and determine orientation
+        // Build the main word from placed buttons and determine orientation
         for (int i = 0; i < placedButtons.size(); i++) {
             JButton button = placedButtons.get(i);
             int row = (Integer) button.getClientProperty("row");
             int col = (Integer) button.getClientProperty("col");
 
-            // Set the starting position for the word
             if (i == 0) {
                 startRow = row;
                 startCol = col;
@@ -66,7 +65,6 @@ public class Helpers {
         }
         String word = wordBuilder.toString();
 
-        // Prepare a list of coordinates for each placed tile
         List<int[]> placedTiles = new ArrayList<>();
         for (int i = 0; i < word.length(); i++) {
             int row = startRow + (isHorizontal ? 0 : i);
@@ -74,44 +72,38 @@ public class Helpers {
             placedTiles.add(new int[]{row, col});
         }
 
-        // Step 1: Validate the entire placement
         if (WordPlacementLogic.isPlacementValid(startRow, startCol, word, isHorizontal, view)) {
-            // Step 2: Check if all words formed are valid
             if (WordPlacementLogic.validateNewWords(placedTiles, view)) {
-                // Main word validation
                 if (WordValidity.isWordValid(word)) {
-                    // Calculate score for the main word
-                    ScoreCalculation scoreCalculation = new ScoreCalculation(word, placedButtons);
-                    int score = scoreCalculation.getTotalScore();
+                    int totalScore = 0;
 
-                    // Add score to current player
-                    ScrabbleController.addScoreToCurrentPlayer(score);
-                    updateScores(playerScoresLabels);
-
-                    // Record the word in history
+                    // Calculate and add the score for the main word
+                    ScoreCalculation mainWordScore = new ScoreCalculation(word, placedButtons);
+                    totalScore += mainWordScore.getTotalScore();
                     String playerName = ScrabbleController.getCurrentPlayerName();
-                    wordHistoryArea.append(playerName + ": " + word + " (" + score + " points)\n");
+                    wordHistoryArea.append(playerName + ": " + word + " (" + mainWordScore.getTotalScore() + " points)\n");
 
-                    // Step 3: Check for additional words formed by this placement
+                    // Calculate and add scores for additional words formed
                     List<String> newWords = WordPlacementLogic.checkNewWords(placedTiles, view);
                     for (String newWord : newWords) {
-                        if (!newWord.equals(word) && WordValidity.isWordValid(newWord)) {  // Only display if newWord is distinct
-                            int newWordScore = new ScoreCalculation(newWord, placedButtons).getTotalScore();
-                            ScrabbleController.addScoreToCurrentPlayer(newWordScore);
-                            wordHistoryArea.append(playerName + ": " + newWord + " (" + newWordScore + " points)\n");
+                        if (!newWord.equals(word) && WordValidity.isWordValid(newWord)) {
+                            ScoreCalculation newWordScore = new ScoreCalculation(newWord, placedButtons);
+                            totalScore += newWordScore.getTotalScore();
+                            wordHistoryArea.append(playerName + ": " + newWord + " (" + newWordScore.getTotalScore() + " points)\n");
                         }
                     }
 
-                    // Remove used tiles from the player’s set and refill
+                    // Add total score to the player's score
+                    ScrabbleController.addScoreToCurrentPlayer(totalScore);
+                    updateScores(playerScoresLabels);
+
                     TileBag.removeUsedTiles(word);
                     ScrabbleController.switchToNextPlayer();
                     turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
 
-                    // Confirm placement on the board
                     confirmedButtons.addAll(placedButtons);
-                    placedButtons.clear();  // Clear the temporary list for the next turn
+                    placedButtons.clear();
                     if (WordPlacementLogic.isPlacementValid(startRow, startCol, word, isHorizontal, view)) {
-                        // Only clear placed letters if the submission is invalid
                         clearPlacedLetters(placedButtons, playerTileButtons);
                     }
                     view.updateBoardDisplay();
@@ -126,11 +118,8 @@ public class Helpers {
             JOptionPane.showMessageDialog(null, "Invalid placement. Please follow Scrabble rules.");
         }
 
-        // Clear placed letters in case of invalid move or at the end of submission
         clearPlacedLetters(placedButtons, playerTileButtons);
     }
-
-
 
     public static void passTurn(ArrayList<JButton> placedButtons, JButton[] playerTileButtons, JLabel turnLabel) {
         clearPlacedLetters(placedButtons, playerTileButtons);
@@ -155,7 +144,6 @@ public class Helpers {
             }
         }
     }
-
 
     public static void updateScores(JLabel[] playerScoresLabels) {
         for (int i = 0; i < ScrabbleController.getPlayercount(); i++) {
