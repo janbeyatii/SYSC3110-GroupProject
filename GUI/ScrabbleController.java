@@ -20,6 +20,7 @@ public class ScrabbleController {
     public static TileBag tileBag = new TileBag();
     public static ArrayList<Character> playerTiles;
     public static char[][] board = new char[15][15];
+    private static List<Point> placedTileCoordinates = new ArrayList<>();
     private ScrabbleView view; // Reference to the GUI
 
     public static void initializeGameSettings() {
@@ -46,6 +47,19 @@ public class ScrabbleController {
         return playerTiles;
     }
 
+    // Method to add the coordinates of placed tiles
+    public static void addPlacedTiles(List<JButton> placedButtons) {
+        for (JButton button : placedButtons) {
+            int row = (Integer) button.getClientProperty("row");
+            int col = (Integer) button.getClientProperty("col");
+            placedTileCoordinates.add(new Point(row, col));
+        }
+    }
+
+    // Method to get the list of placed tiles
+    public static List<Point> getPlacedTileCoordinates() {
+        return placedTileCoordinates;
+    }
     public static int getPlayercount() {
         // If playercount is already set, return it without prompting
         if (playercount != 0) {

@@ -73,7 +73,6 @@ public class ScrabbleView extends JFrame {
             }
         }
 
-
         // Initialize control panel
         controlPanel = new JPanel(new GridBagLayout());
         GridBagConstraints controlGbc = new GridBagConstraints();
