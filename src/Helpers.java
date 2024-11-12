@@ -60,132 +60,173 @@ public class Helpers {
         }
     }
 
-
-
     public static void submitWord(ScrabbleView view, JTextArea wordHistoryArea, JLabel turnLabel, ArrayList<JButton> placedButtons, JLabel[] playerScoresLabels, JButton[] playerTileButtons) {
-        StringBuilder wordBuilder = new StringBuilder();
-        int startRow = -1;
-        int startCol = -1;
-        boolean isHorizontal = true;
+        List<String> allWordsFormed = new ArrayList<>();
+        boolean isFirstTurn = ScrabbleController.getPlayerScore(0) == 0; // Detect if it's the first turn
+        boolean allWordsValid = true;
 
-        // Build the word from placed buttons and determine orientation
-        for (int i = 0; i < placedButtons.size(); i++) {
-            JButton button = placedButtons.get(i);
-            int row = (Integer) button.getClientProperty("row");
-            int col = (Integer) button.getClientProperty("col");
+        // Sort the placed buttons based on row and column to help detect alignment and gaps
+        placedButtons.sort((button1, button2) -> {
+            int row1 = (Integer) button1.getClientProperty("row");
+            int col1 = (Integer) button1.getClientProperty("col");
+            int row2 = (Integer) button2.getClientProperty("row");
+            int col2 = (Integer) button2.getClientProperty("col");
 
-            if (i == 0) {
-                startRow = row;
-                startCol = col;
-            } else if (row != startRow) {
-                isHorizontal = false;
+            // Sort by row first, then by column
+            if (row1 == row2) {
+                return Integer.compare(col1, col2);
             }
+            return Integer.compare(row1, row2);
+        });
 
-            wordBuilder.append(button.getText());
-        }
-        String word = wordBuilder.toString();
+        // Get the main word by detecting alignment and including gaps (including newly placed letters)
+        String mainWord = getFullWordFromBoardIncludingNewLetters(placedButtons);
 
-        // Validate adjacency for all placed tiles, including already placed tiles (e.g., "E" from previous turn)
-        System.out.println("Validating adjacency for word: " + word);
+        // First turn logic: Ensure the main word includes the center tile
+        if (isFirstTurn) {
+            int boardCenterRow = ScrabbleController.board.length / 2;
+            int boardCenterCol = ScrabbleController.board[0].length / 2;
+            boolean isCenterTileUsed = placedButtons.stream().anyMatch(button ->
+                    (Integer) button.getClientProperty("row") == boardCenterRow &&
+                            (Integer) button.getClientProperty("col") == boardCenterCol
+            );
 
-        for (int i = 0; i < placedButtons.size(); i++) {
-            JButton button = placedButtons.get(i);
-            int row = (Integer) button.getClientProperty("row");
-            int col = (Integer) button.getClientProperty("col");
-
-            boolean isTileAdjacent = false;
-
-            // Check if the newly placed tile is adjacent to any already placed tiles on the board
-            for (int r = 0; r < ScrabbleController.board.length; r++) {
-                for (int c = 0; c < ScrabbleController.board[r].length; c++) {
-                    if (ScrabbleController.board[r][c] != '\0') {  // Only check non-empty spots (tiles already placed)
-                        if ((row == r - 1 && col == c) || // Above
-                                (row == r + 1 && col == c) || // Below
-                                (row == r && col == c - 1) || // Left
-                                (row == r && col == c + 1)) { // Right
-                            isTileAdjacent = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // If none of the tiles are adjacent to already placed tiles, mark it as invalid
-            if (!isTileAdjacent) {
-                JOptionPane.showMessageDialog(null, "All tiles must be adjacent to each other.");
-                System.out.println("Adjacency check failed.");
-                // Restore the tiles in the player's hand and re-enable them
-                for (JButton tileButton : playerTileButtons) {
-                    tileButton.setEnabled(true);
-                }
-                // Clear placed letters
+            if (!isCenterTileUsed) {
+                JOptionPane.showMessageDialog(null, "The first word must use the center tile.");
                 clearPlacedLetters(placedButtons, playerTileButtons);
-                return;  // Exit early if adjacency is invalid
+                return;
             }
         }
-        System.out.println("Adjacency check passed.");
 
-        List<int[]> placedTiles = new ArrayList<>();
-        for (int i = 0; i < word.length(); i++) {
-            int row = startRow + (isHorizontal ? 0 : i);
-            int col = startCol + (isHorizontal ? i : 0);
-            placedTiles.add(new int[]{row, col});
+        if (mainWord.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "The word must be placed in a single row or column.");
+            clearPlacedLetters(placedButtons, playerTileButtons);
+            return;
         }
+        allWordsFormed.add(mainWord);
 
-        // Validate placement
-        if (WordPlacementLogic.isPlacementValid(startRow, startCol, word, isHorizontal, view)) {
-            // Validate new words formed by the placement
-            if (WordPlacementLogic.validateNewWords(placedTiles, view)) {
-                if (WordValidity.isWordValid(word)) {
-                    int totalScore = 0;
+        // Collect any additional crosswords formed (including new letters)
+        for (JButton button : placedButtons) {
+            int row = (Integer) button.getClientProperty("row");
+            int col = (Integer) button.getClientProperty("col");
 
-                    // Calculate the score for the main word
-                    ScoreCalculation mainWordScore = new ScoreCalculation(word, placedButtons);
-                    totalScore += mainWordScore.getTotalScore();
-                    String playerName = ScrabbleController.getCurrentPlayerName();
-                    wordHistoryArea.append(playerName + ": " + word + " (" + mainWordScore.getTotalScore() + " points)\n");
+            if (!isFirstTurn) {
+                // Collect any crosswords formed by this tile placement (including new letters)
+                String verticalWord = collectWordIncludingNewLetters(row, col, false);
+                String horizontalWord = collectWordIncludingNewLetters(row, col, true);
 
-                    // Calculate scores for additional words formed
-                    List<String> newWords = WordPlacementLogic.checkNewWords(placedTiles, view);
-                    for (String newWord : newWords) {
-                        if (!newWord.equals(word) && WordValidity.isWordValid(newWord)) {
-                            ScoreCalculation newWordScore = new ScoreCalculation(newWord, placedButtons);
-                            totalScore += newWordScore.getTotalScore();
-                            wordHistoryArea.append(playerName + ": " + newWord + " (" + newWordScore.getTotalScore() + " points)\n");
-                        }
-                    }
-
-                    // Add total score to the player's score
-                    ScrabbleController.addScoreToCurrentPlayer(totalScore);
-                    updateScores(playerScoresLabels);
-
-                    // Update the tile bag after a valid word
-                    TileBag.removeUsedTiles(word);
-
-                    // Switch to the next player
-                    ScrabbleController.switchToNextPlayer();
-                    turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
-
-                    placedButtons.clear();
-                    clearPlacedLetters(placedButtons, playerTileButtons);
-                    view.updateBoardDisplay();
-                    view.updatePlayerTiles();
-                } else {
-                    JOptionPane.showMessageDialog(null, "Invalid word. Try again.");
-                    System.out.println("Word is not valid.");
+                if (!verticalWord.isEmpty() && !verticalWord.equals(mainWord)) {
+                    allWordsFormed.add(verticalWord);
                 }
-            } else {
-                JOptionPane.showMessageDialog(null, "Invalid placement. One or more words formed are not valid.");
-                System.out.println("Placement is invalid.");
+                if (!horizontalWord.isEmpty() && !horizontalWord.equals(mainWord)) {
+                    allWordsFormed.add(horizontalWord);
+                }
             }
-        } else {
-            JOptionPane.showMessageDialog(null, "Invalid placement. Please follow Scrabble rules.");
-            System.out.println("Placement is invalid.");
         }
 
-        // Clear placed letters after the word is placed and validated
-        clearPlacedLetters(placedButtons, playerTileButtons);
+        // Validate all words and display each, whether valid or invalid
+        for (String word : allWordsFormed) {
+            if (!WordValidity.isWordValid(word)) {
+                allWordsValid = false;
+                JOptionPane.showMessageDialog(null, "Invalid word formed: " + word);
+                clearPlacedLetters(placedButtons, playerTileButtons);
+                return;
+            }
+        }
+
+        // If valid, calculate score, update board, and add to history
+        if (allWordsValid) {
+            int totalScore = 0;
+            for (String word : allWordsFormed) {
+                ScoreCalculation wordScore = new ScoreCalculation(word, placedButtons);
+                totalScore += wordScore.getTotalScore();
+                String playerName = ScrabbleController.getCurrentPlayerName();
+
+                // Display the word and score in wordHistoryArea
+                wordHistoryArea.append(playerName + ": " + word + " (" + wordScore.getTotalScore() + " points)\n");
+            }
+
+            ScrabbleController.addScoreToCurrentPlayer(totalScore);
+            updateScores(playerScoresLabels);
+
+            TileBag.removeUsedTiles(mainWord);
+            ScrabbleController.switchToNextPlayer();
+            turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
+
+            placedButtons.clear();
+            clearPlacedLetters(placedButtons, playerTileButtons);
+            view.updateBoardDisplay();
+            view.updatePlayerTiles();
+        }
     }
+
+
+
+
+    // Helper function to get the full word, including the newly placed letter
+    private static String getFullWordFromBoardIncludingNewLetters(ArrayList<JButton> placedButtons) {
+        boolean isHorizontal = true; // Assume horizontal placement unless otherwise determined
+        int startRow = (Integer) placedButtons.get(0).getClientProperty("row");
+        int startCol = (Integer) placedButtons.get(0).getClientProperty("col");
+
+        // Determine alignment (horizontal or vertical)
+        for (JButton button : placedButtons) {
+            int row = (Integer) button.getClientProperty("row");
+            int col = (Integer) button.getClientProperty("col");
+            if (row != startRow) {
+                isHorizontal = false;
+                break;
+            }
+        }
+
+        // Collect all letters in the full word along the determined alignment, including the newly placed letter
+        return isHorizontal ? collectWordIncludingNewLetters(startRow, startCol, true) : collectWordIncludingNewLetters(startRow, startCol, false);
+    }
+
+
+    // Helper function to collect a full word in a specified direction, including newly placed letters
+    private static String collectWordIncludingNewLetters(int row, int col, boolean horizontal) {
+        StringBuilder word = new StringBuilder();
+
+        // Move backward to find the start of the word
+        int startRow = row;
+        int startCol = col;
+        while ((horizontal ? startCol : startRow) > 0 && ScrabbleController.board[startRow][startCol] != '\0') {
+            if (horizontal) {
+                startCol--;
+            } else {
+                startRow--;
+            }
+        }
+
+        // Adjust to the first letter of the word
+        if (horizontal && ScrabbleController.board[startRow][startCol] == '\0') startCol++;
+        if (!horizontal && ScrabbleController.board[startRow][startCol] == '\0') startRow++;
+
+        // Move forward to build the word from start to end
+        int r = startRow;
+        int c = startCol;
+        boolean hasMultipleLetters = false; // Flag to confirm it's a multi-letter word
+        while (r < ScrabbleController.board.length && c < ScrabbleController.board[0].length && ScrabbleController.board[r][c] != '\0') {
+            word.append(ScrabbleController.board[r][c]);
+
+            // Check if we have more than one letter for valid word formation
+            if (word.length() > 1) {
+                hasMultipleLetters = true;
+            }
+
+            if (horizontal) {
+                c++;
+            } else {
+                r++;
+            }
+        }
+
+        // Return only if we have a valid word (not a single letter)
+        return hasMultipleLetters ? word.toString() : "";
+    }
+
+
 
 
     public static void passTurn(ArrayList<JButton> placedButtons, JButton[] playerTileButtons, JLabel turnLabel) {
