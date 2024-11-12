@@ -22,24 +22,44 @@ public class Helpers {
     }
 
     public static void placeLetterOnBoard(int row, int col, JButton[][] boardButtons, ArrayList<JButton> placedButtons) {
-        if (selectedLetter != null && !selectedLetter.isEmpty() && boardButtons[row][col].getText().isEmpty()) {
-            // Place the letter on the button in the GUI
+        // Ensure selected letter is valid
+        if (selectedLetter != null && !selectedLetter.isEmpty()) {
+            // Check if the tile is already occupied
+            if (!boardButtons[row][col].getText().isEmpty()) {
+                boolean isTileReplaced = placedButtons.contains(boardButtons[row][col]);
+
+                // If it's occupied and not the same tile, show error
+                if (!isTileReplaced) {
+                    JOptionPane.showMessageDialog(null, "Tile is already occupied. Choose another tile.");
+                    // Re-enable the previously selected button and reset the selection
+                    if (previouslySelectedButton != null) {
+                        previouslySelectedButton.setEnabled(true); // Re-enable the tile
+                    }
+                    selectedLetter = null; // Clear selected letter
+                    previouslySelectedButton = null; // Clear previously selected button
+                    return; // Exit early if tile is occupied
+                }
+            }
+
+            // Place the letter on the board button in the GUI
             boardButtons[row][col].setText(selectedLetter);
 
-            // Store the letter in the underlying board array to keep it persistent
+            // Update the board state (stored in the ScrabbleController)
             ScrabbleController.board[row][col] = selectedLetter.charAt(0);
 
-            // Track the placed button to allow clearing for the current turn
+            // Track placed buttons for clearing on next turn
             placedButtons.add(boardButtons[row][col]);
 
             // Reset selected letter and previously selected button
             selectedLetter = null;
             previouslySelectedButton = null;
 
+            System.out.println("Letter placed: " + selectedLetter + " at position [" + row + "," + col + "]");
         } else {
             JOptionPane.showMessageDialog(null, "Select a letter first or choose an empty tile.");
         }
     }
+
 
 
     public static void submitWord(ScrabbleView view, JTextArea wordHistoryArea, JLabel turnLabel, ArrayList<JButton> placedButtons, JLabel[] playerScoresLabels, JButton[] playerTileButtons) {
@@ -48,7 +68,7 @@ public class Helpers {
         int startCol = -1;
         boolean isHorizontal = true;
 
-        // Build the main word from placed buttons and determine orientation
+        // Build the word from placed buttons and determine orientation
         for (int i = 0; i < placedButtons.size(); i++) {
             JButton button = placedButtons.get(i);
             int row = (Integer) button.getClientProperty("row");
@@ -65,6 +85,46 @@ public class Helpers {
         }
         String word = wordBuilder.toString();
 
+        // Validate adjacency for all placed tiles, including already placed tiles (e.g., "E" from previous turn)
+        System.out.println("Validating adjacency for word: " + word);
+
+        for (int i = 0; i < placedButtons.size(); i++) {
+            JButton button = placedButtons.get(i);
+            int row = (Integer) button.getClientProperty("row");
+            int col = (Integer) button.getClientProperty("col");
+
+            boolean isTileAdjacent = false;
+
+            // Check if the newly placed tile is adjacent to any already placed tiles on the board
+            for (int r = 0; r < ScrabbleController.board.length; r++) {
+                for (int c = 0; c < ScrabbleController.board[r].length; c++) {
+                    if (ScrabbleController.board[r][c] != '\0') {  // Only check non-empty spots (tiles already placed)
+                        if ((row == r - 1 && col == c) || // Above
+                                (row == r + 1 && col == c) || // Below
+                                (row == r && col == c - 1) || // Left
+                                (row == r && col == c + 1)) { // Right
+                            isTileAdjacent = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // If none of the tiles are adjacent to already placed tiles, mark it as invalid
+            if (!isTileAdjacent) {
+                JOptionPane.showMessageDialog(null, "All tiles must be adjacent to each other.");
+                System.out.println("Adjacency check failed.");
+                // Restore the tiles in the player's hand and re-enable them
+                for (JButton tileButton : playerTileButtons) {
+                    tileButton.setEnabled(true);
+                }
+                // Clear placed letters
+                clearPlacedLetters(placedButtons, playerTileButtons);
+                return;  // Exit early if adjacency is invalid
+            }
+        }
+        System.out.println("Adjacency check passed.");
+
         List<int[]> placedTiles = new ArrayList<>();
         for (int i = 0; i < word.length(); i++) {
             int row = startRow + (isHorizontal ? 0 : i);
@@ -72,18 +132,20 @@ public class Helpers {
             placedTiles.add(new int[]{row, col});
         }
 
+        // Validate placement
         if (WordPlacementLogic.isPlacementValid(startRow, startCol, word, isHorizontal, view)) {
+            // Validate new words formed by the placement
             if (WordPlacementLogic.validateNewWords(placedTiles, view)) {
                 if (WordValidity.isWordValid(word)) {
                     int totalScore = 0;
 
-                    // Calculate and add the score for the main word
+                    // Calculate the score for the main word
                     ScoreCalculation mainWordScore = new ScoreCalculation(word, placedButtons);
                     totalScore += mainWordScore.getTotalScore();
                     String playerName = ScrabbleController.getCurrentPlayerName();
                     wordHistoryArea.append(playerName + ": " + word + " (" + mainWordScore.getTotalScore() + " points)\n");
 
-                    // Calculate and add scores for additional words formed
+                    // Calculate scores for additional words formed
                     List<String> newWords = WordPlacementLogic.checkNewWords(placedTiles, view);
                     for (String newWord : newWords) {
                         if (!newWord.equals(word) && WordValidity.isWordValid(newWord)) {
@@ -97,29 +159,34 @@ public class Helpers {
                     ScrabbleController.addScoreToCurrentPlayer(totalScore);
                     updateScores(playerScoresLabels);
 
+                    // Update the tile bag after a valid word
                     TileBag.removeUsedTiles(word);
+
+                    // Switch to the next player
                     ScrabbleController.switchToNextPlayer();
                     turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
 
-                    confirmedButtons.addAll(placedButtons);
                     placedButtons.clear();
-                    if (WordPlacementLogic.isPlacementValid(startRow, startCol, word, isHorizontal, view)) {
-                        clearPlacedLetters(placedButtons, playerTileButtons);
-                    }
+                    clearPlacedLetters(placedButtons, playerTileButtons);
                     view.updateBoardDisplay();
                     view.updatePlayerTiles();
                 } else {
                     JOptionPane.showMessageDialog(null, "Invalid word. Try again.");
+                    System.out.println("Word is not valid.");
                 }
             } else {
                 JOptionPane.showMessageDialog(null, "Invalid placement. One or more words formed are not valid.");
+                System.out.println("Placement is invalid.");
             }
         } else {
             JOptionPane.showMessageDialog(null, "Invalid placement. Please follow Scrabble rules.");
+            System.out.println("Placement is invalid.");
         }
 
+        // Clear placed letters after the word is placed and validated
         clearPlacedLetters(placedButtons, playerTileButtons);
     }
+
 
     public static void passTurn(ArrayList<JButton> placedButtons, JButton[] playerTileButtons, JLabel turnLabel) {
         clearPlacedLetters(placedButtons, playerTileButtons);
