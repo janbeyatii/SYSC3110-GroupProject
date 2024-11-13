@@ -12,7 +12,7 @@ public class ScoreCalculation {
      * Constructs a ScoreCalculation object and calculates the total score of the given word.
      * The score is computed based on the positions of placed tiles on the GUI board.
      *
-     * @param word          the word to be scored.
+     * @param word the word to be scored.
      * @param placedButtons an ArrayList of JButtons representing the placed tiles on the board.
      */
     public ScoreCalculation(String word, ArrayList<JButton> placedButtons) {

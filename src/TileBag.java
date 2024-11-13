@@ -108,6 +108,4 @@ public class TileBag {
         int tilesNeeded = 7 - playerTiles.size();
         playerTiles.addAll(tileBag.drawTiles(tilesNeeded));
     }
-
-
 }

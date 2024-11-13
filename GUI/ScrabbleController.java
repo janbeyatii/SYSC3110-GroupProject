@@ -1,7 +1,6 @@
 package GUI;
 
 import src.TileBag;
-import src.WordPlacementLogic;
 
 import javax.swing.*;
 import java.awt.*;

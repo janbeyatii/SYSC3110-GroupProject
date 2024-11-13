@@ -112,7 +112,7 @@ public class ScrabbleView extends JFrame {
         passButton = new JButton("Pass");
         passButton.setFont(new Font("Arial", Font.PLAIN, 14)); // Font for control buttons
         passButton.addActionListener(e -> {
-            Helpers.passTurn(placedButtons, playerTileButtons, turnLabel);
+            ButtonCommands.pass(placedButtons, playerTileButtons, turnLabel);
             updatePlayerTiles(); // Refresh the tiles for the next player after passing the turn
         });
         controlGbc.gridy = 3;
@@ -120,14 +120,14 @@ public class ScrabbleView extends JFrame {
 
         clearButton = new JButton("Clear");
         clearButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        clearButton.addActionListener(_ -> Helpers.clearPlacedLetters(placedButtons, playerTileButtons));
+        clearButton.addActionListener(_ -> ButtonCommands.clear(placedButtons, playerTileButtons));
         controlGbc.gridy = 4;
         controlPanel.add(clearButton, controlGbc);
 
         submitButton = new JButton("Submit");
         submitButton.setFont(new Font("Arial", Font.PLAIN, 14));
         submitButton.addActionListener(_ -> {
-            Helpers.submitWord(this, wordHistoryArea, turnLabel, placedButtons, playerScoresLabels, playerTileButtons);
+            ButtonCommands.submit(this, wordHistoryArea, turnLabel, placedButtons, playerScoresLabels, playerTileButtons);
             updatePlayerTiles(); // Refresh the tiles for the current player after submitting a word
         });
         controlGbc.gridy = 5;
