@@ -24,7 +24,6 @@ public class ScrabbleController {
     public static char[][] board = new char[15][15];
     private static List<Point> placedTileCoordinates = new ArrayList<>();
     private ScrabbleView view; // Reference to the GUI
-    private static int playercountTEST = 0;
 
     /**
      * Initializes game settings such as player count, names, and scores.
@@ -32,11 +31,6 @@ public class ScrabbleController {
      * This method only runs once at the start of the game.
      */
     public static void initializeGameSettings() {
-        if (playerNames.isEmpty()) {
-            // Initialize with default names and scores
-            playerNames = new ArrayList<>(Arrays.asList("Player 1", "Player 2"));
-            playerScores = new ArrayList<>(Arrays.asList(0, 0));
-        }
         if (!isInitialized) {
             playercount = getPlayercount();
             getPlayerNames();
@@ -46,28 +40,6 @@ public class ScrabbleController {
                 playerTilesMap.put(playerName, initialTiles);
             }
             isInitialized = true;
-        }
-    }
-
-    /**
-     * Sets the player count for the game. This method should be called in a test or setup environment.
-     *
-     * @param count the number of players (e.g., 2-4).
-     */
-    public static void setPlayerCount(int count) {
-        playercountTEST = count;
-        initializeDefaultPlayers();
-    }
-
-    /**
-     * Initializes players with default names and scores. This method is useful for automated testing.
-     */
-    private static void initializeDefaultPlayers() {
-        playerNames.clear();
-        playerScores.clear();
-        for (int i = 1; i <= playercountTEST; i++) {
-            playerNames.add("Player " + i);
-            playerScores.add(0);
         }
     }
 
@@ -90,6 +62,10 @@ public class ScrabbleController {
         return playerTiles;
     }
 
+    public static int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
     /**
      * Adds the coordinates of placed tiles to a list for reference.
      *
@@ -108,6 +84,7 @@ public class ScrabbleController {
      * @return the number of players as an integer.
      */
     public static int getPlayercount() {
+
         if (playercount != 0) {
             return playercount;
         }

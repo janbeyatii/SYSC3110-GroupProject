@@ -34,6 +34,8 @@ public class ScrabbleView extends JFrame {
      * @param tileCharacters the initial list of characters for the player's tile rack.
      */
     public ScrabbleView(int boardSize, ArrayList<Character> tileCharacters) {
+
+
         setTitle("SYSC3110 Group20 Scrabble Game");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

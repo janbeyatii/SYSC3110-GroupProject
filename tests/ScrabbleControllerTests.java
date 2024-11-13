@@ -17,7 +17,7 @@ public class ScrabbleControllerTests {
     @Before
     public void setUp() {
         // Set up the game settings with automated values
-        ScrabbleController.setPlayerCount(2); // Set default player count for testing
+        ScrabbleController.getPlayercount(); // Set default player count for testing
         ScrabbleController.initializeGameSettings();
     }
 
