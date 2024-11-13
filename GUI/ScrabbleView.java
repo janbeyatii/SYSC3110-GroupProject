@@ -17,10 +17,12 @@ public class ScrabbleView extends JFrame {
     public JButton[][] boardButtons;
     private JPanel controlPanel;
     private JLabel[] playerScoresLabels;
-    private JLabel turnLabel;
-    private JButton passButton, clearButton, submitButton;
+    public JLabel turnLabel;
+    public JButton passButton;
+    public JButton clearButton;
+    public JButton submitButton;
     private JPanel tilePanel;
-    private JButton[] playerTileButtons;
+    public JButton[] playerTileButtons;
     private JTextArea wordHistoryArea;
 
     private ArrayList<JButton> placedButtons = new ArrayList<>();

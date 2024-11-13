@@ -128,7 +128,7 @@ public class Helpers {
      * @param isFirstTurn   true if it is the first turn of the game, false otherwise.
      * @return true if the word placement is valid, false otherwise.
      */
-    static boolean isWordPlacementValid(ArrayList<JButton> placedButtons, boolean isFirstTurn) {
+    public static boolean isWordPlacementValid(ArrayList<JButton> placedButtons, boolean isFirstTurn) {
         if (!isAlignedInSingleRowOrColumn(placedButtons)) {
             JOptionPane.showMessageDialog(null, "Placed letters must be in the same row or column.");
             return false;
@@ -153,7 +153,7 @@ public class Helpers {
      * @param placedButtons the list of JButtons where letters were placed in the current turn.
      * @return a Set of Strings containing all unique words formed.
      */
-    static Set<String> getAllWordsFormed(ArrayList<JButton> placedButtons) {
+    public static Set<String> getAllWordsFormed(ArrayList<JButton> placedButtons) {
         Set<String> uniqueWordsFormed = new HashSet<>();
 
         for (JButton button : placedButtons) {
@@ -179,7 +179,7 @@ public class Helpers {
      * @param words the Set of words to be validated.
      * @return true if all words are valid, false if any word is invalid.
      */
-    static boolean areAllWordsValid(Set<String> words) {
+    public static boolean areAllWordsValid(Set<String> words) {
         for (String word : words) {
             if (!WordValidity.isWordValid(word)) {
                 JOptionPane.showMessageDialog(null, "Invalid word formed: " + word);
@@ -196,7 +196,7 @@ public class Helpers {
      * @param wordHistoryArea    the JTextArea that displays the history of words formed by players.
      * @param playerScoresLabels the array of JLabels displaying the scores of each player.
      */
-    static void updateScoresAndDisplayWords(Set<String> words, JTextArea wordHistoryArea, JLabel[] playerScoresLabels) {
+    public static void updateScoresAndDisplayWords(Set<String> words, JTextArea wordHistoryArea, JLabel[] playerScoresLabels) {
         int totalScore = 0;
         for (String word : words) {
             ScoreCalculation wordScore = new ScoreCalculation(word, new ArrayList<>());

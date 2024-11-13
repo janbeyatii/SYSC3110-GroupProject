@@ -15,8 +15,8 @@ import static GUI.ScrabbleController.*;
  * It manages the drawing of tiles, keeps track of tile counts, and refills players' tile sets.
  */
 public class TileBag {
-    private final Map<Character, Integer> tileCounts = new HashMap<>();
-    private int totalTiles = 98; // Total number of tiles, excluding blank tiles.
+    public final Map<Character, Integer> tileCounts = new HashMap<>();
+    public int totalTiles = 98; // Total number of tiles, excluding blank tiles.
 
     /**
      * Constructs a TileBag object and initializes the tile counts for each letter.
