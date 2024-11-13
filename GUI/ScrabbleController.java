@@ -62,6 +62,10 @@ public class ScrabbleController {
         return playerTiles;
     }
 
+    public static int getCurrentPlayerIndex() {
+        return currentPlayerIndex;
+    }
+
     /**
      * Adds the coordinates of placed tiles to a list for reference.
      *
@@ -74,22 +78,13 @@ public class ScrabbleController {
             placedTileCoordinates.add(new Point(row, col));
         }
     }
-
-    /**
-     * Gets the list of coordinates where tiles have been placed.
-     *
-     * @return a list of points representing tile positions on the board.
-     */
-    public static List<Point> getPlacedTileCoordinates() {
-        return placedTileCoordinates;
-    }
-
     /**
      * Prompts the user to enter the number of players (2-4).
      *
      * @return the number of players as an integer.
      */
     public static int getPlayercount() {
+
         if (playercount != 0) {
             return playercount;
         }
@@ -194,5 +189,9 @@ public class ScrabbleController {
      */
     public static void switchToNextPlayer() {
         currentPlayerIndex = (currentPlayerIndex + 1) % playercount;
+    }
+
+    public static List<Point> getPlacedTileCoordinates() {
+        return placedTileCoordinates;
     }
 }

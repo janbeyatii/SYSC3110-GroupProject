@@ -50,6 +50,12 @@ public class ButtonCommands {
 
         updateScoresAndDisplayWords(uniqueWordsFormed, wordHistoryArea, playerScoresLabels);
 
+        int currentPlayerScore = ScrabbleController.getPlayerScore(ScrabbleController.getCurrentPlayerIndex());
+        if (currentPlayerScore >= 150) {
+            JOptionPane.showMessageDialog(view, "YOU WIN YAY!!", "Congratulations!", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
         ScrabbleController.addPlacedTiles(placedButtons);
         placedButtons.clear();
         clear(placedButtons, playerTileButtons);

@@ -17,10 +17,12 @@ public class ScrabbleView extends JFrame {
     public JButton[][] boardButtons;
     private JPanel controlPanel;
     private JLabel[] playerScoresLabels;
-    private JLabel turnLabel;
-    private JButton passButton, clearButton, submitButton;
+    public JLabel turnLabel;
+    public JButton passButton;
+    public JButton clearButton;
+    public JButton submitButton;
     private JPanel tilePanel;
-    private JButton[] playerTileButtons;
+    public JButton[] playerTileButtons;
     private JTextArea wordHistoryArea;
 
     private ArrayList<JButton> placedButtons = new ArrayList<>();
@@ -32,6 +34,8 @@ public class ScrabbleView extends JFrame {
      * @param tileCharacters the initial list of characters for the player's tile rack.
      */
     public ScrabbleView(int boardSize, ArrayList<Character> tileCharacters) {
+
+
         setTitle("SYSC3110 Group20 Scrabble Game");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
