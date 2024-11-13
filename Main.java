@@ -1,6 +1,5 @@
 import GUI.*;
 import src.WordValidity;
-
 import javax.swing.*;
 import java.util.ArrayList;
 
@@ -10,7 +9,7 @@ import java.util.ArrayList;
  */
 public class Main {
 
-    /**
+    /**s
      * Default constructor for the Main class.
      * Initializes the game without any specific setup.
      */

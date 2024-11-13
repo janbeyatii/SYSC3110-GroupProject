@@ -2,16 +2,25 @@ package src;
 
 import GUI.*;
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+/**
+ * Utility class for managing tile selection, word placement, word validation, and score updates in the Scrabble game.
+ */
 public class Helpers {
 
     private static JButton previouslySelectedButton = null;
     private static String selectedLetter = null;
+
+    /**
+     * Default constructor for the Helpers class.
+     * Initializes the Helpers object without any specific setup.
+     */
+    public Helpers() {
+        // Default constructor
+    }
 
     /**
      * Selects a letter from the player's tile rack, disables it in the rack to indicate it is in use, and tracks it as the currently selected letter.
@@ -112,7 +121,12 @@ public class Helpers {
     }
 
     /**
-     * Checks if the placed tiles form a valid word placement on the board.
+     * Checks if the placed tiles form a valid word placement on the board. This includes verifying alignment,
+     * ensuring the use of the center tile for the first move, and adjacency to existing words for non-first moves.
+     *
+     * @param placedButtons the list of JButtons where letters were placed in the current turn.
+     * @param isFirstTurn   true if it is the first turn of the game, false otherwise.
+     * @return true if the word placement is valid, false otherwise.
      */
     static boolean isWordPlacementValid(ArrayList<JButton> placedButtons, boolean isFirstTurn) {
         if (!isAlignedInSingleRowOrColumn(placedButtons)) {
@@ -133,6 +147,12 @@ public class Helpers {
         return true;
     }
 
+    /**
+     * Collects all unique words formed by the placement of tiles in the current turn.
+     *
+     * @param placedButtons the list of JButtons where letters were placed in the current turn.
+     * @return a Set of Strings containing all unique words formed.
+     */
     static Set<String> getAllWordsFormed(ArrayList<JButton> placedButtons) {
         Set<String> uniqueWordsFormed = new HashSet<>();
 
@@ -153,6 +173,12 @@ public class Helpers {
         return uniqueWordsFormed;
     }
 
+    /**
+     * Validates all words formed by checking each word against the dictionary.
+     *
+     * @param words the Set of words to be validated.
+     * @return true if all words are valid, false if any word is invalid.
+     */
     static boolean areAllWordsValid(Set<String> words) {
         for (String word : words) {
             if (!WordValidity.isWordValid(word)) {
@@ -163,6 +189,13 @@ public class Helpers {
         return true;
     }
 
+    /**
+     * Updates the scores of players and displays the words formed with their respective scores in the game interface.
+     *
+     * @param words              the Set of words formed during the turn.
+     * @param wordHistoryArea    the JTextArea that displays the history of words formed by players.
+     * @param playerScoresLabels the array of JLabels displaying the scores of each player.
+     */
     static void updateScoresAndDisplayWords(Set<String> words, JTextArea wordHistoryArea, JLabel[] playerScoresLabels) {
         int totalScore = 0;
         for (String word : words) {
@@ -208,7 +241,6 @@ public class Helpers {
         return false;
     }
 
-
     /**
      * Checks if placed letters are adjacent to any existing tiles, required for non-first moves.
      *
@@ -220,16 +252,14 @@ public class Helpers {
             int row = (Integer) button.getClientProperty("row");
             int col = (Integer) button.getClientProperty("col");
 
-            // Check for existing adjacent tiles with letters above, below, left, and right
-            if ((row > 0 && ScrabbleController.board[row - 1][col] != '\0') || // Above
-                    (row < ScrabbleController.board.length - 1 && ScrabbleController.board[row + 1][col] != '\0') || // Below
-                    (col > 0 && ScrabbleController.board[row][col - 1] != '\0') || // Left
-                    (col < ScrabbleController.board[0].length - 1 && ScrabbleController.board[row][col + 1] != '\0')) { // Right
-                return true; // At least one tile is adjacent to an existing letter
+            if ((row > 0 && ScrabbleController.board[row - 1][col] != '\0') ||
+                    (row < ScrabbleController.board.length - 1 && ScrabbleController.board[row + 1][col] != '\0') ||
+                    (col > 0 && ScrabbleController.board[row][col - 1] != '\0') ||
+                    (col < ScrabbleController.board[0].length - 1 && ScrabbleController.board[row][col + 1] != '\0')) {
+                return true;
             }
         }
 
-        // If no adjacent tiles with letters are found, return false
         return false;
     }
     /**
