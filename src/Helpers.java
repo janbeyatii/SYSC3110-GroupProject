@@ -2,9 +2,7 @@ package src;
 
 import GUI.*;
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Utility class for managing tile selection, word placement, word validation, and score updates in the Scrabble game.
@@ -13,6 +11,7 @@ public class Helpers {
 
     private static JButton previouslySelectedButton = null;
     private static String selectedLetter = null;
+    private static Set<String> oldTileCoordinates = new HashSet<>();
 
     /**
      * Default constructor for the Helpers class.
@@ -22,6 +21,7 @@ public class Helpers {
         // Default constructor
     }
 
+
     /**
      * Selects a letter from the player's tile rack, disables it in the rack to indicate it is in use, and tracks it as the currently selected letter.
      *
@@ -29,13 +29,19 @@ public class Helpers {
      * @param playerTileButtons the array of JButton elements representing the player's tile rack.
      */
     public static void selectLetterFromTiles(int index, JButton[] playerTileButtons) {
+        // Only disable the button if a letter is selected
         if (previouslySelectedButton != null) {
-            previouslySelectedButton.setEnabled(true);
+            previouslySelectedButton.setEnabled(true); // Re-enable previously selected button
         }
 
+        // Select the new letter
         selectedLetter = playerTileButtons[index].getText();
-        playerTileButtons[index].setEnabled(false);
+        playerTileButtons[index].setEnabled(false);  // Disable the currently selected button
         previouslySelectedButton = playerTileButtons[index];
+
+        // Log to track changes to player tiles
+        System.out.println("Selected Letter: " + selectedLetter);
+        System.out.println("Previously Selected Button: " + previouslySelectedButton.getText());
     }
 
     /**
@@ -48,14 +54,32 @@ public class Helpers {
      * @param placedButtons the list of JButtons where letters were placed in the current turn.
      */
     public static void placeLetterOnBoard(int row, int col, JButton[][] boardButtons, ArrayList<JButton> placedButtons) {
+        // Only update the board if a valid tile is selected
         if (selectedLetter != null && !selectedLetter.isEmpty() && boardButtons[row][col].getText().isEmpty()) {
             boardButtons[row][col].setText(selectedLetter);
             ScrabbleController.board[row][col] = selectedLetter.charAt(0);
             placedButtons.add(boardButtons[row][col]);
             selectedLetter = null;
             previouslySelectedButton = null;
+
+            // Log to track tile state changes
+            System.out.println("Letter placed: " + selectedLetter + " at (" + row + ", " + col + ")");
         } else {
+            // Do not reset the player tiles when invalid
             JOptionPane.showMessageDialog(null, "Select a letter first or choose an empty tile.");
+        }
+    }
+
+    // Method to save old tile coordinates after each turn
+    public static void updateOldTileCoordinates() {
+        oldTileCoordinates.clear(); // Clear previous old tile coordinates
+        for (int row = 0; row < ScrabbleController.board.length; row++) {
+            for (int col = 0; col < ScrabbleController.board[row].length; col++) {
+                if (ScrabbleController.board[row][col] != '\0') {
+                    // Store coordinates in the format "row,col"
+                    oldTileCoordinates.add(row + "," + col);
+                }
+            }
         }
     }
 
@@ -119,33 +143,95 @@ public class Helpers {
     private static boolean isValidPosition(int row, int col) {
         return row >= 0 && row < ScrabbleController.board.length && col >= 0 && col < ScrabbleController.board[0].length;
     }
+    /**
+     * Checks if any placed letters are isolated (not part of a word in the same row or column).
+     *
+     * @param placedButtons the list of JButtons where letters were placed in the current turn.
+     * @return true if no isolated letters exist, false if any isolated letter is found.
+     */
+
+    private static boolean areLettersConnected(ArrayList<JButton> placedButtons) {
+        for (JButton button : placedButtons) {
+            int row = (Integer) button.getClientProperty("row");
+            int col = (Integer) button.getClientProperty("col");
+
+            // Check horizontally and vertically if this tile is connected to any other tile
+            boolean isConnected = false;
+
+            // Check left
+            if (col > 0 && ScrabbleController.board[row][col - 1] != '\0') {
+                isConnected = true;
+            }
+
+            // Check right
+            if (col < ScrabbleController.board[0].length - 1 && ScrabbleController.board[row][col + 1] != '\0') {
+                isConnected = true;
+            }
+
+            // Check above
+            if (row > 0 && ScrabbleController.board[row - 1][col] != '\0') {
+                isConnected = true;
+            }
+
+            // Check below
+            if (row < ScrabbleController.board.length - 1 && ScrabbleController.board[row + 1][col] != '\0') {
+                isConnected = true;
+            }
+
+            // If the letter is not connected, it's isolated
+            if (!isConnected) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
-     * Checks if the placed tiles form a valid word placement on the board. This includes verifying alignment,
-     * ensuring the use of the center tile for the first move, and adjacency to existing words for non-first moves.
+     * Checks if the placed tiles form a valid word placement on the board.
+     * This includes verifying alignment, ensuring the use of the center tile for the first move,
+     * adjacency to existing words for non-first moves, and ensuring there are no isolated letters.
      *
      * @param placedButtons the list of JButtons where letters were placed in the current turn.
      * @param isFirstTurn   true if it is the first turn of the game, false otherwise.
      * @return true if the word placement is valid, false otherwise.
      */
     public static boolean isWordPlacementValid(ArrayList<JButton> placedButtons, boolean isFirstTurn) {
-        if (!isAlignedInSingleRowOrColumn(placedButtons)) {
-            JOptionPane.showMessageDialog(null, "Placed letters must be in the same row or column.");
-            return false;
+        // Check if the first move is valid
+        if (isFirstTurn) {
+            // If the first word is invalid, don't reset player tiles, just notify and return false
+            Set<String> wordsFormed = getAllWordsFormed(placedButtons);
+            if (!areAllWordsValid(wordsFormed)) {
+                JOptionPane.showMessageDialog(null, "Invalid first word.");
+                return false; // Just return without affecting player tiles
+            }
+
+            // Ensure center tile is used and adjacent
+            if (!isUsingCenterTile(placedButtons)) {
+                JOptionPane.showMessageDialog(null, "The first word must use the center tile.");
+                return false;
+            }
+            if (!isCenterTileAdjacentToAnotherTile(placedButtons)) {
+                JOptionPane.showMessageDialog(null, "On the first turn, the center tile must be adjacent to another newly placed tile.");
+                return false;
+            }
         }
 
-        if (isFirstTurn && !isUsingCenterTile(placedButtons)) {
-            JOptionPane.showMessageDialog(null, "The first word must use the center tile.");
-            return false;
-        }
-
+        // Normal validation for non-first turn
         if (!isFirstTurn && !isAdjacentToExistingWords(placedButtons)) {
             JOptionPane.showMessageDialog(null, "Placed letters must be adjacent to existing words.");
             return false;
         }
 
+        // Check word alignment (row/column)
+        if (!isAlignedInSingleRowOrColumn(placedButtons)) {
+            JOptionPane.showMessageDialog(null, "Placed letters must be in the same row or column.");
+            return false;
+        }
+
         return true;
     }
+
+
 
     /**
      * Collects all unique words formed by the placement of tiles in the current turn.
@@ -190,26 +276,6 @@ public class Helpers {
     }
 
     /**
-     * Updates the scores of players and displays the words formed with their respective scores in the game interface.
-     *
-     * @param words              the Set of words formed during the turn.
-     * @param wordHistoryArea    the JTextArea that displays the history of words formed by players.
-     * @param playerScoresLabels the array of JLabels displaying the scores of each player.
-     */
-    public static void updateScoresAndDisplayWords(Set<String> words, JTextArea wordHistoryArea, JLabel[] playerScoresLabels) {
-        int totalScore = 0;
-        for (String word : words) {
-            ScoreCalculation wordScore = new ScoreCalculation(word, new ArrayList<>());
-            totalScore += wordScore.getTotalScore();
-            String playerName = ScrabbleController.getCurrentPlayerName();
-            wordHistoryArea.append(playerName + ": " + word + " (" + wordScore.getTotalScore() + " points)\n");
-        }
-
-        ScrabbleController.addScoreToCurrentPlayer(totalScore);
-        updateScores(playerScoresLabels);
-    }
-
-    /**
      * Checks if all placed letters are in a single row or column.
      *
      * @param placedButtons the list of JButtons where letters were placed in the current turn.
@@ -243,6 +309,7 @@ public class Helpers {
 
     /**
      * Checks if placed letters are adjacent to any existing tiles, required for non-first moves.
+     * Only checks the newly placed tiles and compares them with old tile coordinates.
      *
      * @param placedButtons the list of JButtons where letters were placed in the current turn.
      * @return true if at least one placed letter is adjacent to an existing letter, false otherwise.
@@ -252,16 +319,49 @@ public class Helpers {
             int row = (Integer) button.getClientProperty("row");
             int col = (Integer) button.getClientProperty("col");
 
-            if ((row > 0 && ScrabbleController.board[row - 1][col] != '\0') ||
-                    (row < ScrabbleController.board.length - 1 && ScrabbleController.board[row + 1][col] != '\0') ||
-                    (col > 0 && ScrabbleController.board[row][col - 1] != '\0') ||
-                    (col < ScrabbleController.board[0].length - 1 && ScrabbleController.board[row][col + 1] != '\0')) {
+            // Check all adjacent positions to see if they match any of the old tile coordinates
+            if (oldTileCoordinates.contains((row - 1) + "," + col) ||  // Check above
+                    oldTileCoordinates.contains((row + 1) + "," + col) ||  // Check below
+                    oldTileCoordinates.contains(row + "," + (col - 1)) ||  // Check left
+                    oldTileCoordinates.contains(row + "," + (col + 1))) {  // Check right
                 return true;
             }
         }
-
         return false;
     }
+
+    /**
+     * Checks if the center tile (middle of the board) is adjacent to another newly placed tile
+     * during the first turn.
+     *
+     * @param placedButtons the list of JButtons where letters were placed in the current turn.
+     * @return true if the center tile is adjacent to another placed tile, false otherwise.
+     */
+    private static boolean isCenterTileAdjacentToAnotherTile(ArrayList<JButton> placedButtons) {
+        // Get the coordinates of the center tile (middle of the board)
+        int boardCenterRow = ScrabbleController.board.length / 2;
+        int boardCenterCol = ScrabbleController.board[0].length / 2;
+
+        // Check if any of the placed buttons are adjacent to the center tile
+        for (JButton button : placedButtons) {
+            int row = (Integer) button.getClientProperty("row");
+            int col = (Integer) button.getClientProperty("col");
+
+            // Check if this placed tile is adjacent to the center tile
+            if ((Math.abs(row - boardCenterRow) == 1 && col == boardCenterCol) ||  // Adjacent vertically
+                    (Math.abs(col - boardCenterCol) == 1 && row == boardCenterRow)) {  // Adjacent horizontally
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void resetPlayerTiles(JButton[] playerTileButtons) {
+        for (JButton button : playerTileButtons) {
+            button.setEnabled(true); // Re-enable all player tiles
+        }
+    }
+
     /**
      * Updates the player scores displayed on the screen.
      *
@@ -272,4 +372,5 @@ public class Helpers {
             playerScoresLabels[i].setText(ScrabbleController.getPlayerNames().get(i) + " Score: " + ScrabbleController.getPlayerScore(i));
         }
     }
+
 }

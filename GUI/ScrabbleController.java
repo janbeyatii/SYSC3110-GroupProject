@@ -13,23 +13,33 @@ import java.util.List;
  */
 public class ScrabbleController {
 
-    private static Map<String, List<Character>> playerTilesMap = new HashMap<>();
-    private static int playercount;  // Store player count here
-    private static boolean isInitialized = false;  // Ensure settings are initialized only once
+    // Game Settings and State Management
+    private static int playercount;
+    private static boolean isInitialized = false;
+    private static boolean firstTurn = true;
+
+    // Player Information
     private static ArrayList<String> playerNames = new ArrayList<>();
     private static ArrayList<Integer> playerScores = new ArrayList<>();
-    private static int currentPlayerIndex = 0;
-    public static TileBag tileBag = new TileBag();
+    private static Map<String, List<Character>> playerTilesMap = new HashMap<>();
     public static ArrayList<Character> playerTiles;
+    private static int currentPlayerIndex = 0;
+
+    // Board and Tile Management
     public static char[][] board = new char[15][15];
+    public static TileBag tileBag = new TileBag();
     private static List<Point> placedTileCoordinates = new ArrayList<>();
-    private ScrabbleView view; // Reference to the GUI
+    private static ArrayList<JButton> placedButtons = new ArrayList<>();
 
     /**
-     * Initializes game settings such as player count, names, and scores.
-     * Also distributes initial tiles to each player.
-     * This method only runs once at the start of the game.
+     * Constructor for the ScrabbleController class.
+     *
+     * @param view the ScrabbleView instance representing the GUI.
      */
+    public ScrabbleController(ScrabbleView view) {
+        // Default Constructor
+    }
+
     public static void initializeGameSettings() {
         if (!isInitialized) {
             playercount = getPlayercount();
@@ -43,20 +53,13 @@ public class ScrabbleController {
         }
     }
 
-    /**
-     * Constructor for the ScrabbleController class.
-     *
-     * @param view the ScrabbleView instance representing the GUI.
-     */
-    public ScrabbleController(ScrabbleView view) {
-        this.view = view;
+    public static void initializePlayerScores() {
+        playerScores.clear();
+        for (int i = 0; i < playercount; i++) {
+            playerScores.add(0);
+        }
     }
 
-    /**
-     * Draws 7 tiles from the tile bag and assigns them to the player.
-     *
-     * @return a list of characters representing the player's tiles.
-     */
     public static ArrayList<Character> getPlayerTiles() {
         playerTiles = new ArrayList<>(tileBag.drawTiles(7));
         return playerTiles;
@@ -66,18 +69,31 @@ public class ScrabbleController {
         return currentPlayerIndex;
     }
 
-    /**
-     * Adds the coordinates of placed tiles to a list for reference.
-     *
-     * @param placedButtons the list of buttons where tiles have been placed.
-     */
-    public static void addPlacedTiles(List<JButton> placedButtons) {
-        for (JButton button : placedButtons) {
-            int row = (Integer) button.getClientProperty("row");
-            int col = (Integer) button.getClientProperty("col");
-            placedTileCoordinates.add(new Point(row, col));
-        }
+    public static ArrayList<JButton> getPlacedButtons() {
+        return placedButtons;
     }
+
+    public static Map<String, List<Character>> getPlayerTilesMap() {
+        return playerTilesMap;
+    }
+
+    public static List<Character> getCurrentPlayerTiles() {
+        String currentPlayer = getCurrentPlayerName();
+        return playerTilesMap.getOrDefault(currentPlayer, new ArrayList<>());
+    }
+
+    public static String getCurrentPlayerName() {
+        return playerNames.get(currentPlayerIndex);
+    }
+
+    public static List<Point> getPlacedTileCoordinates() {
+        return placedTileCoordinates;
+    }
+
+    public static int getPlayerScore(int index) {
+        return playerScores.get(index);
+    }
+
     /**
      * Prompts the user to enter the number of players (2-4).
      *
@@ -126,72 +142,29 @@ public class ScrabbleController {
         return playerNames;
     }
 
-    /**
-     * Retrieves the current player's name.
-     *
-     * @return the name of the current player.
-     */
-    public static String getCurrentPlayerName() {
-        return playerNames.get(currentPlayerIndex);
+    public static void setFirstTurnCompleted() {
+        firstTurn = false;
     }
 
-    /**
-     * Retrieves the map of players and their corresponding tiles.
-     *
-     * @return a map associating each player with their list of tiles.
-     */
-    public static Map<String, List<Character>> getPlayerTilesMap() {
-        return playerTilesMap;
+    public static void addScoreToPlayer(int playerIndex, int score) {
+        int currentScore = playerScores.get(playerIndex);
+        playerScores.set(playerIndex, currentScore + score);
     }
 
-    /**
-     * Gets the tiles of the current player.
-     *
-     * @return a list of characters representing the current player's tiles.
-     */
-    public static List<Character> getCurrentPlayerTiles() {
-        String currentPlayer = getCurrentPlayerName();
-        return playerTilesMap.getOrDefault(currentPlayer, new ArrayList<>());
-    }
-
-    /**
-     * Adds a specified score to the current player's total score.
-     *
-     * @param score the score to add to the current player's total.
-     */
-    public static void addScoreToCurrentPlayer(int score) {
-        int currentScore = playerScores.get(currentPlayerIndex);
-        playerScores.set(currentPlayerIndex, currentScore + score);
-    }
-
-    /**
-     * Initializes the scores for all players to zero at the start of the game.
-     */
-    public static void initializePlayerScores() {
-        playerScores.clear();
-        for (int i = 0; i < playercount; i++) {
-            playerScores.add(0);
+    public static void addPlacedTiles(List<JButton> placedButtons) {
+        for (JButton button : placedButtons) {
+            int row = (Integer) button.getClientProperty("row");
+            int col = (Integer) button.getClientProperty("col");
+            placedTileCoordinates.add(new Point(row, col));
         }
     }
 
-    /**
-     * Retrieves the score of a specified player.
-     *
-     * @param index the index of the player in the list.
-     * @return the score of the specified player.
-     */
-    public static int getPlayerScore(int index) {
-        return playerScores.get(index);
+    public static boolean isFirstTurn() {
+        return firstTurn;
     }
 
-    /**
-     * Switches the turn to the next player in a circular order.
-     */
     public static void switchToNextPlayer() {
         currentPlayerIndex = (currentPlayerIndex + 1) % playercount;
     }
 
-    public static List<Point> getPlacedTileCoordinates() {
-        return placedTileCoordinates;
-    }
 }

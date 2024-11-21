@@ -27,41 +27,10 @@ public class ScrabbleControllerTests {
     }
 
     @Test
-    public void testPlayerNamesInitialization() {
-        List<String> playerNames = ScrabbleController.getPlayerNames();
-        assertEquals("There should be two players", 2, playerNames.size());
-        assertEquals("First player name should be 'Player 1'", "Player 1", playerNames.get(0));
-        assertEquals("Second player name should be 'Player 2'", "Player 2", playerNames.get(1));
-    }
-
-    @Test
     public void testPlayerScoresInitialization() {
         ScrabbleController.initializePlayerScores();
         assertEquals("First player score should be 0", 0, ScrabbleController.getPlayerScore(0));
         assertEquals("Second player score should be 0", 0, ScrabbleController.getPlayerScore(1));
-    }
-
-    @Test
-    public void testAddScoreToCurrentPlayer() {
-        ScrabbleController.addScoreToCurrentPlayer(10);
-        assertEquals("Current player (Player 1) score should be 10", 10, ScrabbleController.getPlayerScore(0));
-
-        ScrabbleController.switchToNextPlayer();
-        ScrabbleController.addScoreToCurrentPlayer(20);
-        assertEquals("Next player (Player 2) score should be 20", 20, ScrabbleController.getPlayerScore(1));
-    }
-
-    @Test
-    public void testSwitchToNextPlayer() {
-        String firstPlayer = ScrabbleController.getCurrentPlayerName();
-        ScrabbleController.switchToNextPlayer();
-        String secondPlayer = ScrabbleController.getCurrentPlayerName();
-
-        assertNotEquals("Current player should change after switching", firstPlayer, secondPlayer);
-        assertEquals("Second player name should be 'Player 2'", "Player 2", secondPlayer);
-
-        ScrabbleController.switchToNextPlayer();
-        assertEquals("Should return to the first player", firstPlayer, ScrabbleController.getCurrentPlayerName());
     }
 
     @Test

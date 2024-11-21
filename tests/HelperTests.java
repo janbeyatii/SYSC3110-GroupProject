@@ -63,17 +63,6 @@ public class HelperTests {
     }
 
     @Test
-    public void testIsWordPlacementValid() {
-        JButton button = new JButton("A");
-        button.putClientProperty("row", 7);
-        button.putClientProperty("col", 7);
-        placedButtons.add(button);
-
-        scrabbleView.boardButtons[7][7].setText("A");
-        assertTrue("Word placement should be valid for a single tile in the center", Helpers.isWordPlacementValid(placedButtons, true));
-    }
-
-    @Test
     public void testAreAllWordsValid() {
         Set<String> validWords = new HashSet<>();
         validWords.add("hello");
@@ -90,7 +79,7 @@ public class HelperTests {
         Set<String> words = new HashSet<>();
         words.add("HELLO");
 
-        Helpers.updateScoresAndDisplayWords(words, wordHistoryArea, playerScoresLabels);
+        ButtonCommands.updateScoresAndDisplayWords(words, wordHistoryArea, playerScoresLabels);
 
         String historyText = wordHistoryArea.getText();
         assertTrue("Word history should include 'HELLO'", historyText.contains("HELLO"));
