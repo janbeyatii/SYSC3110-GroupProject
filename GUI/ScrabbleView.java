@@ -13,19 +13,27 @@ import java.util.List;
  */
 
 public class ScrabbleView extends JFrame {
+    // Board and Tiles Display
     private JPanel boardPanel;
     public JButton[][] boardButtons;
+    private ArrayList<JButton> placedButtons = new ArrayList<>();
+
+    // Control Panel Elements
     private JPanel controlPanel;
-    private JLabel[] playerScoresLabels;
-    public JLabel turnLabel;
     public JButton passButton;
     public JButton clearButton;
     public JButton submitButton;
+
+    // Player Information Display
+    private JLabel[] playerScoresLabels;
+    public JLabel turnLabel;
+
+    // Tile Management Display
     private JPanel tilePanel;
     public JButton[] playerTileButtons;
-    private JTextArea wordHistoryArea;
 
-    private ArrayList<JButton> placedButtons = new ArrayList<>();
+    // Word History Display
+    private JTextArea wordHistoryArea;
 
     /**
      * Constructs the ScrabbleView GUI, initializing the game board, control panel, and tile panel.
@@ -34,8 +42,6 @@ public class ScrabbleView extends JFrame {
      * @param tileCharacters the initial list of characters for the player's tile rack.
      */
     public ScrabbleView(int boardSize, ArrayList<Character> tileCharacters) {
-
-
         setTitle("SYSC3110 Group20 Scrabble Game");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -191,20 +197,6 @@ public class ScrabbleView extends JFrame {
     }
 
     /**
-     * Creates a JButton with the specified text and action listener.
-     *
-     * @param text the text to display on the button.
-     * @param action the action listener to handle button clicks.
-     * @return the created JButton.
-     */
-    private JButton createButton(String text, java.awt.event.ActionListener action) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.PLAIN, 14));
-        button.addActionListener(action);
-        return button;
-    }
-
-    /**
      * Initializes the tile panel displaying the player's current rack of tiles.
      *
      * @param tileCharacters the list of characters representing the player's tile rack.
@@ -233,6 +225,19 @@ public class ScrabbleView extends JFrame {
             tileGbc.gridx = i;
             tilePanel.add(playerTileButtons[i], tileGbc);
         }
+    }
+    /**
+     * Creates a JButton with the specified text and action listener.
+     *
+     * @param text the text to display on the button.
+     * @param action the action listener to handle button clicks.
+     * @return the created JButton.
+     */
+    private JButton createButton(String text, java.awt.event.ActionListener action) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.PLAIN, 14));
+        button.addActionListener(action);
+        return button;
     }
     /**
      * Updates the player's tile rack with new tiles and refreshes the display.
