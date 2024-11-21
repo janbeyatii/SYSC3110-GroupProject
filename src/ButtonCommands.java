@@ -135,11 +135,26 @@ public class ButtonCommands {
      */
     public static void updateScoresAndDisplayWords(Set<String> uniqueWordsFormed, JTextArea wordHistoryArea, JLabel[] playerScoresLabels) {
         // Add each word formed in the current turn to the word history
+        int currentPlayerIndex = ScrabbleController.getCurrentPlayerIndex();
+        int turnScore = 0;
+
+        // Process each word formed
         for (String word : uniqueWordsFormed) {
-            wordHistoryArea.append(word + "\n");  // Each word on a new line
+            ScoreCalculation scoreCalc = new ScoreCalculation(word, ScrabbleController.getPlacedButtons());
+            int wordScore = scoreCalc.getTotalScore(); // Calculate the score for the word
+            turnScore += wordScore; // Add to the total score for the turn
+
+            // Display the word and its score in the word history
+            wordHistoryArea.append(word + ": " + wordScore + " points\n");
         }
 
-        // Update scores of players
-        updateScores(playerScoresLabels);
+        // Update the player's total score
+        ScrabbleController.addScoreToPlayer(currentPlayerIndex, turnScore);
+
+        // Update the score labels
+        for (int i = 0; i < playerScoresLabels.length; i++) {
+            playerScoresLabels[i].setText("Score: " + ScrabbleController.getPlayerScore(i));
+        }
     }
+
 }

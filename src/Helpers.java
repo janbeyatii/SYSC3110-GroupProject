@@ -11,7 +11,6 @@ public class Helpers {
 
     private static JButton previouslySelectedButton = null;
     private static String selectedLetter = null;
-    // List to store coordinates of old (already placed) tiles
     private static Set<String> oldTileCoordinates = new HashSet<>();
 
     /**

@@ -25,6 +25,7 @@ public class ScrabbleController {
     private static List<Point> placedTileCoordinates = new ArrayList<>();
     private ScrabbleView view; // Reference to the GUI
     private static boolean firstTurn = true; // Add this line to track the first turn
+    private static ArrayList<JButton> placedButtons = new ArrayList<>();
 
     /**
      * Initializes game settings such as player count, names, and scores.
@@ -61,6 +62,16 @@ public class ScrabbleController {
     public static ArrayList<Character> getPlayerTiles() {
         playerTiles = new ArrayList<>(tileBag.drawTiles(7));
         return playerTiles;
+    }
+
+    public static ArrayList<JButton> getPlacedButtons() {
+        return placedButtons;
+    }
+
+    // Method to add score to a specific player
+    public static void addScoreToPlayer(int playerIndex, int score) {
+        int currentScore = playerScores.get(playerIndex);
+        playerScores.set(playerIndex, currentScore + score);
     }
 
     public static int getCurrentPlayerIndex() {
