@@ -24,6 +24,7 @@ public class ScrabbleController {
     public static char[][] board = new char[15][15];
     private static List<Point> placedTileCoordinates = new ArrayList<>();
     private ScrabbleView view; // Reference to the GUI
+    private static boolean firstTurn = true; // Add this line to track the first turn
 
     /**
      * Initializes game settings such as player count, names, and scores.
@@ -65,7 +66,15 @@ public class ScrabbleController {
     public static int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
+    // Set this to false after the first turn is played
+    public static void setFirstTurnCompleted() {
+        firstTurn = false;
+    }
 
+    // Get the current status of the first turn
+    public static boolean isFirstTurn() {
+        return firstTurn;
+    }
     /**
      * Adds the coordinates of placed tiles to a list for reference.
      *
