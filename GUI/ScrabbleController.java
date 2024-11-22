@@ -92,8 +92,9 @@ public class ScrabbleController {
     }
 
     public static List<Character> getCurrentPlayerTiles() {
-        String currentPlayer = getCurrentPlayerName();
-        return playerTilesMap.getOrDefault(currentPlayer, new ArrayList<>());
+        String currentPlayer = playerNames.get(currentPlayerIndex);
+        System.out.println("Fetching tiles for player: " + currentPlayer);
+        return playerTilesMap.get(currentPlayer); // Ensure this is updated after drawing new tiles
     }
 
     public static String getCurrentPlayerName() {

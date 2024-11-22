@@ -53,36 +53,45 @@ public class AIPlayer {
         Random random = new Random();
         int boardSize = board.length;
 
-        // Attempt to place the word on the board in valid positions
         for (int attempt = 0; attempt < 50; attempt++) {
-            boolean isHorizontal = random.nextBoolean(); // Randomly decide alignment
+            boolean isHorizontal = random.nextBoolean();
             int row = random.nextInt(boardSize);
             int col = random.nextInt(boardSize);
 
-            // Create a dummy placement to validate
             ArrayList<JButton> placedButtonsDummy = new ArrayList<>();
+            boolean isValidPlacement = true;
+
             for (int i = 0; i < word.length(); i++) {
-                JButton dummyButton = new JButton();
                 int currentRow = isHorizontal ? row : row + i;
                 int currentCol = isHorizontal ? col + i : col;
 
                 // Ensure placement is within bounds
-                if (currentRow >= boardSize || currentCol >= boardSize) {
+                if (currentRow >= boardSize || currentCol >= boardSize || board[currentRow][currentCol] != '\0') {
+                    isValidPlacement = false; // Out of bounds or overwriting tiles
                     break;
                 }
 
+                JButton dummyButton = new JButton();
                 dummyButton.putClientProperty("row", currentRow);
                 dummyButton.putClientProperty("col", currentCol);
+                dummyButton.setText(String.valueOf(word.charAt(i))); // Simulate tile placement
                 placedButtonsDummy.add(dummyButton);
             }
 
-            // Validate placement
+            if (!isValidPlacement) continue;
+
+            // Validate placement using Helpers
             if (Helpers.isWordPlacementValid(placedButtonsDummy, ScrabbleController.isFirstTurn(), false)) {
+                // Validate all words formed
+                Set<String> formedWords = Helpers.getAllWordsFormed(placedButtonsDummy);
+                if (!Helpers.areAllWordsValid(formedWords)) {
+                    continue; // Invalid words formed, try another placement
+                }
+
                 // Place the word on the actual board
                 for (int i = 0; i < word.length(); i++) {
                     int currentRow = isHorizontal ? row : row + i;
                     int currentCol = isHorizontal ? col + i : col;
-
                     board[currentRow][currentCol] = word.charAt(i);
                 }
 

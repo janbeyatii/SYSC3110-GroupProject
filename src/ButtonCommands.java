@@ -5,6 +5,7 @@ import GUI.ScrabbleView;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static src.Helpers.*;
@@ -41,49 +42,48 @@ public class ButtonCommands {
             return;
         }
 
-        Set<String> uniqueWordsFormed = getAllWordsFormed(placedButtons);
+        Set<String> uniqueWordsFormed = Helpers.getAllWordsFormed(placedButtons);
 
-        // Check if all words are valid
-        if (!areAllWordsValid(uniqueWordsFormed)) {
+        if (!Helpers.areAllWordsValid(uniqueWordsFormed)) {
             clear(placedButtons, playerTileButtons);
             return;
         }
 
-        // Update scores and display words in history separately
         updateScoresAndDisplayWords(uniqueWordsFormed, wordHistoryArea, playerScoresLabels);
 
-        // Check if any player has reached 150 points or more
-        int currentPlayerScore = ScrabbleController.getPlayerScore(ScrabbleController.getCurrentPlayerIndex());
-        if (currentPlayerScore >= 150) {
-            JOptionPane.showMessageDialog(view, "YOU WIN YAY!!", "Congratulations!", JOptionPane.INFORMATION_MESSAGE);
-            return;
+        // Update player's tiles
+        String currentPlayer = ScrabbleController.getCurrentPlayerName();
+        List<Character> currentPlayerTiles = ScrabbleController.getPlayerTilesMap().get(currentPlayer);
+
+        for (JButton button : placedButtons) {
+            String letter = button.getText();
+            currentPlayerTiles.remove((Character) letter.charAt(0)); // Remove used tile
         }
 
-        // Mark the first turn as completed
+        List<Character> newTiles = ScrabbleController.tileBag.drawTiles(placedButtons.size());
+        currentPlayerTiles.addAll(newTiles); // Add new tiles
+        System.out.println("New Tiles Drawn: " + newTiles);
+
+        // Refresh the player's tile rack in the UI
+        view.updatePlayerTiles();
+
         if (isFirstTurn) {
             ScrabbleController.setFirstTurnCompleted();
         }
 
-        // Add placed tiles to the board
         ScrabbleController.addPlacedTiles(placedButtons);
-
-        // Update the old tile coordinates after this turn
-        updateOldTileCoordinates();
+        Helpers.updateOldTileCoordinates();
 
         placedButtons.clear();
         clear(placedButtons, playerTileButtons);
 
-        // Refresh the display
         view.updateBoardDisplay();
-        view.updatePlayerTiles();
-
-        // Switch to the next player
         ScrabbleController.switchToNextPlayer();
         turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
 
-        // Update the score labels
-        updateScores(playerScoresLabels);
+        Helpers.updateScores(playerScoresLabels);
     }
+
 
     /**
      * Passes the current player's turn, clears any tiles placed during the turn, and updates the display to show the next player's turn.
