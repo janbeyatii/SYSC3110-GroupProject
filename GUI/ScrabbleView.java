@@ -169,7 +169,7 @@ public class ScrabbleView extends JFrame {
 
             // Add label to the score panel
             GridBagConstraints scoreGbc = new GridBagConstraints();
-            scoreGbc.gridy = i; // Position the labels vertically
+            scoreGbc.gridy = i;
             scorePanel.add(playerScoresLabels[i], scoreGbc);
         }
 
@@ -249,33 +249,32 @@ public class ScrabbleView extends JFrame {
 
     private void initializeAITilePanel() {
         aiTilePanel = new JPanel();
-        aiTilePanel.setLayout(new BoxLayout(aiTilePanel, BoxLayout.Y_AXIS)); // Vertical layout for multiple AI players
+        aiTilePanel.setLayout(new BoxLayout(aiTilePanel, BoxLayout.Y_AXIS));
         aiTileButtonsMap = new HashMap<>();
 
-        // Add a row of tiles for each AI player
         List<String> playerNames = ScrabbleController.getPlayerNames();
         for (String playerName : playerNames) {
-            if (!playerName.startsWith("AI")) continue; // Skip non-AI players
+            if (!playerName.startsWith("AI")) continue;
 
             JPanel aiPlayerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
             JLabel playerLabel = new JLabel(playerName + ": ");
-            playerLabel.setFont(new Font("Arial", Font.BOLD, 16)); // Larger font for player name
+            playerLabel.setFont(new Font("Arial", Font.BOLD, 16));
             aiPlayerPanel.add(playerLabel);
 
             JButton[] aiTileButtons = new JButton[7];
             for (int i = 0; i < 7; i++) {
                 aiTileButtons[i] = new JButton("...");
-                aiTileButtons[i].setPreferredSize(new Dimension(50, 50)); // Increased size
-                aiTileButtons[i].setFont(new Font("Arial", Font.BOLD, 20)); // Larger font for letters
-                aiTileButtons[i].setEnabled(false); // Disable interaction with AI tiles
+                aiTileButtons[i].setPreferredSize(new Dimension(50, 50));
+                aiTileButtons[i].setFont(new Font("Arial", Font.BOLD, 20));
+                aiTileButtons[i].setEnabled(false);
                 aiPlayerPanel.add(aiTileButtons[i]);
             }
 
             aiTilePanel.add(aiPlayerPanel);
-            aiTileButtonsMap.put(playerName, aiTileButtons); // Map AI name to their tile buttons
+            aiTileButtonsMap.put(playerName, aiTileButtons);
         }
 
-        add(aiTilePanel, BorderLayout.NORTH); // Add AI tiles to the top of the GUI
+        add(aiTilePanel, BorderLayout.NORTH);
     }
     /**
      * Creates a JButton with the specified text and action listener.
@@ -294,7 +293,6 @@ public class ScrabbleView extends JFrame {
      * Updates the player's tile rack with new tiles and refreshes the display.
      */
     public void updatePlayerTiles() {
-        // Fetch current player's tiles from the data model
         List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
 
         if (currentPlayerTiles == null) {
@@ -303,18 +301,16 @@ public class ScrabbleView extends JFrame {
 
         System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
 
-        // Update each button with the corresponding tile
         for (int i = 0; i < playerTileButtons.length; i++) {
             if (i < currentPlayerTiles.size()) {
                 playerTileButtons[i].setText(String.valueOf(currentPlayerTiles.get(i)));
-                playerTileButtons[i].setEnabled(true); // Ensure button is clickable
+                playerTileButtons[i].setEnabled(true);
             } else {
-                playerTileButtons[i].setText(""); // Empty buttons for remaining slots
+                playerTileButtons[i].setText("");
                 playerTileButtons[i].setEnabled(false);
             }
         }
 
-        // Force UI refresh to reflect changes
         repaint();
         revalidate();
     }
@@ -326,10 +322,8 @@ public class ScrabbleView extends JFrame {
             for (int col = 0; col < boardButtons[row].length; col++) {
                 char letter = ScrabbleController.board[row][col];
                 if (letter != '\0') {
-                    // Set the button's text to the letter from the board array if it exists
                     boardButtons[row][col].setText(String.valueOf(letter));
                 } else {
-                    // Clear the button's text if there's no letter in that position
                     boardButtons[row][col].setText("");
                 }
             }

@@ -19,26 +19,24 @@ public class AIPlayer {
         Set<String> formedWords = new HashSet<>();
 
         if (aiTiles == null || aiTiles.isEmpty()) {
-            // If the AI has no tiles, it passes its turn
             System.out.println("AI has no tiles and will pass its turn.");
-            return formedWords; // No words formed
+            return formedWords;
         }
 
         // Try forming and placing a word
-        for (int attempt = 0; attempt < 100; attempt++) { // Limit attempts to avoid infinite loops
-            String word = formWord(aiTiles); // Form a word using AI's tiles
+        for (int attempt = 0; attempt < 100; attempt++) {
+            String word = formWord(aiTiles);
             if (word.isEmpty()) {
                 System.out.println("AI could not form a valid word.");
-                return formedWords; // No valid word formed
+                return formedWords;
             }
 
-            // Attempt to place the word on the board
             boolean isPlaced = tryPlaceWordOnBoard(board, word, aiTiles);
 
             if (isPlaced) {
                 formedWords.add(word);
                 System.out.println("AI placed the word: " + word);
-                break; // Exit the loop after successfully placing a word
+                break;
             }
         }
 
@@ -65,51 +63,45 @@ public class AIPlayer {
                 int currentRow = isHorizontal ? row : row + i;
                 int currentCol = isHorizontal ? col + i : col;
 
-                // Ensure placement is within bounds
                 if (currentRow >= boardSize || currentCol >= boardSize || board[currentRow][currentCol] != '\0') {
-                    isValidPlacement = false; // Out of bounds or overwriting tiles
+                    isValidPlacement = false;
                     break;
                 }
 
                 JButton dummyButton = new JButton();
                 dummyButton.putClientProperty("row", currentRow);
                 dummyButton.putClientProperty("col", currentCol);
-                dummyButton.setText(String.valueOf(word.charAt(i))); // Simulate tile placement
+                dummyButton.setText(String.valueOf(word.charAt(i)));
                 placedButtonsDummy.add(dummyButton);
             }
 
             if (!isValidPlacement) continue;
 
-            // Validate placement using Helpers
             if (Helpers.isWordPlacementValid(placedButtonsDummy, ScrabbleController.isFirstTurn(), false)) {
-                // Validate all words formed
                 Set<String> formedWords = Helpers.getAllWordsFormed(placedButtonsDummy);
                 if (!Helpers.areAllWordsValid(formedWords)) {
-                    continue; // Invalid words formed, try another placement
+                    continue;
                 }
 
-                // Place the word on the actual board
                 for (int i = 0; i < word.length(); i++) {
                     int currentRow = isHorizontal ? row : row + i;
                     int currentCol = isHorizontal ? col + i : col;
                     board[currentRow][currentCol] = word.charAt(i);
                 }
 
-                // Remove used tiles from AI's tiles
                 for (char c : word.toCharArray()) {
                     aiTiles.remove((Character) c);
                 }
 
-                // Draw new tiles for the AI
                 List<Character> newTiles = ScrabbleController.tileBag.drawTiles(word.length());
                 aiTiles.addAll(newTiles);
                 System.out.println("Drawing tiles for AI: " + newTiles);
 
-                return true; // Successfully placed the word
+                return true;
             }
         }
 
-        return false; // Failed to place the word
+        return false;
     }
 
 
@@ -125,23 +117,20 @@ public class AIPlayer {
         StringBuilder word = new StringBuilder();
         Random random = new Random();
 
-        // Attempt to form a valid word using AI's tiles
-        for (int attempt = 0; attempt < 100; attempt++) { // Limit attempts to avoid infinite loops
-            word.setLength(0); // Clear the previous word
-            int wordLength = Math.min(aiTiles.size(), random.nextInt(6) + 2); // Random word length (2 to 7)
+        for (int attempt = 0; attempt < 100; attempt++) {
+            word.setLength(0);
+            int wordLength = Math.min(aiTiles.size(), random.nextInt(6) + 2);
 
             for (int i = 0; i < wordLength; i++) {
                 int tileIndex = random.nextInt(aiTiles.size());
                 word.append(aiTiles.get(tileIndex));
             }
 
-            // Validate the word
             if (WordValidity.isWordValid(word.toString())) {
-                return word.toString(); // Return the valid word
+                return word.toString();
             }
         }
 
-        // If no valid word is formed after multiple attempts, return an empty string
         return "";
     }
 

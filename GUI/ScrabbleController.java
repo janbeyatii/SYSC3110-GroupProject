@@ -132,7 +132,6 @@ public class ScrabbleController {
             }
         }
 
-        // Get the human player's name
         while (true) {
             String humanName = JOptionPane.showInputDialog("Enter your name:");
             if (humanName != null && !humanName.trim().isEmpty()) {
@@ -181,10 +180,8 @@ public class ScrabbleController {
 
         if (!formedWords.isEmpty()) {
             for (String word : formedWords) {
-                // Use ScoreCalculation to calculate the score for the word
                 ArrayList<JButton> placedButtonsDummy = new ArrayList<>();
 
-                // Simulate dummy buttons for score calculation
                 for (int i = 0; i < word.length(); i++) {
                     JButton dummyButton = new JButton(String.valueOf(word.charAt(i)));
                     dummyButton.putClientProperty("row", 0); // Replace with the actual row if available
@@ -195,7 +192,6 @@ public class ScrabbleController {
                 ScoreCalculation scoreCalculation = new ScoreCalculation(word, placedButtonsDummy);
                 int wordScore = scoreCalculation.getTotalScore();
 
-                // Update AI player's score
                 addScoreToPlayer(currentPlayerIndex, wordScore);
 
                 if (view != null) {
@@ -208,23 +204,19 @@ public class ScrabbleController {
                 System.out.println(aiPlayerName + " placed the word: " + word);
             }
 
-            // Refresh old tile coordinates
             Helpers.updateOldTileCoordinates();
         }
 
-        // If no words were formed, log that the AI passed its turn
         if (formedWords.isEmpty()) {
             System.out.println(aiPlayerName + " passed their turn.");
         }
 
-        // Refresh the UI
         if (view != null) {
             view.updateBoardDisplay();
             view.updatePlayerTiles();
             view.turnLabel.setText("Turn: " + getCurrentPlayerName());
         }
 
-        // Switch to the next player
         switchToNextPlayer();
     }
 
@@ -235,10 +227,8 @@ public class ScrabbleController {
     }
 
     public static void switchToNextPlayer() {
-        // Move to the next player
         currentPlayerIndex = (currentPlayerIndex + 1) % playercount;
 
-        // Check if the next player is an AI
         if (getCurrentPlayerName().startsWith("AI Player")) {
             handleAITurn();
         }

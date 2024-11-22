@@ -51,20 +51,18 @@ public class ButtonCommands {
 
         updateScoresAndDisplayWords(uniqueWordsFormed, wordHistoryArea, playerScoresLabels);
 
-        // Update player's tiles
         String currentPlayer = ScrabbleController.getCurrentPlayerName();
         List<Character> currentPlayerTiles = ScrabbleController.getPlayerTilesMap().get(currentPlayer);
 
         for (JButton button : placedButtons) {
             String letter = button.getText();
-            currentPlayerTiles.remove((Character) letter.charAt(0)); // Remove used tile
+            currentPlayerTiles.remove((Character) letter.charAt(0));
         }
 
         List<Character> newTiles = ScrabbleController.tileBag.drawTiles(placedButtons.size());
-        currentPlayerTiles.addAll(newTiles); // Add new tiles
+        currentPlayerTiles.addAll(newTiles);
         System.out.println("New Tiles Drawn: " + newTiles);
 
-        // Refresh the player's tile rack in the UI
         view.updatePlayerTiles();
 
         if (isFirstTurn) {
@@ -93,9 +91,9 @@ public class ButtonCommands {
      * @param turnLabel         the JLabel showing the current player's turn.
      */
     public static void pass(ArrayList<JButton> placedButtons, JButton[] playerTileButtons, JLabel turnLabel) {
-        clear(placedButtons, playerTileButtons);  // Clear the placed tiles and reset the tile rack
-        ScrabbleController.switchToNextPlayer();  // Switch to the next player
-        turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());  // Update the turn label
+        clear(placedButtons, playerTileButtons);
+        ScrabbleController.switchToNextPlayer();
+        turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
     }
 
     /**
@@ -105,21 +103,19 @@ public class ButtonCommands {
      * @param playerTileButtons the array of JButton elements representing the player's tile rack.
      */
     public static void clear(ArrayList<JButton> placedButtons, JButton[] playerTileButtons) {
-        // Clear the placed tiles from the board
         for (JButton button : placedButtons) {
             int row = (Integer) button.getClientProperty("row");
             int col = (Integer) button.getClientProperty("col");
 
-            button.setText("");  // Remove the text (letter) from the button
-            ScrabbleController.board[row][col] = '\0';  // Reset the board position to empty
+            button.setText("");
+            ScrabbleController.board[row][col] = '\0';
         }
 
-        placedButtons.clear();  // Clear the list of placed buttons
+        placedButtons.clear();
 
-        // Re-enable the tile buttons in the player's tile rack
         for (JButton tileButton : playerTileButtons) {
             if (tileButton.getText() != null && !tileButton.getText().isEmpty()) {
-                tileButton.setEnabled(true);  // Re-enable the button if it is not empty
+                tileButton.setEnabled(true);
             }
         }
     }
@@ -136,20 +132,16 @@ public class ButtonCommands {
         int currentPlayerIndex = ScrabbleController.getCurrentPlayerIndex();
         int turnScore = 0;
 
-        // Process each word formed
         for (String word : uniqueWordsFormed) {
             ScoreCalculation scoreCalc = new ScoreCalculation(word, ScrabbleController.getPlacedButtons());
-            int wordScore = scoreCalc.getTotalScore(); // Calculate the score for the word
-            turnScore += wordScore; // Add to the total score for the turn
+            int wordScore = scoreCalc.getTotalScore();
+            turnScore += wordScore;
 
-            // Display the word and its score in the word history
             wordHistoryArea.append(word + ": " + wordScore + " points\n");
         }
 
-        // Update the player's total score
         ScrabbleController.addScoreToPlayer(currentPlayerIndex, turnScore);
 
-        // Update the score labels for all players
         for (int i = 0; i < playerScoresLabels.length; i++) {
             playerScoresLabels[i].setText("Score: " + ScrabbleController.getPlayerScore(i));
         }
