@@ -1,15 +1,18 @@
 package src;
 
-import java.util.*;
 import GUI.ScrabbleController;
 
+import javax.swing.*;
+import java.util.*;
+
 public class AIPlayer {
+
     /**
      * Simulates an AI making a move on the board.
-     * The AI forms a valid word using its available tiles.
+     * The AI forms a valid word using its available tiles and ensures the placement adheres to Scrabble rules.
      *
-     * @param board      The current Scrabble board.
-     * @param aiTiles    The AI's available tiles.
+     * @param board   The current Scrabble board.
+     * @param aiTiles The AI's available tiles.
      * @return A set of words formed by the AI.
      */
     public static Set<String> makeMove(char[][] board, List<Character> aiTiles) {
@@ -21,26 +24,90 @@ public class AIPlayer {
             return formedWords; // No words formed
         }
 
-        // Form the best possible word using the AI's tiles
-        String word = formWord(aiTiles);
+        // Try forming and placing a word
+        for (int attempt = 0; attempt < 100; attempt++) { // Limit attempts to avoid infinite loops
+            String word = formWord(aiTiles); // Form a word using AI's tiles
+            if (word.isEmpty()) {
+                System.out.println("AI could not form a valid word.");
+                return formedWords; // No valid word formed
+            }
 
-        if (!word.isEmpty()) {
-            formedWords.add(word);
+            // Attempt to place the word on the board
+            boolean isPlaced = tryPlaceWordOnBoard(board, word, aiTiles);
 
-            // Place the word on the board
-            placeWordOnBoard(board, word);
+            if (isPlaced) {
+                formedWords.add(word);
+                System.out.println("AI placed the word: " + word);
+                break; // Exit the loop after successfully placing a word
+            }
+        }
 
-            // Remove used tiles and refill AI's tile set
-            TileBag.removeUsedTiles(word);
+        if (formedWords.isEmpty()) {
+            System.out.println("AI failed to place any word after multiple attempts.");
         }
 
         return formedWords;
     }
 
+    private static boolean tryPlaceWordOnBoard(char[][] board, String word, List<Character> aiTiles) {
+        Random random = new Random();
+        int boardSize = board.length;
+
+        // Attempt to place the word on the board in valid positions
+        for (int attempt = 0; attempt < 50; attempt++) {
+            boolean isHorizontal = random.nextBoolean(); // Randomly decide alignment
+            int row = random.nextInt(boardSize);
+            int col = random.nextInt(boardSize);
+
+            // Create a dummy placement to validate
+            ArrayList<JButton> placedButtonsDummy = new ArrayList<>();
+            for (int i = 0; i < word.length(); i++) {
+                JButton dummyButton = new JButton();
+                int currentRow = isHorizontal ? row : row + i;
+                int currentCol = isHorizontal ? col + i : col;
+
+                // Ensure placement is within bounds
+                if (currentRow >= boardSize || currentCol >= boardSize) {
+                    break;
+                }
+
+                dummyButton.putClientProperty("row", currentRow);
+                dummyButton.putClientProperty("col", currentCol);
+                placedButtonsDummy.add(dummyButton);
+            }
+
+            // Validate placement
+            if (Helpers.isWordPlacementValid(placedButtonsDummy, ScrabbleController.isFirstTurn(), false)) {
+                // Place the word on the actual board
+                for (int i = 0; i < word.length(); i++) {
+                    int currentRow = isHorizontal ? row : row + i;
+                    int currentCol = isHorizontal ? col + i : col;
+
+                    board[currentRow][currentCol] = word.charAt(i);
+                }
+
+                // Remove used tiles from AI's tiles
+                for (char c : word.toCharArray()) {
+                    aiTiles.remove((Character) c);
+                }
+
+                // Draw new tiles for the AI
+                List<Character> newTiles = ScrabbleController.tileBag.drawTiles(word.length());
+                aiTiles.addAll(newTiles);
+                System.out.println("Drawing tiles for AI: " + newTiles);
+
+                return true; // Successfully placed the word
+            }
+        }
+
+        return false; // Failed to place the word
+    }
+
+
+
 
     /**
      * Forms a word using the AI's available tiles.
-     * This version forms a simple word but can be extended with smarter logic.
      *
      * @param aiTiles The AI's available tiles.
      * @return A valid word formed using the tiles.
@@ -70,40 +137,4 @@ public class AIPlayer {
     }
 
 
-    /**
-     * Places a word on the board. The word is placed starting at a random position
-     * and aligned either horizontally or vertically.
-     *
-     * @param board The Scrabble board.
-     * @param word  The word to place on the board.
-     */
-    private static void placeWordOnBoard(char[][] board, String word) {
-        Random random = new Random();
-        int boardSize = board.length;
-
-        // Randomly decide alignment (horizontal or vertical)
-        boolean isHorizontal = random.nextBoolean();
-
-        // Pick a random starting position on the board
-        int row, col;
-        if (isHorizontal) {
-            row = random.nextInt(boardSize);
-            col = random.nextInt(boardSize - word.length() + 1); // Ensure word fits
-        } else {
-            row = random.nextInt(boardSize - word.length() + 1); // Ensure word fits
-            col = random.nextInt(boardSize);
-        }
-
-        // Place the word on the board
-        for (int i = 0; i < word.length(); i++) {
-            if (isHorizontal) {
-                board[row][col + i] = word.charAt(i);
-            } else {
-                board[row + i][col] = word.charAt(i);
-            }
-        }
-
-        System.out.println("AI placed word '" + word + "' at " +
-                (isHorizontal ? "row " + row + ", starting at column " + col : "column " + col + ", starting at row " + row));
-    }
 }

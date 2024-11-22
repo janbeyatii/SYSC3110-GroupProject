@@ -36,8 +36,7 @@ public class ButtonCommands {
     public static void submit(ScrabbleView view, JTextArea wordHistoryArea, JLabel turnLabel, ArrayList<JButton> placedButtons, JLabel[] playerScoresLabels, JButton[] playerTileButtons) {
         boolean isFirstTurn = ScrabbleController.isFirstTurn();
 
-        // Validate word placement, including adjacency check
-        if (!isWordPlacementValid(placedButtons, isFirstTurn)) {
+        if (!Helpers.isWordPlacementValid(placedButtons, isFirstTurn, true)) {
             clear(placedButtons, playerTileButtons);
             return;
         }

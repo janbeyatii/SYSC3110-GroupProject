@@ -31,6 +31,8 @@ public class ScrabbleView extends JFrame {
     // Tile Management Display
     private JPanel tilePanel;
     public JButton[] playerTileButtons;
+    private JPanel aiTilePanel; // Panel for AI tiles
+    public JButton[] aiTileButtons; // Buttons for AI tiles
 
     // Word History Display
     public JTextArea wordHistoryArea;
@@ -54,7 +56,9 @@ public class ScrabbleView extends JFrame {
         initializeBoardPanel(boardSize);
         initializeControlPanel();
         initializeTilePanel(tileCharacters);
+        initializeAITilePanel();
 
+        add(aiTilePanel, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.EAST);
         add(tilePanel, BorderLayout.SOUTH);
@@ -238,6 +242,35 @@ public class ScrabbleView extends JFrame {
             tilePanel.add(playerTileButtons[i], tileGbc);
         }
     }
+
+    private void initializeAITilePanel() {
+        aiTilePanel = new JPanel(new GridBagLayout());
+        GridBagConstraints tileGbc = new GridBagConstraints();
+        tileGbc.fill = GridBagConstraints.BOTH;
+        tileGbc.weightx = 1.0;
+        tileGbc.insets = new Insets(2, 2, 2, 2);
+
+        Dimension tileButtonSize = new Dimension(40, 40); // Fixed size for AI tiles
+
+        // Retrieve the AI's tiles (assumes AI is the second player)
+        List<Character> aiTiles = ScrabbleController.getPlayerTilesMap()
+                .get("AI Player 1"); // Replace with dynamic AI name if needed
+
+        aiTileButtons = new JButton[7];
+        for (int i = 0; i < 7; i++) {
+            aiTileButtons[i] = new JButton(i < aiTiles.size() ? String.valueOf(aiTiles.get(i)) : "");
+            aiTileButtons[i].setFont(new Font("Arial", Font.BOLD, 18));
+
+            // Set fixed size for each tile button
+            aiTileButtons[i].setPreferredSize(tileButtonSize);
+            aiTileButtons[i].setMinimumSize(tileButtonSize);
+            aiTileButtons[i].setMaximumSize(tileButtonSize);
+
+            aiTileButtons[i].setEnabled(false); // Disable AI tile buttons (not clickable)
+            tileGbc.gridx = i;
+            aiTilePanel.add(aiTileButtons[i], tileGbc);
+        }
+    }
     /**
      * Creates a JButton with the specified text and action listener.
      *
@@ -283,6 +316,18 @@ public class ScrabbleView extends JFrame {
                     // Clear the button's text if there's no letter in that position
                     boardButtons[row][col].setText("");
                 }
+            }
+        }
+    }
+
+    public void updateAITiles() {
+        List<Character> aiTiles = ScrabbleController.getPlayerTilesMap().get("AI Player 1");
+
+        for (int i = 0; i < aiTileButtons.length; i++) {
+            if (i < aiTiles.size()) {
+                aiTileButtons[i].setText(String.valueOf(aiTiles.get(i)));
+            } else {
+                aiTileButtons[i].setText("");
             }
         }
     }

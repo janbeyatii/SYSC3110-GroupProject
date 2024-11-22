@@ -46,6 +46,8 @@ public class ScrabbleController {
     }
 
     public static void initializeGameSettings() {
+        System.out.println("Initializing players: " + playerNames.size());
+
         if (!isInitialized) {
             // Get the player names (1 human + up to 3 AI)
             playerNames = setupPlayers();
@@ -56,6 +58,7 @@ public class ScrabbleController {
 
             // Assign tiles to each player
             for (String playerName : playerNames) {
+                System.out.println("Assigning tiles to: " + playerName);
                 List<Character> initialTiles = tileBag.drawTiles(7);
                 playerTilesMap.put(playerName, initialTiles);
             }
@@ -72,17 +75,8 @@ public class ScrabbleController {
         }
     }
 
-    public static ArrayList<Character> getPlayerTiles() {
-        playerTiles = new ArrayList<>(tileBag.drawTiles(7));
-        return playerTiles;
-    }
-
     public static List<String> getPlayerNames() {
         return playerNames;
-    }
-
-    public static ScrabbleView getView() {
-        return view;
     }
 
     public static int getCurrentPlayerIndex() {
@@ -120,6 +114,8 @@ public class ScrabbleController {
      * @return a list of player names (1 human and up to 3 AI).
      */
     public static ArrayList<String> setupPlayers() {
+        System.out.println("Players setup: " + playerNames);
+
         ArrayList<String> playerNames = new ArrayList<>();
         int totalAIPlayers  = 0;
 
@@ -199,6 +195,9 @@ public class ScrabbleController {
                     view.wordHistoryArea.append(aiPlayerName + " placed: " + word + " (" + wordScore + " points)\n");
                 }
 
+                assert view != null;
+                view.updateAITiles();
+
                 // Log the word placement (optional)
                 System.out.println(aiPlayerName + " placed the word: " + word);
             }
@@ -223,12 +222,6 @@ public class ScrabbleController {
         switchToNextPlayer();
     }
 
-
-    public static void refreshUI(ScrabbleView view) {
-        view.updateBoardDisplay();
-        view.updatePlayerTiles();
-        view.turnLabel.setText("Turn: " + getCurrentPlayerName());
-    }
 
     public static boolean isFirstTurn() {
         return firstTurn;
