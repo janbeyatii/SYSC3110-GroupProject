@@ -3,6 +3,7 @@ package GUI;
 
 import src.AIPlayer;
 import src.Helpers;
+import src.ScoreCalculation;
 import src.TileBag;
 
 import javax.swing.*;
@@ -49,14 +50,10 @@ public class ScrabbleController {
         System.out.println("Initializing players: " + playerNames.size());
 
         if (!isInitialized) {
-            // Get the player names (1 human + up to 3 AI)
             playerNames = setupPlayers();
-            playercount = playerNames.size(); // Total number of players is the size of the playerNames list
-
-            // Initialize scores for each player
+            playercount = playerNames.size();
             initializePlayerScores();
 
-            // Assign tiles to each player
             for (String playerName : playerNames) {
                 System.out.println("Assigning tiles to: " + playerName);
                 List<Character> initialTiles = tileBag.drawTiles(7);
@@ -94,7 +91,7 @@ public class ScrabbleController {
     public static List<Character> getCurrentPlayerTiles() {
         String currentPlayer = playerNames.get(currentPlayerIndex);
         System.out.println("Fetching tiles for player: " + currentPlayer);
-        return playerTilesMap.get(currentPlayer); // Ensure this is updated after drawing new tiles
+        return playerTilesMap.get(currentPlayer);
     }
 
     public static String getCurrentPlayerName() {
@@ -147,7 +144,7 @@ public class ScrabbleController {
         }
 
         // Add AI players
-        for (int i = 1; i <= totalAIPlayers; i++) { // Use <= to include all AI players
+        for (int i = 1; i <= totalAIPlayers; i++) {
             playerNames.add("AI Player " + i);
         }
 
@@ -177,21 +174,30 @@ public class ScrabbleController {
     }
 
     private static void handleAITurn() {
-        // Get the AI player's tiles
         String aiPlayerName = getCurrentPlayerName();
         List<Character> aiTiles = playerTilesMap.get(aiPlayerName);
 
-        // Make the AI's move
         Set<String> formedWords = AIPlayer.makeMove(board, aiTiles);
 
-        // If the AI formed any words, update the game state
         if (!formedWords.isEmpty()) {
             for (String word : formedWords) {
-                // Calculate the word's score
-                int wordScore = word.length(); // Example scoring; replace with actual scoring logic
+                // Use ScoreCalculation to calculate the score for the word
+                ArrayList<JButton> placedButtonsDummy = new ArrayList<>();
+
+                // Simulate dummy buttons for score calculation
+                for (int i = 0; i < word.length(); i++) {
+                    JButton dummyButton = new JButton(String.valueOf(word.charAt(i)));
+                    dummyButton.putClientProperty("row", 0); // Replace with the actual row if available
+                    dummyButton.putClientProperty("col", i); // Replace with the actual column if available
+                    placedButtonsDummy.add(dummyButton);
+                }
+
+                ScoreCalculation scoreCalculation = new ScoreCalculation(word, placedButtonsDummy);
+                int wordScore = scoreCalculation.getTotalScore();
+
+                // Update AI player's score
                 addScoreToPlayer(currentPlayerIndex, wordScore);
 
-                // Append the word and score to the word history area
                 if (view != null) {
                     view.wordHistoryArea.append(aiPlayerName + " placed: " + word + " (" + wordScore + " points)\n");
                 }
@@ -199,7 +205,6 @@ public class ScrabbleController {
                 assert view != null;
                 view.updateAITiles();
 
-                // Log the word placement (optional)
                 System.out.println(aiPlayerName + " placed the word: " + word);
             }
 
@@ -222,6 +227,7 @@ public class ScrabbleController {
         // Switch to the next player
         switchToNextPlayer();
     }
+
 
 
     public static boolean isFirstTurn() {
