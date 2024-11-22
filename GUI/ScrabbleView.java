@@ -33,7 +33,7 @@ public class ScrabbleView extends JFrame {
     public JButton[] playerTileButtons;
 
     // Word History Display
-    private JTextArea wordHistoryArea;
+    public JTextArea wordHistoryArea;
 
     /**
      * Constructs the ScrabbleView GUI, initializing the game board, control panel, and tile panel.
@@ -46,6 +46,8 @@ public class ScrabbleView extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        ScrabbleController.setView(this);
 
         ScrabbleController.initializeGameSettings();
 

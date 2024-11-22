@@ -1,6 +1,8 @@
 
 package GUI;
 
+import src.AIPlayer;
+import src.Helpers;
 import src.TileBag;
 
 import javax.swing.*;
@@ -31,6 +33,8 @@ public class ScrabbleController {
     public static TileBag tileBag = new TileBag();
     private static List<Point> placedTileCoordinates = new ArrayList<>();
     private static ArrayList<JButton> placedButtons = new ArrayList<>();
+    private static ScrabbleView view;
+
 
     /**
      * Constructor for the ScrabbleController class.
@@ -75,6 +79,10 @@ public class ScrabbleController {
 
     public static List<String> getPlayerNames() {
         return playerNames;
+    }
+
+    public static ScrabbleView getView() {
+        return view;
     }
 
     public static int getCurrentPlayerIndex() {
@@ -154,6 +162,10 @@ public class ScrabbleController {
         firstTurn = false;
     }
 
+    public static void setView(ScrabbleView scrabbleView) {
+        view = scrabbleView;
+    }
+
     public static void addScoreToPlayer(int playerIndex, int score) {
         int currentScore = playerScores.get(playerIndex);
         playerScores.set(playerIndex, currentScore + score);
@@ -167,12 +179,69 @@ public class ScrabbleController {
         }
     }
 
+    private static void handleAITurn() {
+        // Get the AI player's tiles
+        String aiPlayerName = getCurrentPlayerName();
+        List<Character> aiTiles = playerTilesMap.get(aiPlayerName);
+
+        // Make the AI's move
+        Set<String> formedWords = AIPlayer.makeMove(board, aiTiles);
+
+        // If the AI formed any words, update the game state
+        if (!formedWords.isEmpty()) {
+            for (String word : formedWords) {
+                // Calculate the word's score
+                int wordScore = word.length(); // Example scoring; replace with actual scoring logic
+                addScoreToPlayer(currentPlayerIndex, wordScore);
+
+                // Append the word and score to the word history area
+                if (view != null) {
+                    view.wordHistoryArea.append(aiPlayerName + " placed: " + word + " (" + wordScore + " points)\n");
+                }
+
+                // Log the word placement (optional)
+                System.out.println(aiPlayerName + " placed the word: " + word);
+            }
+
+            // Refresh old tile coordinates
+            Helpers.updateOldTileCoordinates();
+        }
+
+        // If no words were formed, log that the AI passed its turn
+        if (formedWords.isEmpty()) {
+            System.out.println(aiPlayerName + " passed their turn.");
+        }
+
+        // Refresh the UI
+        if (view != null) {
+            view.updateBoardDisplay();
+            view.updatePlayerTiles();
+            view.turnLabel.setText("Turn: " + getCurrentPlayerName());
+        }
+
+        // Switch to the next player
+        switchToNextPlayer();
+    }
+
+
+    public static void refreshUI(ScrabbleView view) {
+        view.updateBoardDisplay();
+        view.updatePlayerTiles();
+        view.turnLabel.setText("Turn: " + getCurrentPlayerName());
+    }
+
     public static boolean isFirstTurn() {
         return firstTurn;
     }
 
     public static void switchToNextPlayer() {
+        // Move to the next player
         currentPlayerIndex = (currentPlayerIndex + 1) % playercount;
+
+        // Check if the next player is an AI
+        if (getCurrentPlayerName().startsWith("AI Player")) {
+            handleAITurn();
+        }
     }
 
 }

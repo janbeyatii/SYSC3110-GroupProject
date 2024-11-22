@@ -37,6 +37,7 @@ public class AIPlayer {
         return formedWords;
     }
 
+
     /**
      * Forms a word using the AI's available tiles.
      * This version forms a simple word but can be extended with smarter logic.
