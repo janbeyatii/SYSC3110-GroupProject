@@ -47,6 +47,7 @@ public class TileBag {
      * @return a list of characters representing the drawn tiles.
      */
     public List<Character> drawTiles(int numTiles) {
+
         List<Character> drawnTile = new ArrayList<>();
         Random random = new Random();
 
@@ -60,7 +61,7 @@ public class TileBag {
             drawnTile.add(tile);
             updateTileCount(tile);
         }
-
+        System.out.println("Drawing tiles: " + drawnTile);
         return drawnTile;
     }
 

@@ -195,36 +195,46 @@ public class Helpers {
      * @param isFirstTurn   true if it is the first turn of the game, false otherwise.
      * @return true if the word placement is valid, false otherwise.
      */
-    public static boolean isWordPlacementValid(ArrayList<JButton> placedButtons, boolean isFirstTurn) {
+    public static boolean isWordPlacementValid(ArrayList<JButton> placedButtons, boolean isFirstTurn, boolean showMessages) {
         // Check if the first move is valid
         if (isFirstTurn) {
             // If the first word is invalid, don't reset player tiles, just notify and return false
             Set<String> wordsFormed = getAllWordsFormed(placedButtons);
             if (!areAllWordsValid(wordsFormed)) {
-                JOptionPane.showMessageDialog(null, "Invalid first word.");
-                return false; // Just return without affecting player tiles
+                if (showMessages) {
+                    JOptionPane.showMessageDialog(null, "Invalid first word.");
+                }
+                return false;
             }
 
             // Ensure center tile is used and adjacent
             if (!isUsingCenterTile(placedButtons)) {
-                JOptionPane.showMessageDialog(null, "The first word must use the center tile.");
+                if (showMessages) {
+                    JOptionPane.showMessageDialog(null, "The first word must use the center tile.");
+                }
                 return false;
             }
             if (!isCenterTileAdjacentToAnotherTile(placedButtons)) {
-                JOptionPane.showMessageDialog(null, "On the first turn, the center tile must be adjacent to another newly placed tile.");
+                if (showMessages) {
+                    JOptionPane.showMessageDialog(null, "On the first turn, the center tile must be adjacent to another newly placed tile.");
+                }
                 return false;
             }
         }
 
         // Normal validation for non-first turn
         if (!isFirstTurn && !isAdjacentToExistingWords(placedButtons)) {
-            JOptionPane.showMessageDialog(null, "Placed letters must be adjacent to existing words.");
+            if (showMessages) {
+                JOptionPane.showMessageDialog(null, "Placed letters must be adjacent to existing words.");
+            }
             return false;
         }
 
         // Check word alignment (row/column)
         if (!isAlignedInSingleRowOrColumn(placedButtons)) {
-            JOptionPane.showMessageDialog(null, "Placed letters must be in the same row or column.");
+            if (showMessages) {
+                JOptionPane.showMessageDialog(null, "Placed letters must be in the same row or column.");
+            }
             return false;
         }
 
@@ -368,9 +378,16 @@ public class Helpers {
      * @param playerScoresLabels the array of JLabels that display players' scores.
      */
     public static void updateScores(JLabel[] playerScoresLabels) {
-        for (int i = 0; i < ScrabbleController.getPlayercount(); i++) {
-            playerScoresLabels[i].setText(ScrabbleController.getPlayerNames().get(i) + " Score: " + ScrabbleController.getPlayerScore(i));
+        // Loop through each player
+        for (int i = 0; i < ScrabbleController.getPlayerNames().size(); i++) {
+            // Get the specific player's name and score
+            String playerName = ScrabbleController.getPlayerNames().get(i);
+            int playerScore = ScrabbleController.getPlayerScore(i); // Assuming this method exists
+
+            // Update the label with the correct player's name and score
+            playerScoresLabels[i].setText(playerName + " Score: " + playerScore);
         }
     }
+
 
 }

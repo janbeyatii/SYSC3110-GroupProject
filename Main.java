@@ -2,6 +2,7 @@ import GUI.*;
 import src.WordValidity;
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The Main class is the entry point for the Scrabble game.
@@ -17,6 +18,7 @@ public class Main {
         // Default constructor
     }
 
+
     /**
      * The main method that runs the Scrabble game.
      * It initializes the board, players, word list, and manages the game flow.
@@ -31,11 +33,14 @@ public class Main {
 
             String wordListFilePath = "wordLists/wordlist.txt";
             WordValidity.loadWordsFromFile(wordListFilePath);
-
+            // Initialize game settings and players
             ScrabbleController.initializeGameSettings();
 
-            ArrayList<Character> playerTiles = ScrabbleController.getPlayerTiles();
-            ScrabbleView view = new ScrabbleView(15, playerTiles);
+            // Fetch the first player's tiles from playerTilesMap
+            List<Character> playerTiles = ScrabbleController.getCurrentPlayerTiles();
+
+            // Initialize the view with the first player's tiles
+            ScrabbleView view = new ScrabbleView(15, new ArrayList<>(playerTiles));
             view.setVisible(true);
         });
     }

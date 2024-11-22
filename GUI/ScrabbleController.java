@@ -1,5 +1,8 @@
+
 package GUI;
 
+import src.AIPlayer;
+import src.Helpers;
 import src.TileBag;
 
 import javax.swing.*;
@@ -30,6 +33,8 @@ public class ScrabbleController {
     public static TileBag tileBag = new TileBag();
     private static List<Point> placedTileCoordinates = new ArrayList<>();
     private static ArrayList<JButton> placedButtons = new ArrayList<>();
+    private static ScrabbleView view;
+
 
     /**
      * Constructor for the ScrabbleController class.
@@ -41,17 +46,27 @@ public class ScrabbleController {
     }
 
     public static void initializeGameSettings() {
+        System.out.println("Initializing players: " + playerNames.size());
+
         if (!isInitialized) {
-            playercount = getPlayercount();
-            getPlayerNames();
+            // Get the player names (1 human + up to 3 AI)
+            playerNames = setupPlayers();
+            playercount = playerNames.size(); // Total number of players is the size of the playerNames list
+
+            // Initialize scores for each player
             initializePlayerScores();
+
+            // Assign tiles to each player
             for (String playerName : playerNames) {
+                System.out.println("Assigning tiles to: " + playerName);
                 List<Character> initialTiles = tileBag.drawTiles(7);
                 playerTilesMap.put(playerName, initialTiles);
             }
+
             isInitialized = true;
         }
     }
+
 
     public static void initializePlayerScores() {
         playerScores.clear();
@@ -60,9 +75,8 @@ public class ScrabbleController {
         }
     }
 
-    public static ArrayList<Character> getPlayerTiles() {
-        playerTiles = new ArrayList<>(tileBag.drawTiles(7));
-        return playerTiles;
+    public static List<String> getPlayerNames() {
+        return playerNames;
     }
 
     public static int getCurrentPlayerIndex() {
@@ -78,8 +92,9 @@ public class ScrabbleController {
     }
 
     public static List<Character> getCurrentPlayerTiles() {
-        String currentPlayer = getCurrentPlayerName();
-        return playerTilesMap.getOrDefault(currentPlayer, new ArrayList<>());
+        String currentPlayer = playerNames.get(currentPlayerIndex);
+        System.out.println("Fetching tiles for player: " + currentPlayer);
+        return playerTilesMap.get(currentPlayer); // Ensure this is updated after drawing new tiles
     }
 
     public static String getCurrentPlayerName() {
@@ -95,55 +110,57 @@ public class ScrabbleController {
     }
 
     /**
-     * Prompts the user to enter the number of players (2-4).
+     * Prompts the user to set up the game with one human player and up to three AI players.
      *
-     * @return the number of players as an integer.
+     * @return a list of player names (1 human and up to 3 AI).
      */
-    public static int getPlayercount() {
+    public static ArrayList<String> setupPlayers() {
+        System.out.println("Players setup: " + playerNames);
 
-        if (playercount != 0) {
-            return playercount;
-        }
+        ArrayList<String> playerNames = new ArrayList<>();
+        int totalAIPlayers  = 0;
+
         while (true) {
-            String input = JOptionPane.showInputDialog("Number of players (2-4): ");
+            String input = JOptionPane.showInputDialog("How many AIs do you want to play against? (1-3) ");
             try {
                 int count = Integer.parseInt(input);
-                if (count == 2 || count == 3 || count == 4) {
-                    playercount = count;
-                    return playercount;
+                if (count >= 1 && count <= 3) {
+                    totalAIPlayers = count;
+                    break;
                 } else {
-                    JOptionPane.showMessageDialog(null, "Please enter a number between 2 and 4.");
+                    JOptionPane.showMessageDialog(null, "Please enter a number between 1 and 3.");
                 }
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid integer.");
             }
         }
-    }
 
-    /**
-     * Prompts the user to enter names for each player and stores them in a list.
-     *
-     * @return a list of player names.
-     */
-    public static ArrayList<String> getPlayerNames() {
-        if (playerNames.isEmpty()) {
-            for (int i = 0; i < playercount; i++) {
-                while (true) {
-                    String playerName = JOptionPane.showInputDialog("Enter name for player " + (i + 1) + ":");
-                    if (playerName != null && !playerName.trim().isEmpty()) {
-                        playerNames.add(playerName.trim());
-                        break;
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Player name cannot be empty. Please enter a valid name.");
-                    }
-                }
+        // Get the human player's name
+        while (true) {
+            String humanName = JOptionPane.showInputDialog("Enter your name:");
+            if (humanName != null && !humanName.trim().isEmpty()) {
+                playerNames.add(humanName.trim());
+                break;
+            } else {
+                JOptionPane.showMessageDialog(null, "Player name cannot be empty. Please enter a valid name.");
             }
         }
+
+        // Add AI players
+        for (int i = 1; i <= totalAIPlayers; i++) { // Use <= to include all AI players
+            playerNames.add("AI Player " + i);
+        }
+
         return playerNames;
     }
 
+
     public static void setFirstTurnCompleted() {
         firstTurn = false;
+    }
+
+    public static void setView(ScrabbleView scrabbleView) {
+        view = scrabbleView;
     }
 
     public static void addScoreToPlayer(int playerIndex, int score) {
@@ -159,12 +176,66 @@ public class ScrabbleController {
         }
     }
 
+    private static void handleAITurn() {
+        // Get the AI player's tiles
+        String aiPlayerName = getCurrentPlayerName();
+        List<Character> aiTiles = playerTilesMap.get(aiPlayerName);
+
+        // Make the AI's move
+        Set<String> formedWords = AIPlayer.makeMove(board, aiTiles);
+
+        // If the AI formed any words, update the game state
+        if (!formedWords.isEmpty()) {
+            for (String word : formedWords) {
+                // Calculate the word's score
+                int wordScore = word.length(); // Example scoring; replace with actual scoring logic
+                addScoreToPlayer(currentPlayerIndex, wordScore);
+
+                // Append the word and score to the word history area
+                if (view != null) {
+                    view.wordHistoryArea.append(aiPlayerName + " placed: " + word + " (" + wordScore + " points)\n");
+                }
+
+                assert view != null;
+                view.updateAITiles();
+
+                // Log the word placement (optional)
+                System.out.println(aiPlayerName + " placed the word: " + word);
+            }
+
+            // Refresh old tile coordinates
+            Helpers.updateOldTileCoordinates();
+        }
+
+        // If no words were formed, log that the AI passed its turn
+        if (formedWords.isEmpty()) {
+            System.out.println(aiPlayerName + " passed their turn.");
+        }
+
+        // Refresh the UI
+        if (view != null) {
+            view.updateBoardDisplay();
+            view.updatePlayerTiles();
+            view.turnLabel.setText("Turn: " + getCurrentPlayerName());
+        }
+
+        // Switch to the next player
+        switchToNextPlayer();
+    }
+
+
     public static boolean isFirstTurn() {
         return firstTurn;
     }
 
     public static void switchToNextPlayer() {
+        // Move to the next player
         currentPlayerIndex = (currentPlayerIndex + 1) % playercount;
+
+        // Check if the next player is an AI
+        if (getCurrentPlayerName().startsWith("AI Player")) {
+            handleAITurn();
+        }
     }
 
 }

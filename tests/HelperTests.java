@@ -32,7 +32,7 @@ public class HelperTests {
         turnLabel = new JLabel();
         placedButtons = new ArrayList<>();
 
-        playerScoresLabels = new JLabel[ScrabbleController.getPlayercount()];
+        playerScoresLabels = new JLabel[ScrabbleController.getPlayerNames().size()];
         for (int i = 0; i < playerScoresLabels.length; i++) {
             playerScoresLabels[i] = new JLabel("Player " + (i + 1) + " Score: 0");
         }

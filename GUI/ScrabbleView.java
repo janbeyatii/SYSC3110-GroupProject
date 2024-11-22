@@ -5,7 +5,9 @@ import src.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The ScrabbleView class represents the main GUI for the Scrabble game.
@@ -31,9 +33,13 @@ public class ScrabbleView extends JFrame {
     // Tile Management Display
     private JPanel tilePanel;
     public JButton[] playerTileButtons;
+    private JPanel aiTilePanel;
+    public JButton[] aiTileButtons;
+    private Map<String, JButton[]> aiTileButtonsMap;
+
 
     // Word History Display
-    private JTextArea wordHistoryArea;
+    public JTextArea wordHistoryArea;
 
     /**
      * Constructs the ScrabbleView GUI, initializing the game board, control panel, and tile panel.
@@ -47,12 +53,16 @@ public class ScrabbleView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        ScrabbleController.setView(this);
+
         ScrabbleController.initializeGameSettings();
 
         initializeBoardPanel(boardSize);
         initializeControlPanel();
         initializeTilePanel(tileCharacters);
+        initializeAITilePanel();
 
+        add(aiTilePanel, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.EAST);
         add(tilePanel, BorderLayout.SOUTH);
@@ -147,17 +157,27 @@ public class ScrabbleView extends JFrame {
      */
     private void initializeScorePanel(GridBagConstraints controlGbc) {
         JPanel scorePanel = new JPanel(new GridBagLayout());
-        playerScoresLabels = new JLabel[ScrabbleController.getPlayercount()];
-        for (int i = 0; i < ScrabbleController.getPlayercount(); i++) {
-            playerScoresLabels[i] = new JLabel(ScrabbleController.getPlayerNames().get(i) + " Score: 0");
+        List<String> playerNames = ScrabbleController.getPlayerNames(); // Get the correct player names
+        int playerCount = playerNames.size();
+        playerScoresLabels = new JLabel[playerCount]; // Adjust size to match actual player count
+
+        for (int i = 0; i < playerCount; i++) {
+            // Use the correct player name for the label
+            String playerName = playerNames.get(i);
+            playerScoresLabels[i] = new JLabel(playerName + " Score: 0");
             playerScoresLabels[i].setFont(new Font("Arial", Font.PLAIN, 14));
+
+            // Add label to the score panel
             GridBagConstraints scoreGbc = new GridBagConstraints();
-            scoreGbc.gridy = i;
+            scoreGbc.gridy = i; // Position the labels vertically
             scorePanel.add(playerScoresLabels[i], scoreGbc);
         }
+
         controlGbc.gridy = 1;
         controlPanel.add(scorePanel, controlGbc);
     }
+
+
 
     /**
      * Initializes the label that displays the current player's turn.
@@ -226,6 +246,37 @@ public class ScrabbleView extends JFrame {
             tilePanel.add(playerTileButtons[i], tileGbc);
         }
     }
+
+    private void initializeAITilePanel() {
+        aiTilePanel = new JPanel();
+        aiTilePanel.setLayout(new BoxLayout(aiTilePanel, BoxLayout.Y_AXIS)); // Vertical layout for multiple AI players
+        aiTileButtonsMap = new HashMap<>();
+
+        // Add a row of tiles for each AI player
+        List<String> playerNames = ScrabbleController.getPlayerNames();
+        for (String playerName : playerNames) {
+            if (!playerName.startsWith("AI")) continue; // Skip non-AI players
+
+            JPanel aiPlayerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JLabel playerLabel = new JLabel(playerName + ": ");
+            playerLabel.setFont(new Font("Arial", Font.BOLD, 16)); // Larger font for player name
+            aiPlayerPanel.add(playerLabel);
+
+            JButton[] aiTileButtons = new JButton[7];
+            for (int i = 0; i < 7; i++) {
+                aiTileButtons[i] = new JButton("...");
+                aiTileButtons[i].setPreferredSize(new Dimension(50, 50)); // Increased size
+                aiTileButtons[i].setFont(new Font("Arial", Font.BOLD, 20)); // Larger font for letters
+                aiTileButtons[i].setEnabled(false); // Disable interaction with AI tiles
+                aiPlayerPanel.add(aiTileButtons[i]);
+            }
+
+            aiTilePanel.add(aiPlayerPanel);
+            aiTileButtonsMap.put(playerName, aiTileButtons); // Map AI name to their tile buttons
+        }
+
+        add(aiTilePanel, BorderLayout.NORTH); // Add AI tiles to the top of the GUI
+    }
     /**
      * Creates a JButton with the specified text and action listener.
      *
@@ -243,19 +294,29 @@ public class ScrabbleView extends JFrame {
      * Updates the player's tile rack with new tiles and refreshes the display.
      */
     public void updatePlayerTiles() {
+        // Fetch current player's tiles from the data model
         List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
+
         if (currentPlayerTiles == null) {
             currentPlayerTiles = new ArrayList<>();
         }
+
+        System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
+
+        // Update each button with the corresponding tile
         for (int i = 0; i < playerTileButtons.length; i++) {
             if (i < currentPlayerTiles.size()) {
                 playerTileButtons[i].setText(String.valueOf(currentPlayerTiles.get(i)));
-                playerTileButtons[i].setEnabled(true);
+                playerTileButtons[i].setEnabled(true); // Ensure button is clickable
             } else {
-                playerTileButtons[i].setText("");
+                playerTileButtons[i].setText(""); // Empty buttons for remaining slots
                 playerTileButtons[i].setEnabled(false);
             }
         }
+
+        // Force UI refresh to reflect changes
+        repaint();
+        revalidate();
     }
     /**
      * Updates the display of the board based on the current state of the game.
@@ -270,6 +331,26 @@ public class ScrabbleView extends JFrame {
                 } else {
                     // Clear the button's text if there's no letter in that position
                     boardButtons[row][col].setText("");
+                }
+            }
+        }
+    }
+
+    public void updateAITiles() {
+        Map<String, List<Character>> playerTilesMap = ScrabbleController.getPlayerTilesMap();
+
+        for (Map.Entry<String, JButton[]> entry : aiTileButtonsMap.entrySet()) {
+            String playerName = entry.getKey();
+            JButton[] aiTileButtons = entry.getValue();
+
+            List<Character> aiTiles = playerTilesMap.get(playerName);
+            if (aiTiles != null) {
+                for (int i = 0; i < aiTileButtons.length; i++) {
+                    if (i < aiTiles.size()) {
+                        aiTileButtons[i].setText(String.valueOf(aiTiles.get(i)));
+                    } else {
+                        aiTileButtons[i].setText("");
+                    }
                 }
             }
         }

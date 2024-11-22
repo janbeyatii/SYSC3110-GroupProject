@@ -18,7 +18,7 @@ public class TileBagTests {
     @Before
     public void setUp() {
         tileBag = new TileBag();
-        ScrabbleController.getPlayercount(); // Ensure player setup for removeUsedTiles
+        ScrabbleController.getPlayerNames(); // Ensure player setup for removeUsedTiles
         ScrabbleController.initializeGameSettings(); // Initialize players for removeUsedTiles test
     }
 
