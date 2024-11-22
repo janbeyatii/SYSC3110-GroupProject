@@ -149,8 +149,6 @@ public class ScrabbleController {
 
         return playerNames;
     }
-
-
     public static void setFirstTurnCompleted() {
         firstTurn = false;
     }
@@ -231,6 +229,36 @@ public class ScrabbleController {
 
         if (getCurrentPlayerName().startsWith("AI Player")) {
             handleAITurn();
+        }
+    }
+    public static void tripleword(int i, int j){
+        if (i % 7 == 0 & j % 7 == 0) {
+            ScrabbleView.boardButtons[i][j].setBackground(new Color(220, 50, 50)); // Diagonal tiles
+        }
+    }
+    public static void tripleletter (int i, int j){
+        if ((i == 1 || i ==5 || i ==9 || i ==13) && (j == 5 || j == 9) ||
+                (i == 5 || i == 9) && (j == 1 || j == 13)){
+                ScrabbleView.boardButtons[i][j].setBackground(new Color(65, 105, 225));
+        }
+    }
+
+    public static void doubleword(int i, int j){
+        if (i == j){
+            ScrabbleView.boardButtons[i][j].setBackground(new Color(230, 100, 100)); // Diagonal tiles
+        }
+        if (i == 15 - j - 1) {
+            ScrabbleView.boardButtons[i][j].setBackground(new Color(230, 100, 100)); // Diagonal tiles
+        }
+    }
+    public static void doubleletter(int i, int j){
+        if ((i == 0 || i == 14) && (j == 3 || j == 11) ||
+                (i == 2 || i == 12) && (j == 6 || j == 8) ||
+                (i == 3 || i == 11) && (j == 0 || j == 14) ||
+                (i == 6 || i == 8) && (j == 2 || j== 6|| j == 8 || j == 12)||
+                (i ==  7) && (j == 3 || j == 11)||
+                (i ==  3 || i ==11) && (j == 7)){
+            ScrabbleView.boardButtons[i][j].setBackground(new Color(173, 216, 230));
         }
     }
 

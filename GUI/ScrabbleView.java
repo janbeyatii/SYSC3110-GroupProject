@@ -17,7 +17,7 @@ import java.util.Map;
 public class ScrabbleView extends JFrame {
     // Board and Tiles Display
     private JPanel boardPanel;
-    public JButton[][] boardButtons;
+    public static JButton[][] boardButtons;
     private ArrayList<JButton> placedButtons = new ArrayList<>();
 
     // Control Panel Elements
@@ -96,15 +96,18 @@ public class ScrabbleView extends JFrame {
                 boardButtons[i][j].setPreferredSize(buttonSize);
                 boardButtons[i][j].setMinimumSize(buttonSize);
                 boardButtons[i][j].setMaximumSize(buttonSize);
-
                 boardButtons[i][j].setFont(new Font("Arial", Font.BOLD, 18));
                 boardButtons[i][j].setHorizontalAlignment(SwingConstants.CENTER);
+                boardButtons[i][j].setBackground(Color.LIGHT_GRAY);
+
+                ScrabbleController.doubleword(i,j);
+                ScrabbleController.tripleword(i,j);
+                ScrabbleController.doubleletter(i,j);
+                ScrabbleController.tripleletter(i,j);
 
                 if (i == middle && j == middle) {
-                    boardButtons[i][j].setBackground(new Color(173, 216, 230));
-                } else {
-                    boardButtons[i][j].setBackground(Color.LIGHT_GRAY);
-                }
+                    boardButtons[i][j].setBackground(new Color(255, 255, 0)); // Starting tile
+                    }
 
                 boardButtons[i][j].setOpaque(true);
                 boardButtons[i][j].setBorder(BorderFactory.createLineBorder(Color.GRAY));

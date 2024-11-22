@@ -16,7 +16,7 @@ import static GUI.ScrabbleController.*;
  */
 public class TileBag {
     public final Map<Character, Integer> tileCounts = new HashMap<>();
-    public int totalTiles = 98; // Total number of tiles, excluding blank tiles.
+    public int totalTiles = 100; // Total number of tiles, excluding blank tiles.
 
     /**
      * Constructs a TileBag object and initializes the tile counts for each letter.
@@ -36,7 +36,7 @@ public class TileBag {
         tileCounts.put('B', 2); tileCounts.put('C', 2); tileCounts.put('M', 2); tileCounts.put('P', 2);
         tileCounts.put('F', 2); tileCounts.put('H', 2); tileCounts.put('V', 2); tileCounts.put('W', 2);
         tileCounts.put('Y', 2); tileCounts.put('K', 1); tileCounts.put('J', 1); tileCounts.put('X', 1);
-        tileCounts.put('Q', 1); tileCounts.put('Z', 1);
+        tileCounts.put('Q', 1); tileCounts.put('Z', 1);tileCounts.put(' ', 0);
     }
 
     /**
