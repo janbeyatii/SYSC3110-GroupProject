@@ -147,17 +147,27 @@ public class ScrabbleView extends JFrame {
      */
     private void initializeScorePanel(GridBagConstraints controlGbc) {
         JPanel scorePanel = new JPanel(new GridBagLayout());
-        playerScoresLabels = new JLabel[ScrabbleController.getPlayercount()];
-        for (int i = 0; i < ScrabbleController.getPlayercount(); i++) {
-            playerScoresLabels[i] = new JLabel(ScrabbleController.getPlayerNames().get(i) + " Score: 0");
+        List<String> playerNames = ScrabbleController.getPlayerNames(); // Get the correct player names
+        int playerCount = playerNames.size();
+        playerScoresLabels = new JLabel[playerCount]; // Adjust size to match actual player count
+
+        for (int i = 0; i < playerCount; i++) {
+            // Use the correct player name for the label
+            String playerName = playerNames.get(i);
+            playerScoresLabels[i] = new JLabel(playerName + " Score: 0");
             playerScoresLabels[i].setFont(new Font("Arial", Font.PLAIN, 14));
+
+            // Add label to the score panel
             GridBagConstraints scoreGbc = new GridBagConstraints();
-            scoreGbc.gridy = i;
+            scoreGbc.gridy = i; // Position the labels vertically
             scorePanel.add(playerScoresLabels[i], scoreGbc);
         }
+
         controlGbc.gridy = 1;
         controlPanel.add(scorePanel, controlGbc);
     }
+
+
 
     /**
      * Initializes the label that displays the current player's turn.

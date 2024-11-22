@@ -1,3 +1,4 @@
+
 package GUI;
 
 import src.TileBag;
@@ -42,16 +43,23 @@ public class ScrabbleController {
 
     public static void initializeGameSettings() {
         if (!isInitialized) {
-            playercount = getPlayercount();
-            getPlayerNames();
+            // Get the player names (1 human + up to 3 AI)
+            playerNames = setupPlayers();
+            playercount = playerNames.size(); // Total number of players is the size of the playerNames list
+
+            // Initialize scores for each player
             initializePlayerScores();
+
+            // Assign tiles to each player
             for (String playerName : playerNames) {
                 List<Character> initialTiles = tileBag.drawTiles(7);
                 playerTilesMap.put(playerName, initialTiles);
             }
+
             isInitialized = true;
         }
     }
+
 
     public static void initializePlayerScores() {
         playerScores.clear();
@@ -63,6 +71,10 @@ public class ScrabbleController {
     public static ArrayList<Character> getPlayerTiles() {
         playerTiles = new ArrayList<>(tileBag.drawTiles(7));
         return playerTiles;
+    }
+
+    public static List<String> getPlayerNames() {
+        return playerNames;
     }
 
     public static int getCurrentPlayerIndex() {
@@ -95,52 +107,48 @@ public class ScrabbleController {
     }
 
     /**
-     * Prompts the user to enter the number of players (2-4).
+     * Prompts the user to set up the game with one human player and up to three AI players.
      *
-     * @return the number of players as an integer.
+     * @return a list of player names (1 human and up to 3 AI).
      */
-    public static int getPlayercount() {
+    public static ArrayList<String> setupPlayers() {
+        ArrayList<String> playerNames = new ArrayList<>();
+        int totalAIPlayers  = 0;
 
-        if (playercount != 0) {
-            return playercount;
-        }
         while (true) {
-            String input = JOptionPane.showInputDialog("Number of players (2-4): ");
+            String input = JOptionPane.showInputDialog("How many AIs do you want to play against? (1-3) ");
             try {
                 int count = Integer.parseInt(input);
-                if (count == 2 || count == 3 || count == 4) {
-                    playercount = count;
-                    return playercount;
+                if (count >= 1 && count <= 3) {
+                    totalAIPlayers = count;
+                    break;
                 } else {
-                    JOptionPane.showMessageDialog(null, "Please enter a number between 2 and 4.");
+                    JOptionPane.showMessageDialog(null, "Please enter a number between 1 and 3.");
                 }
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Please enter a valid integer.");
             }
         }
-    }
 
-    /**
-     * Prompts the user to enter names for each player and stores them in a list.
-     *
-     * @return a list of player names.
-     */
-    public static ArrayList<String> getPlayerNames() {
-        if (playerNames.isEmpty()) {
-            for (int i = 0; i < playercount; i++) {
-                while (true) {
-                    String playerName = JOptionPane.showInputDialog("Enter name for player " + (i + 1) + ":");
-                    if (playerName != null && !playerName.trim().isEmpty()) {
-                        playerNames.add(playerName.trim());
-                        break;
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Player name cannot be empty. Please enter a valid name.");
-                    }
-                }
+        // Get the human player's name
+        while (true) {
+            String humanName = JOptionPane.showInputDialog("Enter your name:");
+            if (humanName != null && !humanName.trim().isEmpty()) {
+                playerNames.add(humanName.trim());
+                break;
+            } else {
+                JOptionPane.showMessageDialog(null, "Player name cannot be empty. Please enter a valid name.");
             }
         }
+
+        // Add AI players
+        for (int i = 1; i <= totalAIPlayers; i++) { // Use <= to include all AI players
+            playerNames.add("AI Player " + i);
+        }
+
         return playerNames;
     }
+
 
     public static void setFirstTurnCompleted() {
         firstTurn = false;

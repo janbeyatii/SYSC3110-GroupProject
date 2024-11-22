@@ -35,7 +35,7 @@ public class ButtonCommandsTests {
         turnLabel = new JLabel();
 
         int playerCount = 2; // Set player count for testing
-        ScrabbleController.getPlayercount();
+        ScrabbleController.getPlayerNames();
 
         playerScoresLabels = new JLabel[playerCount];
         for (int i = 0; i < playerCount; i++) {

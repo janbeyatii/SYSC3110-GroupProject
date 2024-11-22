@@ -60,7 +60,7 @@ public class TileBag {
             drawnTile.add(tile);
             updateTileCount(tile);
         }
-
+        System.out.println("Drawing tiles: " + drawnTile);
         return drawnTile;
     }
 

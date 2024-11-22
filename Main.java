@@ -31,6 +31,7 @@ public class Main {
 
             String wordListFilePath = "wordLists/wordlist.txt";
             WordValidity.loadWordsFromFile(wordListFilePath);
+            System.out.println(ScrabbleController.getPlayerNames());
 
             ScrabbleController.initializeGameSettings();
 

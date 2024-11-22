@@ -134,7 +134,6 @@ public class ButtonCommands {
      * @param playerScoresLabels the array of JLabels displaying players' scores.
      */
     public static void updateScoresAndDisplayWords(Set<String> uniqueWordsFormed, JTextArea wordHistoryArea, JLabel[] playerScoresLabels) {
-        // Add each word formed in the current turn to the word history
         int currentPlayerIndex = ScrabbleController.getCurrentPlayerIndex();
         int turnScore = 0;
 
@@ -151,10 +150,9 @@ public class ButtonCommands {
         // Update the player's total score
         ScrabbleController.addScoreToPlayer(currentPlayerIndex, turnScore);
 
-        // Update the score labels
+        // Update the score labels for all players
         for (int i = 0; i < playerScoresLabels.length; i++) {
             playerScoresLabels[i].setText("Score: " + ScrabbleController.getPlayerScore(i));
         }
     }
-
 }

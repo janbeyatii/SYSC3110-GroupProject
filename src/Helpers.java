@@ -368,9 +368,16 @@ public class Helpers {
      * @param playerScoresLabels the array of JLabels that display players' scores.
      */
     public static void updateScores(JLabel[] playerScoresLabels) {
-        for (int i = 0; i < ScrabbleController.getPlayercount(); i++) {
-            playerScoresLabels[i].setText(ScrabbleController.getPlayerNames().get(i) + " Score: " + ScrabbleController.getPlayerScore(i));
+        // Loop through each player
+        for (int i = 0; i < ScrabbleController.getPlayerNames().size(); i++) {
+            // Get the specific player's name and score
+            String playerName = ScrabbleController.getPlayerNames().get(i);
+            int playerScore = ScrabbleController.getPlayerScore(i); // Assuming this method exists
+
+            // Update the label with the correct player's name and score
+            playerScoresLabels[i].setText(playerName + " Score: " + playerScore);
         }
     }
+
 
 }
