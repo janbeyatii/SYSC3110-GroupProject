@@ -237,14 +237,12 @@ public class ScrabbleController {
         if ((i == 0 || i == 7 || i == 14) && (j == 0 || j == 14) ||
                 (i == 0 || i == 14) && (j == 7)) {
             ScrabbleView.boardButtons[i][j].setBackground(new Color(220, 50, 50));
-            ScrabbleView.boardButtons[i][j].setText("TW");
         }
     }
     public static void tripleletter (int i, int j){
         if ((i == 1 || i ==5 || i ==9 || i ==13) && (j == 5 || j == 9) ||
                 (i == 5 || i == 9) && (j == 1 || j == 13)){
                 ScrabbleView.boardButtons[i][j].setBackground(new Color(65, 105, 225));
-                ScrabbleView.boardButtons[i][j].setText("TL");
         }
     }
 
@@ -254,7 +252,6 @@ public class ScrabbleController {
                 || (i == 10) && (j == 4 || j == 10) || (i == 11) && (j == 3 || j == 11)
                 || (i == 12) && (j == 2 || j == 12) || (i == 13) && (j == 1 || j == 13)) {
             ScrabbleView.boardButtons[i][j].setBackground(new Color(230, 100, 100));
-            ScrabbleView.boardButtons[i][j].setText("DW");
         }
     }
     public static void doubleletter(int i, int j){
@@ -265,7 +262,6 @@ public class ScrabbleController {
                 (i ==  7) && (j == 3 || j == 11)||
                 (i ==  3 || i ==11) && (j == 7)){
             ScrabbleView.boardButtons[i][j].setBackground(new Color(173, 216, 230));
-            ScrabbleView.boardButtons[i][j].setText("DL");
         }
     }
 
