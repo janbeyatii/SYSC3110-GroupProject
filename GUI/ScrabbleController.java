@@ -11,6 +11,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+
 /**
  * The ScrabbleController class manages game settings, player data, and board state for a Scrabble game.
  * It initializes player names and scores, manages tile draws and placements, and controls the turn-based logic.
@@ -217,8 +218,6 @@ public class ScrabbleController {
 
         switchToNextPlayer();
     }
-
-
 
     public static boolean isFirstTurn() {
         return firstTurn;

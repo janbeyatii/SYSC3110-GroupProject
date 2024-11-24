@@ -4,6 +4,9 @@ import GUI.*;
 import javax.swing.*;
 import java.util.*;
 
+import static GUI.ScrabbleView.boardButtons;
+import static src.ScoreCalculation.getLetterValue;
+
 /**
  * Utility class for managing tile selection, word placement, word validation, and score updates in the Scrabble game.
  */
@@ -20,7 +23,6 @@ public class Helpers {
     public Helpers() {
         // Default constructor
     }
-
 
     /**
      * Selects a letter from the player's tile rack, disables it in the rack to indicate it is in use, and tracks it as the currently selected letter.
@@ -54,17 +56,56 @@ public class Helpers {
      * @param placedButtons the list of JButtons where letters were placed in the current turn.
      */
     public static void placeLetterOnBoard(int row, int col, JButton[][] boardButtons, ArrayList<JButton> placedButtons) {
+        int totalScore = 0;
         if (selectedLetter != null && !selectedLetter.isEmpty() && boardButtons[row][col].getText().isEmpty()) {
             boardButtons[row][col].setText(selectedLetter);
             ScrabbleController.board[row][col] = selectedLetter.charAt(0);
             placedButtons.add(boardButtons[row][col]);
+
+            boolean isDoubleWord = isDoubleWord(row, col);
+            boolean isTripleWord = isTripleWord(row, col);
+            boolean isDoubleLetter = isDoubleLetter(row, col);
+            boolean isTripleLetter = isTripleLetter(row, col);
+            System.out.println("Placed letter " + selectedLetter + " at (" + row + ", " + col + ")");
+            System.out.println("Placed letter score " + getLetterValue(selectedLetter.charAt(0)));
+
             selectedLetter = null;
             previouslySelectedButton = null;
-
-            System.out.println("Letter placed: " + selectedLetter + " at (" + row + ", " + col + ")");
         } else {
             JOptionPane.showMessageDialog(null, "Select a letter first or choose an empty tile.");
         }
+    }
+
+
+    // Helper methods for bonus checks
+    static boolean isDoubleWord(int row, int col) {
+        return ((row == 1) && (col == 1 || col == 13) ||
+                (row == 2) && (col == 2 || col == 12) ||
+                (row == 3) && (col == 3 || col == 11) ||
+                (row == 4) && (col == 4 || col == 10) ||
+                (row == 10) && (col == 4 || col == 10) ||
+                (row == 11) && (col == 3 || col == 11) ||
+                (row == 12) && (col == 2 || col == 12) ||
+                (row == 13) && (col == 1 || col == 13));
+    }
+
+    static boolean isTripleWord(int row, int col) {
+        return ((row == 0 || row == 7 || row == 14) && (col == 0 || col == 14) ||
+                (row == 0 || row == 14) && (col == 7));
+    }
+
+    static boolean isDoubleLetter(int row, int col) {
+        return ((row == 0 || row == 14) && (col == 3 || col == 11) ||
+                (row == 2 || row == 12) && (col == 6 || col == 8) ||
+                (row == 3 || row == 11) && (col == 0 || col == 14) ||
+                (row == 6 || row == 8) && (col == 2 || col == 6 || col == 8 || col == 12) ||
+                (row == 7) && (col == 3 || col == 11) ||
+                (row == 3 || row == 11) && (col == 7));
+    }
+
+    static boolean isTripleLetter(int row, int col) {
+        return ((row == 1 || row == 5 || row == 9 || row == 13) && (col == 5 || col == 9) ||
+                (row == 5 || row == 9) && (col == 1 || col == 13));
     }
 
     public static void updateOldTileCoordinates() {
@@ -311,7 +352,6 @@ public class Helpers {
         return false;
     }
 
-
     /**
      * Updates the player scores displayed on the screen.
      *
@@ -321,7 +361,6 @@ public class Helpers {
         for (int i = 0; i < ScrabbleController.getPlayerNames().size(); i++) {
             String playerName = ScrabbleController.getPlayerNames().get(i);
             int playerScore = ScrabbleController.getPlayerScore(i);
-
             playerScoresLabels[i].setText(playerName + " Score: " + playerScore);
         }
     }
