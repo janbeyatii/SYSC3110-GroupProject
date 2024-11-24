@@ -242,8 +242,12 @@ public class ScrabbleView extends JFrame {
 
             //logic for blank tiles
             if (tileCharacters.get(i) == ' ') {
-                playerTileButtons[i] = new JButton("_");
-                playerTileButtons[i].addActionListener(e -> Helpers.assignBlankTile(index, playerTileButtons));
+                System.out.println("reached inside loop");
+                playerTileButtons[i] = new JButton(" ");
+                playerTileButtons[i].addActionListener(e -> {
+                    System.out.println("Tile button clicked at index " + index);
+                    Helpers.assignBlankTile(index, playerTileButtons);
+                });
             } else {
                 playerTileButtons[i] = new JButton(String.valueOf(tileCharacters.get(i)));
                 playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
@@ -258,6 +262,8 @@ public class ScrabbleView extends JFrame {
             tileGbc.gridx = i;
             tilePanel.add(playerTileButtons[i], tileGbc);
         }
+         repaint();
+        revalidate();
     }
 
     private void initializeAITilePanel() {
@@ -315,20 +321,25 @@ public class ScrabbleView extends JFrame {
     System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
 
     for (int i = 0; i < playerTileButtons.length; i++) {
+        final int index = i; // Declare a new final variable for use in the lambda
+
         if (i < currentPlayerTiles.size()) {
             char tile = currentPlayerTiles.get(i);
 
             // Check for blank tile and render as "_"
             if (tile == ' ') {
-                playerTileButtons[i].setText("_");
+                
+                playerTileButtons[index].setText(" ");
+                playerTileButtons[index].addActionListener(e -> Helpers.assignBlankTile(index, playerTileButtons));
             } else {
-                playerTileButtons[i].setText(String.valueOf(tile));
+                playerTileButtons[index].setText(String.valueOf(tile));
+                playerTileButtons[index].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
             }
 
-            playerTileButtons[i].setEnabled(true);
+            playerTileButtons[index].setEnabled(true);
         } else {
-            playerTileButtons[i].setText("");
-            playerTileButtons[i].setEnabled(false);
+            playerTileButtons[index].setText("");
+            playerTileButtons[index].setEnabled(false);
         }
     }
 
