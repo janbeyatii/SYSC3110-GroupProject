@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static GUI.ScrabbleController.clearPlacedTileCoordinates;
 import static src.Helpers.*;
 
 /**
@@ -112,14 +113,13 @@ public class ButtonCommands {
         }
 
         placedButtons.clear();
-
+        clearPlacedTileCoordinates();
         for (JButton tileButton : playerTileButtons) {
             if (tileButton.getText() != null && !tileButton.getText().isEmpty()) {
                 tileButton.setEnabled(true);
             }
         }
     }
-
 
     /**
      * Updates the word history and player scores after a valid turn.
@@ -137,11 +137,25 @@ public class ButtonCommands {
             int wordScore = scoreCalc.getTotalScore();
             turnScore += wordScore;
 
+            // Display word and its total score in the history area
             wordHistoryArea.append(word + ": " + wordScore + " points\n");
+
+            // Display in terminal: word, letter scores, and total score
+            System.out.println("Word: " + word);
+            System.out.print("Letter Scores: ");
+            ArrayList<Integer> letterScores = scoreCalc.getLetterScores();
+
+            for (int i = 0; i < word.length(); i++) {
+                char letter = word.charAt(i);
+                System.out.print(letter + "(" + letterScores.get(i) + ") ");
+            }
+            System.out.println("\nTotal Score: " + wordScore + " points");
         }
 
+        // Add turn score to the player's total score
         ScrabbleController.addScoreToPlayer(currentPlayerIndex, turnScore);
 
+        // Update player score labels
         for (int i = 0; i < playerScoresLabels.length; i++) {
             playerScoresLabels[i].setText("Score: " + ScrabbleController.getPlayerScore(i));
         }

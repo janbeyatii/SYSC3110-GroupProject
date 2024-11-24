@@ -100,10 +100,15 @@ public class ScrabbleController {
         return playerNames.get(currentPlayerIndex);
     }
 
+    public static void addPlacedTileCoordinates(Point p) {
+        placedTileCoordinates.add(p);
+    }
     public static List<Point> getPlacedTileCoordinates() {
         return placedTileCoordinates;
     }
-
+    public static void clearPlacedTileCoordinates() {
+        placedTileCoordinates.clear();
+    }
     public static int getPlayerScore(int index) {
         return playerScores.get(index);
     }

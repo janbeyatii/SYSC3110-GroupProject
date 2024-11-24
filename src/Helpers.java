@@ -2,7 +2,9 @@ package src;
 
 import GUI.*;
 import javax.swing.*;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * Utility class for managing tile selection, word placement, word validation, and score updates in the Scrabble game.
@@ -55,18 +57,54 @@ public class Helpers {
      */
     public static void placeLetterOnBoard(int row, int col, JButton[][] boardButtons, ArrayList<JButton> placedButtons) {
         if (selectedLetter != null && !selectedLetter.isEmpty() && boardButtons[row][col].getText().isEmpty()) {
+            // Place the letter on the board
             boardButtons[row][col].setText(selectedLetter);
             ScrabbleController.board[row][col] = selectedLetter.charAt(0);
             placedButtons.add(boardButtons[row][col]);
+
+            // Save the coordinates in the CoordinatesStorage
+            ScrabbleController.addPlacedTileCoordinates(new Point(row, col));
+
             selectedLetter = null;
             previouslySelectedButton = null;
 
+            // Optionally print out the coordinates for debugging
+            System.out.println("Coordinates saved: " + ScrabbleController.getPlacedTileCoordinates());
             System.out.println("Letter placed: " + selectedLetter + " at (" + row + ", " + col + ")");
         } else {
             JOptionPane.showMessageDialog(null, "Select a letter first or choose an empty tile.");
         }
     }
+    // Helper methods for bonus checks
+    static boolean isDoubleWord(int row, int col) {
+        return ((row == 1) && (col == 1 || col == 13) ||
+                (row == 2) && (col == 2 || col == 12) ||
+                (row == 3) && (col == 3 || col == 11) ||
+                (row == 4) && (col == 4 || col == 10) ||
+                (row == 10) && (col == 4 || col == 10) ||
+                (row == 11) && (col == 3 || col == 11) ||
+                (row == 12) && (col == 2 || col == 12) ||
+                (row == 13) && (col == 1 || col == 13));
+    }
 
+    static boolean isTripleWord(int row, int col) {
+        return ((row == 0 || row == 7 || row == 14) && (col == 0 || col == 14) ||
+                (row == 0 || row == 14) && (col == 7));
+    }
+
+    static boolean isDoubleLetter(int row, int col) {
+        return ((row == 0 || row == 14) && (col == 3 || col == 11) ||
+                (row == 2 || row == 12) && (col == 6 || col == 8) ||
+                (row == 3 || row == 11) && (col == 0 || col == 14) ||
+                (row == 6 || row == 8) && (col == 2 || col == 6 || col == 8 || col == 12) ||
+                (row == 7) && (col == 3 || col == 11) ||
+                (row == 3 || row == 11) && (col == 7));
+    }
+
+    static boolean isTripleLetter(int row, int col) {
+        return ((row == 1 || row == 5 || row == 9 || row == 13) && (col == 5 || col == 9) ||
+                (row == 5 || row == 9) && (col == 1 || col == 13));
+    }
     public static void updateOldTileCoordinates() {
         oldTileCoordinates.clear();
         for (int row = 0; row < ScrabbleController.board.length; row++) {
@@ -77,6 +115,8 @@ public class Helpers {
             }
         }
     }
+
+
 
     /**
      * Collects a full word from the board starting at a specific position in a specified direction (horizontal or vertical).
