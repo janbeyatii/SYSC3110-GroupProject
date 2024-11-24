@@ -207,11 +207,11 @@ public class ScrabbleView extends JFrame {
         controlGbc.gridy = 3;
         controlPanel.add(passButton, controlGbc);
 
-        clearButton = createButton("Clear", _ -> ButtonCommands.clear(placedButtons, playerTileButtons));
+        clearButton = createButton("Clear", e -> ButtonCommands.clear(placedButtons, playerTileButtons));
         controlGbc.gridy = 4;
         controlPanel.add(clearButton, controlGbc);
 
-        submitButton = createButton("Submit", _ -> {
+        submitButton = createButton("Submit", e -> {
             ButtonCommands.submit(this, wordHistoryArea, turnLabel, placedButtons, playerScoresLabels, playerTileButtons);
             updatePlayerTiles();
         });
@@ -238,13 +238,20 @@ public class ScrabbleView extends JFrame {
             playerTileButtons[i] = new JButton(String.valueOf(tileCharacters.get(i)));
             playerTileButtons[i].setFont(new Font("Arial", Font.BOLD, 18));
 
+            int index = i;
+
+            //logic for blank tiles
+            if (tileCharacters.get(i) == ' ') {
+                playerTileButtons[i].addActionListener(e -> Helpers.assignBlankTile(index, playerTileButtons));
+            } else {
+                 playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
+            }
+
             // Set fixed size for each tile button
             playerTileButtons[i].setPreferredSize(tileButtonSize);
             playerTileButtons[i].setMinimumSize(tileButtonSize);
             playerTileButtons[i].setMaximumSize(tileButtonSize);
 
-            int index = i;
-            playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
             tileGbc.gridx = i;
             tilePanel.add(playerTileButtons[i], tileGbc);
         }

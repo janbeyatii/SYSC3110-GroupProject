@@ -22,6 +22,7 @@ public class TileBag {
      * Constructs a TileBag object and initializes the tile counts for each letter.
      */
     public TileBag() {
+        tileCounts.put(' ', 2);
         initTileCounts();
     }
 
@@ -30,6 +31,10 @@ public class TileBag {
      * The counts represent the number of available tiles for each letter in the game.
      */
     private void initTileCounts() {
+
+        if (!tileCounts.containsKey(' ')) {  // Ensure blank tiles are not overwritten
+        tileCounts.put(' ', 2);          // Set count for blank tiles only if not set
+    }
         tileCounts.put('E', 12); tileCounts.put('A', 9); tileCounts.put('I', 9); tileCounts.put('O', 8);
         tileCounts.put('N', 6); tileCounts.put('R', 6); tileCounts.put('T', 6); tileCounts.put('L', 4);
         tileCounts.put('S', 4); tileCounts.put('U', 4); tileCounts.put('D', 4); tileCounts.put('G', 3);

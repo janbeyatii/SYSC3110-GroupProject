@@ -325,6 +325,23 @@ public class Helpers {
             playerScoresLabels[i].setText(playerName + " Score: " + playerScore);
         }
     }
+    /**
+     * Assigns a value to a blank tile. Once value is set, it cannot be changed
+     *
+     * @param playerTileButtons An index to a players blank tile that will be assigned a letter
+     * @return none
+     */
+    public static void assignBlankTile(int index, JButton[] playerTileButtons) {
+     String input = JOptionPane.showInputDialog("Enter the letter for the blank tile:");
+         if (input != null && input.matches("[a-zA-Z]") && input.length() == 1) {
+             playerTileButtons[index].setText(input.toUpperCase());
+             selectedLetter = input.toUpperCase();
+             playerTileButtons[index].setEnabled(false);
+            previouslySelectedButton = playerTileButtons[index];
+        } else {
+             JOptionPane.showMessageDialog(null, "Invalid input. Please enter a single letter.");
+    }
+}
 
 
 }

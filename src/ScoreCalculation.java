@@ -25,8 +25,11 @@ public class ScoreCalculation {
         ArrayList<Character> score10 = new ArrayList<>(Arrays.asList('Q', 'Z'));
 
         for (int k = 0; k < word.length(); k++) {
-            char letter = Character.toUpperCase(word.charAt(k));  // Convert to uppercase
-            if (score1.contains(letter)) {
+            char letter = Character.toUpperCase(word.charAt(k));// Convert to uppercase
+              
+            if (letter == ' ') {
+                continue;
+            } else if (score1.contains(letter)) {
                 totalscore += 1;
             } else if (score2.contains(letter)) {
                 totalscore += 2;

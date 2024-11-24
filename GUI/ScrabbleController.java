@@ -54,6 +54,8 @@ public class ScrabbleController {
             playercount = playerNames.size();
             initializePlayerScores();
 
+            System.out.println("Adding blank tiles to the player tile pool");
+
             for (String playerName : playerNames) {
                 System.out.println("Assigning tiles to: " + playerName);
                 List<Character> initialTiles = tileBag.drawTiles(7);
