@@ -242,12 +242,15 @@ public class ScrabbleView extends JFrame {
 
             //logic for blank tiles
             if (tileCharacters.get(i) == ' ') {
+                playerTileButtons[i] = new JButton("_");
                 playerTileButtons[i].addActionListener(e -> Helpers.assignBlankTile(index, playerTileButtons));
             } else {
-                 playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
+                playerTileButtons[i] = new JButton(String.valueOf(tileCharacters.get(i)));
+                playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
             }
 
             // Set fixed size for each tile button
+            playerTileButtons[i].setFont(new Font("Arial", Font.BOLD, 18));
             playerTileButtons[i].setPreferredSize(tileButtonSize);
             playerTileButtons[i].setMinimumSize(tileButtonSize);
             playerTileButtons[i].setMaximumSize(tileButtonSize);
@@ -303,27 +306,35 @@ public class ScrabbleView extends JFrame {
      * Updates the player's tile rack with new tiles and refreshes the display.
      */
     public void updatePlayerTiles() {
-        List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
+    List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
 
-        if (currentPlayerTiles == null) {
-            currentPlayerTiles = new ArrayList<>();
-        }
-
-        System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
-
-        for (int i = 0; i < playerTileButtons.length; i++) {
-            if (i < currentPlayerTiles.size()) {
-                playerTileButtons[i].setText(String.valueOf(currentPlayerTiles.get(i)));
-                playerTileButtons[i].setEnabled(true);
-            } else {
-                playerTileButtons[i].setText("");
-                playerTileButtons[i].setEnabled(false);
-            }
-        }
-
-        repaint();
-        revalidate();
+    if (currentPlayerTiles == null) {
+        currentPlayerTiles = new ArrayList<>();
     }
+
+    System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
+
+    for (int i = 0; i < playerTileButtons.length; i++) {
+        if (i < currentPlayerTiles.size()) {
+            char tile = currentPlayerTiles.get(i);
+
+            // Check for blank tile and render as "_"
+            if (tile == ' ') {
+                playerTileButtons[i].setText("_");
+            } else {
+                playerTileButtons[i].setText(String.valueOf(tile));
+            }
+
+            playerTileButtons[i].setEnabled(true);
+        } else {
+            playerTileButtons[i].setText("");
+            playerTileButtons[i].setEnabled(false);
+        }
+    }
+
+    repaint();
+    revalidate();
+}
     /**
      * Updates the display of the board based on the current state of the game.
      */

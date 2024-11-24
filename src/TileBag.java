@@ -16,14 +16,14 @@ import static GUI.ScrabbleController.*;
  */
 public class TileBag {
     public final Map<Character, Integer> tileCounts = new HashMap<>();
-    public int totalTiles = 100; // Total number of tiles, excluding blank tiles.
+    public int totalTiles = 200; // Total number of tiles, excluding blank tiles.
 
     /**
      * Constructs a TileBag object and initializes the tile counts for each letter.
      */
     public TileBag() {
-        tileCounts.put(' ', 2);
         initTileCounts();
+        
     }
 
     /**
@@ -32,16 +32,13 @@ public class TileBag {
      */
     private void initTileCounts() {
 
-        if (!tileCounts.containsKey(' ')) {  // Ensure blank tiles are not overwritten
-        tileCounts.put(' ', 2);          // Set count for blank tiles only if not set
-    }
-        tileCounts.put('E', 12); tileCounts.put('A', 9); tileCounts.put('I', 9); tileCounts.put('O', 8);
+        tileCounts.put('_', 102); tileCounts.put('E', 12); tileCounts.put('A', 9); tileCounts.put('I', 9); tileCounts.put('O', 8);
         tileCounts.put('N', 6); tileCounts.put('R', 6); tileCounts.put('T', 6); tileCounts.put('L', 4);
         tileCounts.put('S', 4); tileCounts.put('U', 4); tileCounts.put('D', 4); tileCounts.put('G', 3);
         tileCounts.put('B', 2); tileCounts.put('C', 2); tileCounts.put('M', 2); tileCounts.put('P', 2);
         tileCounts.put('F', 2); tileCounts.put('H', 2); tileCounts.put('V', 2); tileCounts.put('W', 2);
         tileCounts.put('Y', 2); tileCounts.put('K', 1); tileCounts.put('J', 1); tileCounts.put('X', 1);
-        tileCounts.put('Q', 1); tileCounts.put('Z', 1);tileCounts.put(' ', 0);
+        tileCounts.put('Q', 1); tileCounts.put('Z', 1);
     }
 
     /**
