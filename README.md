@@ -34,7 +34,7 @@ The goal of Scrabble is to create words on the game board using letter tiles and
 
 1. Select the number of players and give each player a name
    
-2. To place a word use the following format (word, row#, col#, direction (using H or V))
+2. Use mouse inputs to select the letter you wish to play and place it on the board
 
 ## Rules
 
