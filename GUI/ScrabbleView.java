@@ -17,7 +17,7 @@ import java.util.Map;
 public class ScrabbleView extends JFrame {
     // Board and Tiles Display
     private JPanel boardPanel;
-    public JButton[][] boardButtons;
+    public static JButton[][] boardButtons;
     private ArrayList<JButton> placedButtons = new ArrayList<>();
 
     // Control Panel Elements
@@ -96,15 +96,18 @@ public class ScrabbleView extends JFrame {
                 boardButtons[i][j].setPreferredSize(buttonSize);
                 boardButtons[i][j].setMinimumSize(buttonSize);
                 boardButtons[i][j].setMaximumSize(buttonSize);
-
                 boardButtons[i][j].setFont(new Font("Arial", Font.BOLD, 18));
                 boardButtons[i][j].setHorizontalAlignment(SwingConstants.CENTER);
+                boardButtons[i][j].setBackground(Color.LIGHT_GRAY);
+
+                ScrabbleController.doubleword(i,j);
+                ScrabbleController.tripleword(i,j);
+                ScrabbleController.doubleletter(i,j);
+                ScrabbleController.tripleletter(i,j);
 
                 if (i == middle && j == middle) {
-                    boardButtons[i][j].setBackground(new Color(173, 216, 230));
-                } else {
-                    boardButtons[i][j].setBackground(Color.LIGHT_GRAY);
-                }
+                    boardButtons[i][j].setBackground(new Color(255, 255, 0)); // Starting tile
+                    }
 
                 boardButtons[i][j].setOpaque(true);
                 boardButtons[i][j].setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -204,11 +207,11 @@ public class ScrabbleView extends JFrame {
         controlGbc.gridy = 3;
         controlPanel.add(passButton, controlGbc);
 
-        clearButton = createButton("Clear", _ -> ButtonCommands.clear(placedButtons, playerTileButtons));
+        clearButton = createButton("Clear", e -> ButtonCommands.clear(placedButtons, playerTileButtons));
         controlGbc.gridy = 4;
         controlPanel.add(clearButton, controlGbc);
 
-        submitButton = createButton("Submit", _ -> {
+        submitButton = createButton("Submit", e -> {
             ButtonCommands.submit(this, wordHistoryArea, turnLabel, placedButtons, playerScoresLabels, playerTileButtons);
             updatePlayerTiles();
         });
@@ -235,16 +238,32 @@ public class ScrabbleView extends JFrame {
             playerTileButtons[i] = new JButton(String.valueOf(tileCharacters.get(i)));
             playerTileButtons[i].setFont(new Font("Arial", Font.BOLD, 18));
 
+            int index = i;
+
+            //logic for blank tiles
+            if (tileCharacters.get(i) == ' ') {
+                System.out.println("reached inside loop");
+                playerTileButtons[i] = new JButton(" ");
+                playerTileButtons[i].addActionListener(e -> {
+                    System.out.println("Tile button clicked at index " + index);
+                    Helpers.assignBlankTile(index, playerTileButtons);
+                });
+            } else {
+                playerTileButtons[i] = new JButton(String.valueOf(tileCharacters.get(i)));
+                playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
+            }
+
             // Set fixed size for each tile button
+            playerTileButtons[i].setFont(new Font("Arial", Font.BOLD, 18));
             playerTileButtons[i].setPreferredSize(tileButtonSize);
             playerTileButtons[i].setMinimumSize(tileButtonSize);
             playerTileButtons[i].setMaximumSize(tileButtonSize);
 
-            int index = i;
-            playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
             tileGbc.gridx = i;
             tilePanel.add(playerTileButtons[i], tileGbc);
         }
+         repaint();
+        revalidate();
     }
 
     private void initializeAITilePanel() {
@@ -293,27 +312,40 @@ public class ScrabbleView extends JFrame {
      * Updates the player's tile rack with new tiles and refreshes the display.
      */
     public void updatePlayerTiles() {
-        List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
+    List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
 
-        if (currentPlayerTiles == null) {
-            currentPlayerTiles = new ArrayList<>();
-        }
-
-        System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
-
-        for (int i = 0; i < playerTileButtons.length; i++) {
-            if (i < currentPlayerTiles.size()) {
-                playerTileButtons[i].setText(String.valueOf(currentPlayerTiles.get(i)));
-                playerTileButtons[i].setEnabled(true);
-            } else {
-                playerTileButtons[i].setText("");
-                playerTileButtons[i].setEnabled(false);
-            }
-        }
-
-        repaint();
-        revalidate();
+    if (currentPlayerTiles == null) {
+        currentPlayerTiles = new ArrayList<>();
     }
+
+    System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
+
+    for (int i = 0; i < playerTileButtons.length; i++) {
+        final int index = i; // Declare a new final variable for use in the lambda
+
+        if (i < currentPlayerTiles.size()) {
+            char tile = currentPlayerTiles.get(i);
+
+            // Check for blank tile and render as "_"
+            if (tile == ' ') {
+                
+                playerTileButtons[index].setText(" ");
+                playerTileButtons[index].addActionListener(e -> Helpers.assignBlankTile(index, playerTileButtons));
+            } else {
+                playerTileButtons[index].setText(String.valueOf(tile));
+                playerTileButtons[index].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
+            }
+
+            playerTileButtons[index].setEnabled(true);
+        } else {
+            playerTileButtons[index].setText("");
+            playerTileButtons[index].setEnabled(false);
+        }
+    }
+
+    repaint();
+    revalidate();
+}
     /**
      * Updates the display of the board based on the current state of the game.
      */

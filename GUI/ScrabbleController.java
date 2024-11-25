@@ -54,6 +54,8 @@ public class ScrabbleController {
             playercount = playerNames.size();
             initializePlayerScores();
 
+            System.out.println("Adding blank tiles to the player tile pool");
+
             for (String playerName : playerNames) {
                 System.out.println("Assigning tiles to: " + playerName);
                 List<Character> initialTiles = tileBag.drawTiles(7);
@@ -149,8 +151,6 @@ public class ScrabbleController {
 
         return playerNames;
     }
-
-
     public static void setFirstTurnCompleted() {
         firstTurn = false;
     }
@@ -231,6 +231,37 @@ public class ScrabbleController {
 
         if (getCurrentPlayerName().startsWith("AI Player")) {
             handleAITurn();
+        }
+    }
+    public static void tripleword(int i, int j){
+        if ((i == 0 || i == 7 || i == 14) && (j == 0 || j == 14) ||
+                (i == 0 || i == 14) && (j == 7)) {
+            ScrabbleView.boardButtons[i][j].setBackground(new Color(220, 50, 50));
+        }
+    }
+    public static void tripleletter (int i, int j){
+        if ((i == 1 || i ==5 || i ==9 || i ==13) && (j == 5 || j == 9) ||
+                (i == 5 || i == 9) && (j == 1 || j == 13)){
+                ScrabbleView.boardButtons[i][j].setBackground(new Color(65, 105, 225));
+        }
+    }
+
+    public static void doubleword(int i, int j){
+        if ((i == 1) && (j == 1 || j == 13) || (i == 2) && (j == 2 || j == 12)
+                || (i == 3) && (j == 3 || j == 11) || (i == 4) && (j == 4 || j == 10)
+                || (i == 10) && (j == 4 || j == 10) || (i == 11) && (j == 3 || j == 11)
+                || (i == 12) && (j == 2 || j == 12) || (i == 13) && (j == 1 || j == 13)) {
+            ScrabbleView.boardButtons[i][j].setBackground(new Color(230, 100, 100));
+        }
+    }
+    public static void doubleletter(int i, int j){
+        if ((i == 0 || i == 14) && (j == 3 || j == 11) ||
+                (i == 2 || i == 12) && (j == 6 || j == 8) ||
+                (i == 3 || i == 11) && (j == 0 || j == 14) ||
+                (i == 6 || i == 8) && (j == 2 || j== 6|| j == 8 || j == 12)||
+                (i ==  7) && (j == 3 || j == 11)||
+                (i ==  3 || i ==11) && (j == 7)){
+            ScrabbleView.boardButtons[i][j].setBackground(new Color(173, 216, 230));
         }
     }
 
