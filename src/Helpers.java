@@ -67,6 +67,11 @@ public class Helpers {
         }
     }
 
+    /**
+     * Updates the list of coordinates for tiles that are already placed on the Scrabble board.
+     * This method clears the existing list and repopulates it with the coordinates of all non-empty cells.
+     * Each coordinate is stored as a string in the format "row,column".
+     */
     public static void updateOldTileCoordinates() {
         oldTileCoordinates.clear();
         for (int row = 0; row < ScrabbleController.board.length; row++) {
@@ -149,7 +154,7 @@ public class Helpers {
     public static boolean isWordPlacementValid(ArrayList<JButton> placedButtons, boolean isFirstTurn, boolean showMessages) {
         if (isFirstTurn) {
             Set<String> wordsFormed = getAllWordsFormed(placedButtons);
-            if (!areAllWordsValid(wordsFormed)) {
+            if (!areAllWordsValid(wordsFormed, showMessages)) {
                 if (showMessages) {
                     JOptionPane.showMessageDialog(null, "Invalid first word.");
                 }
@@ -224,16 +229,17 @@ public class Helpers {
      * @param words the Set of words to be validated.
      * @return true if all words are valid, false if any word is invalid.
      */
-    public static boolean areAllWordsValid(Set<String> words) {
+    public static boolean areAllWordsValid(Set<String> words, boolean showMessage) {
         for (String word : words) {
             if (!WordValidity.isWordValid(word)) {
-                JOptionPane.showMessageDialog(null, "Invalid word formed: " + word);
+                if (showMessage) {
+                    JOptionPane.showMessageDialog(null, "Invalid word formed: " + word);
+                }
                 return false;
             }
         }
         return true;
     }
-
     /**
      * Checks if all placed letters are in a single row or column.
      *

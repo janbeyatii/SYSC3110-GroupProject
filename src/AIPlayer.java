@@ -1,9 +1,12 @@
 package src;
 
 import GUI.ScrabbleController;
+import GUI.ScrabbleView;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class AIPlayer {
 
@@ -23,7 +26,6 @@ public class AIPlayer {
             return formedWords;
         }
 
-        // Try forming and placing a word
         for (int attempt = 0; attempt < 100; attempt++) {
             String word = formWord(aiTiles);
             if (word.isEmpty()) {
@@ -34,7 +36,18 @@ public class AIPlayer {
             boolean isPlaced = tryPlaceWordOnBoard(board, word, aiTiles);
 
             if (isPlaced) {
-                formedWords.add(word);
+                // Collect all words formed by this placement
+                formedWords = Helpers.getAllWordsFormed(ScrabbleController.getPlacedButtons());
+
+                // Validate all words formed
+                if (!Helpers.areAllWordsValid(formedWords, false)) {
+                    // Undo the move if any word is invalid
+                    System.out.println("AI formed invalid words. Undoing move.");
+                    undoAIMove(board, ScrabbleController.getPlacedButtons());
+                    formedWords.clear();
+                    continue;
+                }
+
                 System.out.println("AI placed the word: " + word);
                 break;
             }
@@ -47,6 +60,40 @@ public class AIPlayer {
         return formedWords;
     }
 
+    /**
+     * Undoes an AI's move by removing the tiles it placed on the board.
+     * This method resets the affected board cells to empty and clears the text on the corresponding buttons
+     * in the GUI to reflect the undone move.
+     *
+     * @param board          A 2D character array representing the Scrabble board.
+     *                       Each cell holds a character representing a tile or '\0' if the cell is empty.
+     * @param placedButtons  A list of buttons representing the tiles placed during the AI's move.
+     *                       These buttons are cleared visually and logically.
+     */
+    private static void undoAIMove(char[][] board, ArrayList<JButton> placedButtons) {
+        for (JButton button : placedButtons) {
+            int row = (Integer) button.getClientProperty("row");
+            int col = (Integer) button.getClientProperty("col");
+            board[row][col] = '\0';
+            button.setText("");
+        }
+
+        placedButtons.clear();
+    }
+
+    /**
+     * Attempts to place a word on the Scrabble board for the AI player.
+     * This method randomly selects a position and orientation (horizontal/vertical) for the word
+     * and validates its placement according to the game's rules. If the placement is valid,
+     * the word is added to the board, and the AI's tiles are updated accordingly.
+     *
+     * @param board    A 2D character array representing the Scrabble board.
+     *                 Each cell holds a character representing a tile or '\0' if the cell is empty.
+     * @param word     The word the AI is attempting to place on the board.
+     * @param aiTiles  A list of characters representing the AI player's available tiles.
+     *                 Tiles used for the word are removed, and new tiles are drawn to replace them.
+     * @return True if the word was successfully placed on the board; false otherwise.
+     */
     private static boolean tryPlaceWordOnBoard(char[][] board, String word, List<Character> aiTiles) {
         Random random = new Random();
         int boardSize = board.length;
@@ -77,35 +124,56 @@ public class AIPlayer {
 
             if (!isValidPlacement) continue;
 
-            if (Helpers.isWordPlacementValid(placedButtonsDummy, ScrabbleController.isFirstTurn(), false)) {
-                Set<String> formedWords = Helpers.getAllWordsFormed(placedButtonsDummy);
-                if (!Helpers.areAllWordsValid(formedWords)) {
-                    continue;
-                }
-
-                for (int i = 0; i < word.length(); i++) {
-                    int currentRow = isHorizontal ? row : row + i;
-                    int currentCol = isHorizontal ? col + i : col;
-                    board[currentRow][currentCol] = word.charAt(i);
-                }
-
-                for (char c : word.toCharArray()) {
-                    aiTiles.remove((Character) c);
-                }
-
-                List<Character> newTiles = ScrabbleController.tileBag.drawTiles(word.length());
-                aiTiles.addAll(newTiles);
-                System.out.println("Drawing tiles for AI: " + newTiles);
-
-                return true;
+            if (!Helpers.isWordPlacementValid(placedButtonsDummy, ScrabbleController.isFirstTurn(), false)) {
+                continue;
             }
+
+            for (int i = 0; i < word.length(); i++) {
+                int currentRow = isHorizontal ? row : row + i;
+                int currentCol = isHorizontal ? col + i : col;
+
+                board[currentRow][currentCol] = word.charAt(i);
+            }
+
+            Set<String> formedWords = Helpers.getAllWordsFormed(placedButtonsDummy);
+            if (!Helpers.areAllWordsValid(formedWords, false)) {
+                System.out.println("Invalid words formed: " + formedWords);
+                undoAIMove(board, placedButtonsDummy);
+                continue;
+            }
+
+            int totalScore = 0;
+            for (String formedWord : formedWords) {
+                ScoreCalculation scoreCalculation = new ScoreCalculation(formedWord, placedButtonsDummy);
+                totalScore += scoreCalculation.getTotalScore();
+                ScrabbleController.getView().wordHistoryArea.append("AI placed: " + formedWord + " (" + totalScore + " points)\n");
+
+            }
+            ScrabbleController.addScoreToPlayer(ScrabbleController.getCurrentPlayerIndex(), totalScore);
+
+            System.out.println("AI formed words: " + formedWords);
+            System.out.println("AI scored: " + totalScore + " points.");
+
+            for (char c : word.toCharArray()) {
+                aiTiles.remove((Character) c);
+            }
+
+            List<Character> newTiles = ScrabbleController.tileBag.drawTiles(word.length());
+            aiTiles.addAll(newTiles);
+
+            System.out.println("AI Tiles After Move: " + aiTiles);
+
+            ScrabbleView view = ScrabbleController.getView();
+            view.updateBoardDisplay();
+            view.updateAITiles();
+            view.repaint();
+            view.revalidate();
+
+            return true;
         }
 
         return false;
     }
-
-
-
 
     /**
      * Forms a word using the AI's available tiles.

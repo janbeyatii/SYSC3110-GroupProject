@@ -1,4 +1,3 @@
-
 package GUI;
 
 import src.AIPlayer;
@@ -26,7 +25,6 @@ public class ScrabbleController {
     private static ArrayList<String> playerNames = new ArrayList<>();
     private static ArrayList<Integer> playerScores = new ArrayList<>();
     private static Map<String, List<Character>> playerTilesMap = new HashMap<>();
-    public static ArrayList<Character> playerTiles;
     private static int currentPlayerIndex = 0;
 
     // Board and Tile Management
@@ -35,7 +33,6 @@ public class ScrabbleController {
     private static List<Point> placedTileCoordinates = new ArrayList<>();
     private static ArrayList<JButton> placedButtons = new ArrayList<>();
     private static ScrabbleView view;
-
 
     /**
      * Constructor for the ScrabbleController class.
@@ -46,6 +43,10 @@ public class ScrabbleController {
         // Default Constructor
     }
 
+    /**
+     * Initializes game settings, such as player names, scores, and tiles, and sets up the game state.
+     * Ensures that players are only initialized once.
+     */
     public static void initializeGameSettings() {
         System.out.println("Initializing players: " + playerNames.size());
 
@@ -66,7 +67,10 @@ public class ScrabbleController {
         }
     }
 
-
+    /**
+     * Initializes player scores by setting all player scores to 0.
+     * Clears any existing scores and resets the scores list based on the number of players.
+     */
     public static void initializePlayerScores() {
         playerScores.clear();
         for (int i = 0; i < playercount; i++) {
@@ -74,36 +78,95 @@ public class ScrabbleController {
         }
     }
 
+    /**
+     * Retrieves the names of all players in the game.
+     *
+     * @return A list of player names.
+     */
     public static List<String> getPlayerNames() {
         return playerNames;
     }
 
+    /**
+     * Retrieves the index of the current player in the turn rotation.
+     *
+     * @return The index of the current player.
+     */
     public static int getCurrentPlayerIndex() {
         return currentPlayerIndex;
     }
 
+    /**
+     * Retrieves the list of buttons representing tiles that have been placed on the board during the current turn.
+     *
+     * @return An ArrayList of JButton objects representing placed tiles.
+     */
     public static ArrayList<JButton> getPlacedButtons() {
         return placedButtons;
     }
 
+    /**
+     * Retrieves the ScrabbleView instance representing the game's GUI.
+     *
+     * @return The ScrabbleView instance.
+     */
+    public static ScrabbleView getView() {
+        return view;
+    }
+
+    /**
+     * Sets the ScrabbleView instance to be used by the controller.
+     *
+     * @param scrabbleView The ScrabbleView instance to set.
+     */
+    public static void setView(ScrabbleView scrabbleView) {
+        view = scrabbleView;
+    }
+
+    /**
+     * Retrieves the mapping of player names to their current tiles.
+     *
+     * @return A Map where the keys are player names and the values are lists of characters (tiles) assigned to each player.
+     */
     public static Map<String, List<Character>> getPlayerTilesMap() {
         return playerTilesMap;
     }
 
+    /**
+     * Retrieves the tiles of the current player.
+     *
+     * @return A list of characters representing the current player's tiles.
+     */
     public static List<Character> getCurrentPlayerTiles() {
         String currentPlayer = playerNames.get(currentPlayerIndex);
         System.out.println("Fetching tiles for player: " + currentPlayer);
         return playerTilesMap.get(currentPlayer);
     }
 
+    /**
+     * Retrieves the name of the current player.
+     *
+     * @return The name of the current player.
+     */
     public static String getCurrentPlayerName() {
         return playerNames.get(currentPlayerIndex);
     }
 
+    /**
+     * Retrieves the list of tile coordinates placed during the current turn.
+     *
+     * @return A list of Points representing the placed tile coordinates.
+     */
     public static List<Point> getPlacedTileCoordinates() {
         return placedTileCoordinates;
     }
 
+    /**
+     * Retrieves the score of a player by their index.
+     *
+     * @param index The index of the player.
+     * @return The player's score.
+     */
     public static int getPlayerScore(int index) {
         return playerScores.get(index);
     }
@@ -111,13 +174,13 @@ public class ScrabbleController {
     /**
      * Prompts the user to set up the game with one human player and up to three AI players.
      *
-     * @return a list of player names (1 human and up to 3 AI).
+     * @return A list of player names (1 human and up to 3 AI).
      */
     public static ArrayList<String> setupPlayers() {
         System.out.println("Players setup: " + playerNames);
 
         ArrayList<String> playerNames = new ArrayList<>();
-        int totalAIPlayers  = 0;
+        int totalAIPlayers = 0;
 
         while (true) {
             String input = JOptionPane.showInputDialog("How many AIs do you want to play against? (1-3) ");
@@ -151,19 +214,30 @@ public class ScrabbleController {
 
         return playerNames;
     }
+
+    /**
+     * Marks the first turn of the game as completed.
+     */
     public static void setFirstTurnCompleted() {
         firstTurn = false;
     }
 
-    public static void setView(ScrabbleView scrabbleView) {
-        view = scrabbleView;
-    }
-
+    /**
+     * Adds a score to the specified player.
+     *
+     * @param playerIndex The index of the player.
+     * @param score       The score to add.
+     */
     public static void addScoreToPlayer(int playerIndex, int score) {
         int currentScore = playerScores.get(playerIndex);
         playerScores.set(playerIndex, currentScore + score);
     }
 
+    /**
+     * Adds the coordinates of placed tiles to the game state.
+     *
+     * @param placedButtons A list of JButton objects representing the placed tiles.
+     */
     public static void addPlacedTiles(List<JButton> placedButtons) {
         for (JButton button : placedButtons) {
             int row = (Integer) button.getClientProperty("row");
@@ -172,6 +246,9 @@ public class ScrabbleController {
         }
     }
 
+    /**
+     * Handles the AI player's turn, including word placement, scoring, and tile updates.
+     */
     private static void handleAITurn() {
         String aiPlayerName = getCurrentPlayerName();
         List<Character> aiTiles = playerTilesMap.get(aiPlayerName);
@@ -220,12 +297,18 @@ public class ScrabbleController {
         switchToNextPlayer();
     }
 
-
-
+    /**
+     * Checks if it is the first turn of the game.
+     *
+     * @return True if it is the first turn; otherwise, false.
+     */
     public static boolean isFirstTurn() {
         return firstTurn;
     }
 
+    /**
+     * Switches to the next player's turn, including handling AI turns.
+     */
     public static void switchToNextPlayer() {
         currentPlayerIndex = (currentPlayerIndex + 1) % playercount;
 
@@ -233,20 +316,40 @@ public class ScrabbleController {
             handleAITurn();
         }
     }
-    public static void tripleword(int i, int j){
+
+    /**
+     * Sets the triple word score tiles on the board.
+     *
+     * @param i The row index of the tile.
+     * @param j The column index of the tile.
+     */
+    public static void tripleword(int i, int j) {
         if ((i == 0 || i == 7 || i == 14) && (j == 0 || j == 14) ||
                 (i == 0 || i == 14) && (j == 7)) {
             ScrabbleView.boardButtons[i][j].setBackground(new Color(220, 50, 50));
         }
     }
-    public static void tripleletter (int i, int j){
-        if ((i == 1 || i ==5 || i ==9 || i ==13) && (j == 5 || j == 9) ||
-                (i == 5 || i == 9) && (j == 1 || j == 13)){
-                ScrabbleView.boardButtons[i][j].setBackground(new Color(65, 105, 225));
+
+    /**
+     * Sets the triple letter score tiles on the board.
+     *
+     * @param i The row index of the tile.
+     * @param j The column index of the tile.
+     */
+    public static void tripleletter(int i, int j) {
+        if ((i == 1 || i == 5 || i == 9 || i == 13) && (j == 5 || j == 9) ||
+                (i == 5 || i == 9) && (j == 1 || j == 13)) {
+            ScrabbleView.boardButtons[i][j].setBackground(new Color(65, 105, 225));
         }
     }
 
-    public static void doubleword(int i, int j){
+    /**
+     * Sets the double word score tiles on the board.
+     *
+     * @param i The row index of the tile.
+     * @param j The column index of the tile.
+     */
+    public static void doubleword(int i, int j) {
         if ((i == 1) && (j == 1 || j == 13) || (i == 2) && (j == 2 || j == 12)
                 || (i == 3) && (j == 3 || j == 11) || (i == 4) && (j == 4 || j == 10)
                 || (i == 10) && (j == 4 || j == 10) || (i == 11) && (j == 3 || j == 11)
@@ -254,15 +357,21 @@ public class ScrabbleController {
             ScrabbleView.boardButtons[i][j].setBackground(new Color(230, 100, 100));
         }
     }
-    public static void doubleletter(int i, int j){
+
+    /**
+     * Sets the double letter score tiles on the board.
+     *
+     * @param i The row index of the tile.
+     * @param j The column index of the tile.
+     */
+    public static void doubleletter(int i, int j) {
         if ((i == 0 || i == 14) && (j == 3 || j == 11) ||
                 (i == 2 || i == 12) && (j == 6 || j == 8) ||
                 (i == 3 || i == 11) && (j == 0 || j == 14) ||
-                (i == 6 || i == 8) && (j == 2 || j== 6|| j == 8 || j == 12)||
-                (i ==  7) && (j == 3 || j == 11)||
-                (i ==  3 || i ==11) && (j == 7)){
+                (i == 6 || i == 8) && (j == 2 || j == 6 || j == 8 || j == 12) ||
+                (i == 7) && (j == 3 || j == 11) ||
+                (i == 3 || i == 11) && (j == 7)) {
             ScrabbleView.boardButtons[i][j].setBackground(new Color(173, 216, 230));
         }
     }
-
 }

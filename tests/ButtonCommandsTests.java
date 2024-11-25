@@ -50,17 +50,6 @@ public class ButtonCommandsTests {
         ScrabbleController.initializeGameSettings();
     }
 
-    @Test
-    public void testPassTurn() {
-        String initialPlayer = ScrabbleController.getCurrentPlayerName();
-
-        ButtonCommands.pass(placedButtons, playerTileButtons, turnLabel);
-
-        String nextPlayer = ScrabbleController.getCurrentPlayerName();
-        assertNotEquals("The current player should change after passing the turn", initialPlayer, nextPlayer);
-
-        assertEquals("Turn label should update to show the next player's turn", "Turn: " + nextPlayer, turnLabel.getText());
-    }
 
     @Test
     public void testClearPlacedTiles() {

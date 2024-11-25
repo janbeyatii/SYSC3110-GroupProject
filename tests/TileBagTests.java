@@ -26,7 +26,7 @@ public class TileBagTests {
     public void testTileInitialization() {
         // Check the total tile count after initialization
         int total = tileBag.totalTiles;
-        assertEquals("Tile bag should start with 98 tiles.", 98, total);
+        assertEquals("Tile bag should start with 100 tiles.", 100, total);
 
         // Verify specific tile counts
         Map<Character, Integer> tileCounts = tileBag.tileCounts;
@@ -50,7 +50,7 @@ public class TileBagTests {
         assertEquals("Should draw exactly 10 tiles.", 10, drawnTiles.size());
 
         // Ensure total tiles reduced by 10
-        int expectedTotal = 98 - 10;
+        int expectedTotal = 100 - 10;
         assertEquals("Total tile count should decrease by 10.", expectedTotal, tileBag.totalTiles);
     }
 }

@@ -49,7 +49,7 @@ public class ScrabbleView extends JFrame {
      */
     public ScrabbleView(int boardSize, ArrayList<Character> tileCharacters) {
         setTitle("SYSC3110 Group20 Scrabble Game");
-        setSize(800, 600);
+        setSize(950, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -107,7 +107,7 @@ public class ScrabbleView extends JFrame {
 
                 if (i == middle && j == middle) {
                     boardButtons[i][j].setBackground(new Color(255, 255, 0)); // Starting tile
-                    }
+                }
 
                 boardButtons[i][j].setOpaque(true);
                 boardButtons[i][j].setBorder(BorderFactory.createLineBorder(Color.GRAY));
@@ -122,8 +122,9 @@ public class ScrabbleView extends JFrame {
             }
         }
     }
+
     /**
-     * Initializes the control panel containing word history, player scores, turn display, and control buttons.
+     * Initializes the control panel containing word history, player scores, turn display, control buttons, and the legend.
      */
     private void initializeControlPanel() {
         controlPanel = new JPanel(new GridBagLayout());
@@ -136,7 +137,54 @@ public class ScrabbleView extends JFrame {
         initializeScorePanel(controlGbc);
         initializeTurnLabel(controlGbc);
         initializeControlButtons(controlGbc);
+        initializeLegend(controlGbc); // Add the legend here
     }
+
+    /**
+     * Initializes the legend to display the colors used on the board and their meanings.
+     *
+     * @param controlGbc the layout constraints for positioning within the control panel.
+     */
+    private void initializeLegend(GridBagConstraints controlGbc) {
+        JPanel legendPanel = new JPanel();
+        legendPanel.setLayout(new BoxLayout(legendPanel, BoxLayout.Y_AXIS));
+        legendPanel.setBorder(BorderFactory.createTitledBorder("Board Legend"));
+
+        // Add legend entries for different colors and descriptions
+        legendPanel.add(createLegendEntry(new Color(255, 255, 0), "Starting Tile"));
+        legendPanel.add(createLegendEntry(new Color(230, 100, 100), "Double Word Score"));
+        legendPanel.add(createLegendEntry(new Color(220, 50, 50), "Triple Word Score"));
+        legendPanel.add(createLegendEntry(new Color(173, 216, 230), "Double Letter Score"));
+        legendPanel.add(createLegendEntry(new Color(65, 105, 225), "Triple Letter Score"));
+
+        // Add the legend panel to the control panel
+        controlGbc.gridy = 6;
+        controlPanel.add(legendPanel, controlGbc);
+    }
+
+    /**
+     * Creates a JPanel entry for the color legend.
+     *
+     * @param color the color block to be displayed.
+     * @param description the description of the color.
+     * @return the created JPanel entry.
+     */
+    private JPanel createLegendEntry(Color color, String description) {
+        JPanel legendEntry = new JPanel();
+        legendEntry.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        // Create a color block
+        JPanel colorBlock = new JPanel();
+        colorBlock.setBackground(color);
+        colorBlock.setPreferredSize(new Dimension(20, 20));
+
+        // Add the color block and description text
+        legendEntry.add(colorBlock);
+        legendEntry.add(new JLabel(description));
+
+        return legendEntry;
+    }
+
 
     /**
      * Initializes the word history area, where placed words are displayed.
@@ -242,19 +290,12 @@ public class ScrabbleView extends JFrame {
 
             //logic for blank tiles
             if (tileCharacters.get(i) == ' ') {
-                System.out.println("reached inside loop");
-                playerTileButtons[i] = new JButton(" ");
-                playerTileButtons[i].addActionListener(e -> {
-                    System.out.println("Tile button clicked at index " + index);
-                    Helpers.assignBlankTile(index, playerTileButtons);
-                });
+                playerTileButtons[i].addActionListener(e -> Helpers.assignBlankTile(index, playerTileButtons));
             } else {
-                playerTileButtons[i] = new JButton(String.valueOf(tileCharacters.get(i)));
                 playerTileButtons[i].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
             }
 
             // Set fixed size for each tile button
-            playerTileButtons[i].setFont(new Font("Arial", Font.BOLD, 18));
             playerTileButtons[i].setPreferredSize(tileButtonSize);
             playerTileButtons[i].setMinimumSize(tileButtonSize);
             playerTileButtons[i].setMaximumSize(tileButtonSize);
@@ -262,10 +303,12 @@ public class ScrabbleView extends JFrame {
             tileGbc.gridx = i;
             tilePanel.add(playerTileButtons[i], tileGbc);
         }
-         repaint();
-        revalidate();
     }
-
+    /**
+     * Initializes the AI tile panel, which displays the tiles for each AI player in the game.
+     * The tiles are displayed as disabled buttons to prevent user interaction and provide a visual representation
+     * of the AI players' tiles. The panel organizes the AI players' names and their tiles in a vertical layout.
+     */
     private void initializeAITilePanel() {
         aiTilePanel = new JPanel();
         aiTilePanel.setLayout(new BoxLayout(aiTilePanel, BoxLayout.Y_AXIS));
@@ -312,40 +355,27 @@ public class ScrabbleView extends JFrame {
      * Updates the player's tile rack with new tiles and refreshes the display.
      */
     public void updatePlayerTiles() {
-    List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
+        List<Character> currentPlayerTiles = ScrabbleController.getCurrentPlayerTiles();
 
-    if (currentPlayerTiles == null) {
-        currentPlayerTiles = new ArrayList<>();
-    }
-
-    System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
-
-    for (int i = 0; i < playerTileButtons.length; i++) {
-        final int index = i; // Declare a new final variable for use in the lambda
-
-        if (i < currentPlayerTiles.size()) {
-            char tile = currentPlayerTiles.get(i);
-
-            // Check for blank tile and render as "_"
-            if (tile == ' ') {
-                
-                playerTileButtons[index].setText(" ");
-                playerTileButtons[index].addActionListener(e -> Helpers.assignBlankTile(index, playerTileButtons));
-            } else {
-                playerTileButtons[index].setText(String.valueOf(tile));
-                playerTileButtons[index].addActionListener(e -> Helpers.selectLetterFromTiles(index, playerTileButtons));
-            }
-
-            playerTileButtons[index].setEnabled(true);
-        } else {
-            playerTileButtons[index].setText("");
-            playerTileButtons[index].setEnabled(false);
+        if (currentPlayerTiles == null) {
+            currentPlayerTiles = new ArrayList<>();
         }
-    }
 
-    repaint();
-    revalidate();
-}
+        System.out.println("Updating player tiles: " + currentPlayerTiles); // Debug log
+
+        for (int i = 0; i < playerTileButtons.length; i++) {
+            if (i < currentPlayerTiles.size()) {
+                playerTileButtons[i].setText(String.valueOf(currentPlayerTiles.get(i)));
+                playerTileButtons[i].setEnabled(true);
+            } else {
+                playerTileButtons[i].setText("");
+                playerTileButtons[i].setEnabled(false);
+            }
+        }
+
+        repaint();
+        revalidate();
+    }
     /**
      * Updates the display of the board based on the current state of the game.
      */
@@ -361,7 +391,11 @@ public class ScrabbleView extends JFrame {
             }
         }
     }
-
+    /**
+     * Updates the tiles displayed for each AI player in the AI tile panel.
+     * Retrieves the current tiles for each AI player from the ScrabbleController and updates the corresponding buttons.
+     * If an AI player has fewer than 7 tiles, the remaining buttons are cleared.
+     */
     public void updateAITiles() {
         Map<String, List<Character>> playerTilesMap = ScrabbleController.getPlayerTilesMap();
 

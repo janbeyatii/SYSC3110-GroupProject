@@ -44,7 +44,7 @@ public class ButtonCommands {
 
         Set<String> uniqueWordsFormed = Helpers.getAllWordsFormed(placedButtons);
 
-        if (!Helpers.areAllWordsValid(uniqueWordsFormed)) {
+        if (!Helpers.areAllWordsValid(uniqueWordsFormed, true)) {
             clear(placedButtons, playerTileButtons);
             return;
         }

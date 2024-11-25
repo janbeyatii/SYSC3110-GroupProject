@@ -70,8 +70,8 @@ public class HelperTests {
         Set<String> invalidWords = new HashSet<>();
         invalidWords.add("zzzz");
 
-        assertTrue("Valid words set should be recognized as valid", Helpers.areAllWordsValid(validWords));
-        assertFalse("Invalid words set should be recognized as invalid", Helpers.areAllWordsValid(invalidWords));
+        assertTrue("Valid words set should be recognized as valid", Helpers.areAllWordsValid(validWords, true));
+        assertFalse("Invalid words set should be recognized as invalid", Helpers.areAllWordsValid(invalidWords, true));
     }
 
     @Test

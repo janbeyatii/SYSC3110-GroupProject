@@ -33,6 +33,7 @@ public class Main {
 
             String wordListFilePath = "wordLists/wordlist.txt";
             WordValidity.loadWordsFromFile(wordListFilePath);
+
             // Initialize game settings and players
             ScrabbleController.initializeGameSettings();
 

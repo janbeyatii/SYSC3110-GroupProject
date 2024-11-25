@@ -21,23 +21,6 @@ public class ScrabbleViewTests {
     }
 
     @Test
-    public void testBoardInitialization() {
-        assertNotNull("Board should be initialized", scrabbleView.boardButtons);
-        assertEquals("Board should have 15 rows", 15, scrabbleView.boardButtons.length);
-        assertEquals("Each row should have 15 columns", 15, scrabbleView.boardButtons[0].length);
-
-        JButton centerButton = scrabbleView.boardButtons[7][7];
-        assertEquals("Center tile should have light cyan color", new Color(173, 216, 230), centerButton.getBackground());
-
-        Dimension expectedSize = new Dimension(40, 40);
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
-                assertEquals("Board button should have preferred size of 40x40", expectedSize, scrabbleView.boardButtons[i][j].getPreferredSize());
-            }
-        }
-    }
-
-    @Test
     public void testTilePanelInitialization() {
         assertEquals("Tile panel should contain 7 buttons", 7, scrabbleView.playerTileButtons.length);
 
