@@ -106,6 +106,9 @@ public class AIPlayer {
             ArrayList<JButton> placedButtonsDummy = new ArrayList<>();
             boolean isValidPlacement = true;
 
+            // Clear previous placements
+            ScrabbleController.clearPlacedTileCoordinates();
+
             for (int i = 0; i < word.length(); i++) {
                 int currentRow = isHorizontal ? row : row + i;
                 int currentCol = isHorizontal ? col + i : col;
@@ -128,13 +131,20 @@ public class AIPlayer {
                 continue;
             }
 
+            // Place the word on the board and capture coordinates
             for (int i = 0; i < word.length(); i++) {
                 int currentRow = isHorizontal ? row : row + i;
                 int currentCol = isHorizontal ? col + i : col;
 
                 board[currentRow][currentCol] = word.charAt(i);
+                ScrabbleController.addPlacedTileCoordinates(new Point(currentRow, currentCol));
             }
 
+            // Retrieve the coordinates of placed tiles
+            List<Point> placedCoordinates = ScrabbleController.getPlacedTileCoordinates();
+            System.out.println("Placed coordinates: " + placedCoordinates);
+
+            // Validate words formed and calculate score (existing logic)
             Set<String> formedWords = Helpers.getAllWordsFormed(placedButtonsDummy);
             if (!Helpers.areAllWordsValid(formedWords, false)) {
                 System.out.println("Invalid words formed: " + formedWords);
@@ -142,27 +152,27 @@ public class AIPlayer {
                 continue;
             }
 
+            // Scoring and updating logic (unchanged from your code)
             int totalScore = 0;
             for (String formedWord : formedWords) {
                 ScoreCalculation scoreCalculation = new ScoreCalculation(formedWord, placedButtonsDummy);
                 totalScore += scoreCalculation.getTotalScore();
                 ScrabbleController.getView().wordHistoryArea.append("AI placed: " + formedWord + " (" + totalScore + " points)\n");
-
             }
+
             ScrabbleController.addScoreToPlayer(ScrabbleController.getCurrentPlayerIndex(), totalScore);
 
             System.out.println("AI formed words: " + formedWords);
             System.out.println("AI scored: " + totalScore + " points.");
 
+            // Update AI tiles
             for (char c : word.toCharArray()) {
                 aiTiles.remove((Character) c);
             }
-
             List<Character> newTiles = ScrabbleController.tileBag.drawTiles(word.length());
             aiTiles.addAll(newTiles);
 
-            System.out.println("AI Tiles After Move: " + aiTiles);
-
+            // Update the view
             ScrabbleView view = ScrabbleController.getView();
             view.updateBoardDisplay();
             view.updateAITiles();
@@ -174,6 +184,7 @@ public class AIPlayer {
 
         return false;
     }
+
 
     /**
      * Forms a word using the AI's available tiles.

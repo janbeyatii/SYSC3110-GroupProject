@@ -2,6 +2,7 @@ package src;
 
 import GUI.*;
 import javax.swing.*;
+import java.awt.*;
 import java.util.*;
 
 /**
@@ -60,13 +61,43 @@ public class Helpers {
             placedButtons.add(boardButtons[row][col]);
             selectedLetter = null;
             previouslySelectedButton = null;
-
+            ScrabbleController.addPlacedTileCoordinates(new Point(row, col));
             System.out.println("Letter placed: " + selectedLetter + " at (" + row + ", " + col + ")");
         } else {
             JOptionPane.showMessageDialog(null, "Select a letter first or choose an empty tile.");
         }
     }
 
+// Helper methods for bonus checks
+static boolean isDoubleWord(int row, int col) {
+    return ((row == 1) && (col == 1 || col == 13) ||
+            (row == 2) && (col == 2 || col == 12) ||
+            (row == 3) && (col == 3 || col == 11) ||
+            (row == 4) && (col == 4 || col == 10) ||
+            (row == 10) && (col == 4 || col == 10) ||
+            (row == 11) && (col == 3 || col == 11) ||
+            (row == 12) && (col == 2 || col == 12) ||
+            (row == 13) && (col == 1 || col == 13));
+}
+
+static boolean isTripleWord(int row, int col) {
+    return ((row == 0 || row == 7 || row == 14) && (col == 0 || col == 14) ||
+            (row == 0 || row == 14) && (col == 7));
+}
+
+static boolean isDoubleLetter(int row, int col) {
+    return ((row == 0 || row == 14) && (col == 3 || col == 11) ||
+            (row == 2 || row == 12) && (col == 6 || col == 8) ||
+            (row == 3 || row == 11) && (col == 0 || col == 14) ||
+            (row == 6 || row == 8) && (col == 2 || col == 6 || col == 8 || col == 12) ||
+            (row == 7) && (col == 3 || col == 11) ||
+            (row == 3 || row == 11) && (col == 7));
+}
+
+static boolean isTripleLetter(int row, int col) {
+    return ((row == 1 || row == 5 || row == 9 || row == 13) && (col == 5 || col == 9) ||
+            (row == 5 || row == 9) && (col == 1 || col == 13));
+}
     /**
      * Updates the list of coordinates for tiles that are already placed on the Scrabble board.
      * This method clears the existing list and repopulates it with the coordinates of all non-empty cells.

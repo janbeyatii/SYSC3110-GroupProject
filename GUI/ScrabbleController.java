@@ -161,6 +161,9 @@ public class ScrabbleController {
         return placedTileCoordinates;
     }
 
+    public static void addPlacedTileCoordinates(Point p) {placedTileCoordinates.add(p);}
+    
+    public static void clearPlacedTileCoordinates() {placedTileCoordinates.clear();}
     /**
      * Retrieves the score of a player by their index.
      *

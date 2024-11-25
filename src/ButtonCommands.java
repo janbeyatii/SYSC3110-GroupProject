@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static GUI.ScrabbleController.clearPlacedTileCoordinates;
 import static src.Helpers.*;
 
 /**
@@ -71,7 +72,7 @@ public class ButtonCommands {
 
         ScrabbleController.addPlacedTiles(placedButtons);
         Helpers.updateOldTileCoordinates();
-
+        clearPlacedTileCoordinates();
         placedButtons.clear();
         clear(placedButtons, playerTileButtons);
 
@@ -112,6 +113,7 @@ public class ButtonCommands {
         }
 
         placedButtons.clear();
+        clearPlacedTileCoordinates();
 
         for (JButton tileButton : playerTileButtons) {
             if (tileButton.getText() != null && !tileButton.getText().isEmpty()) {
