@@ -152,12 +152,18 @@ public class AIPlayer {
                 continue;
             }
 
-            // Scoring and updating logic (unchanged from your code)
+// Scoring and updating logic (adjusted to show score for each word individually)
             int totalScore = 0;
             for (String formedWord : formedWords) {
+                // Calculate the score for each word
                 ScoreCalculation scoreCalculation = new ScoreCalculation(formedWord, placedButtonsDummy);
-                totalScore += scoreCalculation.getTotalScore();
-                ScrabbleController.getView().wordHistoryArea.append("AI placed: " + formedWord + " (" + totalScore + " points)\n");
+                int wordScore = scoreCalculation.getTotalScore();
+
+                // Append each word's score separately in the history
+                ScrabbleController.getView().wordHistoryArea.append("AI placed: " + formedWord + " (" + wordScore + " points)\n");
+
+                // Add the word's score to the total score
+                totalScore += wordScore;
             }
 
             ScrabbleController.addScoreToPlayer(ScrabbleController.getCurrentPlayerIndex(), totalScore);
