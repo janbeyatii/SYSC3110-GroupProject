@@ -139,7 +139,7 @@ public class ButtonCommands {
             int wordScore = scoreCalc.getTotalScore();
             turnScore += wordScore;
 
-            wordHistoryArea.append(word + ": " + wordScore + " points\n");
+            wordHistoryArea.append(ScrabbleController.getCurrentPlayerName() + " placed: "+ word + " (" + wordScore + " points)\n");
         }
 
         ScrabbleController.addScoreToPlayer(currentPlayerIndex, turnScore);
