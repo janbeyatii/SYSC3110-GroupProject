@@ -1,12 +1,10 @@
 package GUI;
 
-import src.AIPlayer;
-import src.Helpers;
-import src.ScoreCalculation;
-import src.TileBag;
+import src.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
@@ -248,7 +246,10 @@ public class ScrabbleController {
             placedTileCoordinates.add(new Point(row, col));
         }
     }
-
+    // Get the board state
+    public static char[][] getBoard() {
+        return board;  // Access the current board state
+    }
     /**
      * Handles the AI player's turn, including word placement, scoring, and tile updates.
      */
@@ -320,6 +321,20 @@ public class ScrabbleController {
         }
     }
 
+    public static void setPlayerNames(ArrayList<String> names) {
+        playerNames = names;  // Set the list of player names in the controller
+    }
+
+    // Set the map of player tiles
+    public static void setPlayerTilesMap(Map<String, List<Character>> tilesMap) {
+        playerTilesMap = tilesMap;  // Set the map of player tiles
+    }
+
+    // Set the board state
+    public static void setBoard(char[][] newBoard) {
+        board = newBoard;  // Set the current board state
+    }
+
     /**
      * Sets the triple word score tiles on the board.
      *
@@ -375,6 +390,50 @@ public class ScrabbleController {
                 (i == 7) && (j == 3 || j == 11) ||
                 (i == 3 || i == 11) && (j == 7)) {
             ScrabbleView.boardButtons[i][j].setBackground(new Color(173, 216, 230));
+        }
+    }
+    // Save game state using the existing methods
+    public static void saveGame(String filename) {
+        try {
+            // Fetch game state using existing methods
+            List<String> playerNames = getPlayerNames();
+            Map<String, List<Character>> playerTilesMap = getPlayerTilesMap();
+            String currentPlayerName = getCurrentPlayerName();
+            char[][] boardState = getBoard();
+
+
+            // Create GameState object
+            GameState gameState = new GameState(playerNames, playerTilesMap, playerScores,
+                    currentPlayerName, boardState);
+
+            // Save the game state
+            GameState.saveGameState(gameState, filename);
+            System.out.println("Game state saved successfully.");
+        } catch (IOException e) {
+            System.err.println("Error saving game state: " + e.getMessage());
+        }
+    }
+
+    // Load game state using the existing methods
+    public static void loadGame(String filename) {
+        try {
+            // Load the game state from the file
+            GameState gameState = GameState.loadGameState(filename);
+
+            // Restore the game state using the loaded data
+            setPlayerNames(gameState.getPlayerNames());
+            setPlayerTilesMap(gameState.getPlayerTilesMap());
+            setBoard(gameState.getBoardState());
+
+            // Update the view (assuming ScrabbleView can refresh itself)
+            ScrabbleView view = getView();
+            view.updatePlayerTiles();
+            view.updateBoardDisplay();
+            view.updateAITiles();
+
+            System.out.println("Game state loaded successfully.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading game state: " + e.getMessage());
         }
     }
 }

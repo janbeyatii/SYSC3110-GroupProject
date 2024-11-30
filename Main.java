@@ -18,7 +18,6 @@ public class Main {
         // Default constructor
     }
 
-
     /**
      * The main method that runs the Scrabble game.
      * It initializes the board, players, word list, and manages the game flow.

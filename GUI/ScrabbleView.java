@@ -41,6 +41,11 @@ public class ScrabbleView extends JFrame {
     // Word History Display
     public JTextArea wordHistoryArea;
 
+    private JMenuBar menuBar;
+    private JMenu gameMenu;
+    private JMenuItem saveMenuItem;
+    private JMenuItem loadMenuItem;
+
     /**
      * Constructs the ScrabbleView GUI, initializing the game board, control panel, and tile panel.
      *
@@ -61,6 +66,7 @@ public class ScrabbleView extends JFrame {
         initializeControlPanel();
         initializeTilePanel(tileCharacters);
         initializeAITilePanel();
+        initializeMenuBar();
 
         add(aiTilePanel, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
@@ -69,7 +75,44 @@ public class ScrabbleView extends JFrame {
 
         setVisible(true);
     }
+    /**
+     * Initializes the menu bar with Save and Load options.
+     */
+    private void initializeMenuBar() {
+        menuBar = new JMenuBar();
+        gameMenu = new JMenu("Game");
 
+        // Save menu item
+        saveMenuItem = new JMenuItem("Save Game");
+        saveMenuItem.addActionListener(e -> saveGame());
+        gameMenu.add(saveMenuItem);
+
+        // Load menu item
+        loadMenuItem = new JMenuItem("Load Game");
+        loadMenuItem.addActionListener(e -> loadGame());
+        gameMenu.add(loadMenuItem);
+
+        menuBar.add(gameMenu);
+        setJMenuBar(menuBar);
+    }
+
+    /**
+     * Save the current game state to a file.
+     */
+    private void saveGame() {
+        // Assume the user provides a filename, for example
+        String filename = "game_save.dat";  // Use an appropriate file name
+        ScrabbleController.saveGame(filename);
+    }
+
+    /**
+     * Load a previously saved game state from a file.
+     */
+    private void loadGame() {
+        // Assume the user provides a filename, for example
+        String filename = "game_save.dat";  // Use an appropriate file name
+        ScrabbleController.loadGame(filename);
+    }
     /**
      * Initializes the game board panel with buttons for each tile.
      *
