@@ -12,17 +12,17 @@ public class GameState implements Serializable {
     private ArrayList<Integer> playerScores;
     private String currentPlayerName;
     private char[][] boardState;
-
+    private boolean firstTurn;
 
     public GameState(List<String> playerNames, Map<String, List<Character>> playerTilesMap,
                      ArrayList<Integer> playerScores, String currentPlayerName,
-                     char[][] boardState) {
+                     char[][] boardState, boolean firstTurn) {
         this.playerNames = playerNames;
         this.playerTilesMap = playerTilesMap;
         this.playerScores = playerScores;
         this.currentPlayerName = currentPlayerName;
         this.boardState = boardState;
-
+        this.firstTurn = firstTurn;
     }
 
     // Getters for the GameState fields
@@ -46,7 +46,12 @@ public class GameState implements Serializable {
         return boardState;
     }
 
-
+    public boolean isFirstTurn() {
+        return firstTurn;
+    }
+    public void setFirstTurn(boolean firstTurn) {
+        this.firstTurn = firstTurn;
+    }
     // Save the game state to a file
     public static void saveGameState(GameState gameState, String filename) throws IOException {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {

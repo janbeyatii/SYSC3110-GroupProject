@@ -404,7 +404,7 @@ public class ScrabbleController {
 
             // Create GameState object
             GameState gameState = new GameState(playerNames, playerTilesMap, playerScores,
-                    currentPlayerName, boardState);
+                    currentPlayerName, boardState, firstTurn);
 
             // Save the game state
             GameState.saveGameState(gameState, filename);
@@ -424,7 +424,7 @@ public class ScrabbleController {
             setPlayerNames(gameState.getPlayerNames());
             setPlayerTilesMap(gameState.getPlayerTilesMap());
             setBoard(gameState.getBoardState());
-
+            firstTurn = gameState.isFirstTurn();
             // Update the view (assuming ScrabbleView can refresh itself)
             ScrabbleView view = getView();
             view.updatePlayerTiles();
