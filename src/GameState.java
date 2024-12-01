@@ -1,7 +1,9 @@
 package src;
 
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 public class GameState implements Serializable {
 
@@ -13,16 +15,30 @@ public class GameState implements Serializable {
     private String currentPlayerName;
     private char[][] boardState;
     private boolean firstTurn;
+    private Set<String> oldTileCoordinates;
+    private Set<String> placedTileCoordinates;
 
     public GameState(List<String> playerNames, Map<String, List<Character>> playerTilesMap,
                      ArrayList<Integer> playerScores, String currentPlayerName,
-                     char[][] boardState, boolean firstTurn) {
+                     char[][] boardState, boolean firstTurn, Set<String> oldTileCoordinates,Set<String> placedTileCoordinates) {
         this.playerNames = playerNames;
         this.playerTilesMap = playerTilesMap;
         this.playerScores = playerScores;
         this.currentPlayerName = currentPlayerName;
         this.boardState = boardState;
         this.firstTurn = firstTurn;
+        this.oldTileCoordinates = oldTileCoordinates;
+        this.placedTileCoordinates = placedTileCoordinates;
+
+    }
+
+    public Set<String> getPlacedTileCoordinates() {
+        return placedTileCoordinates;
+    }
+
+    // Add getter and setter for oldTileCoordinates
+    public Set<String> getOldTileCoordinates() {
+        return oldTileCoordinates;
     }
 
     // Getters for the GameState fields

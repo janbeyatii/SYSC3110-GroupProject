@@ -61,8 +61,11 @@ public class Helpers {
             placedButtons.add(boardButtons[row][col]);
             selectedLetter = null;
             previouslySelectedButton = null;
-            ScrabbleController.addPlacedTileCoordinates(new Point(row, col));
+            ScrabbleController.setPlacedTileCoordinates(new Point(row, col));
             System.out.println("Letter placed: " + selectedLetter + " at (" + row + ", " + col + ")");
+            System.out.println("Old Tiles: " + oldTileCoordinates);
+            System.out.println("Placed Tiles: " + getAllWordsFormed(placedButtons));
+            System.out.println("get Tiles: " + ScrabbleController.getPlacedTileCoordinates());
         } else {
             JOptionPane.showMessageDialog(null, "Select a letter first or choose an empty tile.");
         }
@@ -112,6 +115,15 @@ static boolean isTripleLetter(int row, int col) {
                 }
             }
         }
+    }
+
+    public static Set<String> getOldTileCoordinates() {
+        return new HashSet<>(oldTileCoordinates); // Return a copy to avoid external modification.
+    }
+
+    public static void setOldTileCoordinates(Set<String> coordinates) {
+        oldTileCoordinates.clear();
+        oldTileCoordinates.addAll(coordinates);
     }
 
     /**

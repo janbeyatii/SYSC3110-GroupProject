@@ -159,7 +159,7 @@ public class ScrabbleController {
         return placedTileCoordinates;
     }
 
-    public static void addPlacedTileCoordinates(Point p) {placedTileCoordinates.add(p);}
+    public static void setPlacedTileCoordinates(Point p) {placedTileCoordinates.add(p);}
     
     public static void clearPlacedTileCoordinates() {placedTileCoordinates.clear();}
     /**
@@ -400,11 +400,15 @@ public class ScrabbleController {
             Map<String, List<Character>> playerTilesMap = getPlayerTilesMap();
             String currentPlayerName = getCurrentPlayerName();
             char[][] boardState = getBoard();
-
+            Set<String> oldTileCoordinates = Helpers.getOldTileCoordinates(); // Fetch old tiles.
+            Set<String> placedTileCoordinatesSet = new HashSet<>();
+            for (Point point : placedTileCoordinates) {
+                placedTileCoordinatesSet.add(point.x + "," + point.y);  // Store as a string representation
+            }
 
             // Create GameState object
             GameState gameState = new GameState(playerNames, playerTilesMap, playerScores,
-                    currentPlayerName, boardState, firstTurn);
+                    currentPlayerName, boardState, firstTurn,oldTileCoordinates,placedTileCoordinatesSet);
 
             // Save the game state
             GameState.saveGameState(gameState, filename);
@@ -421,10 +425,20 @@ public class ScrabbleController {
             GameState gameState = GameState.loadGameState(filename);
 
             // Restore the game state using the loaded data
+
             setPlayerNames(gameState.getPlayerNames());
             setPlayerTilesMap(gameState.getPlayerTilesMap());
             setBoard(gameState.getBoardState());
             firstTurn = gameState.isFirstTurn();
+            Helpers.setOldTileCoordinates(gameState.getOldTileCoordinates()); // Restore old tiles.
+            Set<String> placedTileCoordinatesSet = gameState.getPlacedTileCoordinates();
+            placedTileCoordinates.clear();  // Clear current placed tiles
+            for (String coord : placedTileCoordinatesSet) {
+                String[] parts = coord.split(",");
+                int x = Integer.parseInt(parts[0]);
+                int y = Integer.parseInt(parts[1]);
+                placedTileCoordinates.add(new Point(x, y));
+            }
             // Update the view (assuming ScrabbleView can refresh itself)
             ScrabbleView view = getView();
             view.updatePlayerTiles();
