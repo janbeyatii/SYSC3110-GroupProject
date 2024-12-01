@@ -12,19 +12,17 @@ public class GameState implements Serializable {
     private List<String> playerNames;
     private Map<String, List<Character>> playerTilesMap;
     private ArrayList<Integer> playerScores;
-    private String currentPlayerName;
     private char[][] boardState;
     private boolean firstTurn;
     private Set<String> oldTileCoordinates;
     private Set<String> placedTileCoordinates;
 
     public GameState(List<String> playerNames, Map<String, List<Character>> playerTilesMap,
-                     ArrayList<Integer> playerScores, String currentPlayerName,
-                     char[][] boardState, boolean firstTurn, Set<String> oldTileCoordinates,Set<String> placedTileCoordinates) {
+                     ArrayList<Integer> playerScores, char[][] boardState, boolean firstTurn,
+                     Set<String> oldTileCoordinates,Set<String> placedTileCoordinates) {
         this.playerNames = playerNames;
         this.playerTilesMap = playerTilesMap;
         this.playerScores = playerScores;
-        this.currentPlayerName = currentPlayerName;
         this.boardState = boardState;
         this.firstTurn = firstTurn;
         this.oldTileCoordinates = oldTileCoordinates;
@@ -52,10 +50,6 @@ public class GameState implements Serializable {
 
     public ArrayList<Integer>  getPlayerScores() {
         return playerScores;
-    }
-
-    public String getCurrentPlayerName() {
-        return currentPlayerName;
     }
 
     public char[][] getBoardState() {

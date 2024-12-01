@@ -31,6 +31,7 @@ public class ScrabbleController {
     private static List<Point> placedTileCoordinates = new ArrayList<>();
     private static ArrayList<JButton> placedButtons = new ArrayList<>();
     private static ScrabbleView view;
+    private static JLabel[] playerScoreLabels;
 
     /**
      * Constructor for the ScrabbleController class.
@@ -52,7 +53,6 @@ public class ScrabbleController {
             playerNames = setupPlayers();
             playercount = playerNames.size();
             initializePlayerScores();
-
             System.out.println("Adding blank tiles to the player tile pool");
 
             for (String playerName : playerNames) {
@@ -392,23 +392,27 @@ public class ScrabbleController {
             ScrabbleView.boardButtons[i][j].setBackground(new Color(173, 216, 230));
         }
     }
+
     // Save game state using the existing methods
     public static void saveGame(String filename) {
         try {
             // Fetch game state using existing methods
             List<String> playerNames = getPlayerNames();
             Map<String, List<Character>> playerTilesMap = getPlayerTilesMap();
-            String currentPlayerName = getCurrentPlayerName();
             char[][] boardState = getBoard();
             Set<String> oldTileCoordinates = Helpers.getOldTileCoordinates(); // Fetch old tiles.
             Set<String> placedTileCoordinatesSet = new HashSet<>();
             for (Point point : placedTileCoordinates) {
                 placedTileCoordinatesSet.add(point.x + "," + point.y);  // Store as a string representation
             }
+            System.out.println("Saving player scores: " + ScrabbleController.playerScores);
+
+            ArrayList<Integer> playerScores = new ArrayList<>(ScrabbleController.playerScores);
+
 
             // Create GameState object
             GameState gameState = new GameState(playerNames, playerTilesMap, playerScores,
-                    currentPlayerName, boardState, firstTurn,oldTileCoordinates,placedTileCoordinatesSet);
+                    boardState, firstTurn,oldTileCoordinates,placedTileCoordinatesSet);
 
             // Save the game state
             GameState.saveGameState(gameState, filename);
@@ -439,12 +443,16 @@ public class ScrabbleController {
                 int y = Integer.parseInt(parts[1]);
                 placedTileCoordinates.add(new Point(x, y));
             }
+            System.out.println("Loaded player scores: " + gameState.getPlayerScores());
+
+            playerScores = new ArrayList<>(gameState.getPlayerScores());
+
             // Update the view (assuming ScrabbleView can refresh itself)
+
             ScrabbleView view = getView();
             view.updatePlayerTiles();
             view.updateBoardDisplay();
             view.updateAITiles();
-
             System.out.println("Game state loaded successfully.");
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Error loading game state: " + e.getMessage());
