@@ -137,7 +137,7 @@ public class AIPlayer {
                 int currentCol = isHorizontal ? col + i : col;
 
                 board[currentRow][currentCol] = word.charAt(i);
-                ScrabbleController.addPlacedTileCoordinates(new Point(currentRow, currentCol));
+                ScrabbleController.setPlacedTileCoordinates(new Point(currentRow, currentCol));
             }
 
             // Retrieve the coordinates of placed tiles
