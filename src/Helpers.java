@@ -441,6 +441,4 @@ static boolean isTripleLetter(int row, int col) {
         JOptionPane.showMessageDialog(null, "Invalid input. Please enter a single letter.");
     }
 }
-
-
 }

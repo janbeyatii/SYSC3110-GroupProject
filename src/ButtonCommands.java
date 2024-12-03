@@ -171,9 +171,17 @@ public class ButtonCommands {
             }
         }
 
+        // Add the score to the current player's total
         ScrabbleController.addScoreToPlayer(currentPlayerIndex, turnScore);
         Helpers.updateScores(playerScoresLabels);
+
+        // Check for winning condition
+        int currentPlayerScore = ScrabbleController.getPlayerScore(currentPlayerIndex);
+        if (currentPlayerScore >= 100) {
+            ScrabbleController.showWinningAnimation();
+        }
     }
+
 
 
 }
