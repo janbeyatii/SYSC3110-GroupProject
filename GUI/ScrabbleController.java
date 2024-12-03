@@ -3,6 +3,7 @@ package GUI;
 import src.*;
 
 import javax.swing.*;
+import javax.swing.Timer;
 import java.awt.*;
 import java.io.IOException;
 import java.util.*;
@@ -64,6 +65,10 @@ public class ScrabbleController {
         System.out.println("Initializing players: " + playerNames.size());
 
         if (!isInitialized) {
+            // Initialize background music
+            BackgroundMusic backgroundMusic = new BackgroundMusic();
+            backgroundMusic.playMusic("music/tunes.mp3"); // Path to your music file
+
             playerNames = setupPlayers();
             playercount = playerNames.size();
             initializePlayerScores();
@@ -78,6 +83,7 @@ public class ScrabbleController {
             isInitialized = true;
         }
     }
+
 
     /**
      * Initializes player scores by setting all player scores to 0.
@@ -396,6 +402,59 @@ public class ScrabbleController {
         }
     }
 
+    public static void showWinningAnimation() {
+        JFrame confettiFrame = new JFrame("Congratulations!");
+        confettiFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        confettiFrame.setSize(800, 600);
+        confettiFrame.setLocationRelativeTo(null);
+
+        JPanel animationPanel = new JPanel() {
+            private final Random random = new Random();
+            private final List<Point> confetti = new ArrayList<>();
+
+            {
+                // Timer to continuously add and animate confetti
+                Timer timer = new Timer(20, e -> {
+                    confetti.add(new Point(random.nextInt(getWidth()), 0)); // Add new confetti pieces
+                    repaint();
+                });
+                timer.start();
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                // Draw confetti
+                for (Point point : confetti) {
+                    g.setColor(new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256)));
+                    g.fillOval(point.x, point.y += 5, 10, 10); // Move confetti pieces down
+                }
+
+                // Remove confetti that go out of bounds
+                confetti.removeIf(p -> p.y > getHeight());
+
+                // Draw the "YOU WIN" message
+                g.setColor(Color.WHITE);
+                g.setFont(new Font("Arial", Font.BOLD, 72)); // Bold and large font
+                FontMetrics metrics = g.getFontMetrics();
+                String message = "YOU WIN!";
+                int x = (getWidth() - metrics.stringWidth(message)) / 2;
+                int y = getHeight() / 2;
+                g.drawString(message, x, y);
+            }
+        };
+
+        animationPanel.setBackground(Color.BLACK);
+        confettiFrame.add(animationPanel);
+        confettiFrame.setVisible(true);
+
+        // Timer to close the window after 6 seconds
+        new Timer(6000, e -> {
+            confettiFrame.dispose(); // Close the window
+            System.exit(0); // End the program
+        }).start();
+    }
 
 
     // Save game state using the existing methods

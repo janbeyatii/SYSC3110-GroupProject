@@ -23,7 +23,7 @@ public class ScoreCalculation {
      * Constructs a ScoreCalculation object and calculates the total score of the given word.
      * The score is computed based on the positions of placed tiles on the GUI board.
      *
-     * @param word           the word to be scored.
+     * @param word the word to be scored.
      */
     public ScoreCalculation(String word) {
         ArrayList<JButton> placedButtons = ScrabbleController.getMasterPlacedButtons();
@@ -86,7 +86,7 @@ public class ScoreCalculation {
                 letterScore *= 2;
             } else if (isTripleLetter(coordinates.x, coordinates.y)) {
                 letterScore *= 3;
-            }  else if (isDoubleWord(coordinates.x, coordinates.y)) {
+            } else if (isDoubleWord(coordinates.x, coordinates.y)) {
                 letterScore *= 1;
             }
 
@@ -128,23 +128,5 @@ public class ScoreCalculation {
      */
     public int getTotalScore() {
         return totalScore;
-    }
-
-    /**
-     * Returns the individual scores of the letters in the word.
-     *
-     * @return an ArrayList of scores for each letter in the word.
-     */
-    public ArrayList<Integer> getLetterScores() {
-        return letterScores;
-    }
-
-    /**
-     * Returns the coordinates of the placed letters.
-     *
-     * @return an ArrayList of Points representing the coordinates of placed letters.
-     */
-    public ArrayList<Point> getLetterCoordinates() {
-        return letterCoordinates;
     }
 }
