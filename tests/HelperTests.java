@@ -56,7 +56,7 @@ public class HelperTests {
     @Test
     public void testPlaceLetterOnBoard() {
         Helpers.selectLetterFromTiles(0, playerTileButtons);
-        Helpers.placeLetterOnBoard(7, 7, scrabbleView.boardButtons, placedButtons);
+        Helpers.placeLetterOnBoard(7, 7, scrabbleView.boardButtons);
 
         assertEquals("Placed letter should match selected letter", "A", scrabbleView.boardButtons[7][7].getText());
         assertEquals("Placed buttons list should include the board button", 1, placedButtons.size());
@@ -88,9 +88,9 @@ public class HelperTests {
     @Test
     public void testClearPlacedLetters() {
         Helpers.selectLetterFromTiles(0, playerTileButtons);
-        Helpers.placeLetterOnBoard(7, 7, scrabbleView.boardButtons, placedButtons);
+        Helpers.placeLetterOnBoard(7, 7, scrabbleView.boardButtons);
 
-        ButtonCommands.clear(placedButtons, playerTileButtons);
+        ButtonCommands.clear(playerTileButtons);
         assertTrue("Placed buttons should be cleared after clearing", placedButtons.isEmpty());
     }
 }

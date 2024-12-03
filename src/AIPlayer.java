@@ -18,7 +18,7 @@ public class AIPlayer {
      * @param aiTiles The AI's available tiles.
      * @return A set of words formed by the AI.
      */
-    public static Set<String> makeMove(char[][] board, List<Character> aiTiles) {
+    public static Set<String> makeMove(char[][] board, List<Character> aiTiles, JLabel[] playerScoresLabels) {
         Set<String> formedWords = new HashSet<>();
 
         if (aiTiles == null || aiTiles.isEmpty()) {
@@ -33,23 +33,21 @@ public class AIPlayer {
                 return formedWords;
             }
 
-            boolean isPlaced = tryPlaceWordOnBoard(board, word, aiTiles);
+            boolean isPlaced = tryPlaceWordOnBoard(board, word, aiTiles, playerScoresLabels);
 
             if (isPlaced) {
                 // Collect all words formed by this placement
-                formedWords = Helpers.getAllWordsFormed(ScrabbleController.getPlacedButtons());
+                formedWords = Helpers.getAllWordsFormed();
 
                 // Validate all words formed
-                if (!Helpers.areAllWordsValid(formedWords, false)) {
-                    // Undo the move if any word is invalid
+                if (Helpers.areAllWordsValid(formedWords, false)) {
+                    System.out.println("AI placed the word: " + word);
+                    break;
+                } else {
                     System.out.println("AI formed invalid words. Undoing move.");
-                    undoAIMove(board, ScrabbleController.getPlacedButtons());
+                    undoAIMove(board);
                     formedWords.clear();
-                    continue;
                 }
-
-                System.out.println("AI placed the word: " + word);
-                break;
             }
         }
 
@@ -67,18 +65,17 @@ public class AIPlayer {
      *
      * @param board          A 2D character array representing the Scrabble board.
      *                       Each cell holds a character representing a tile or '\0' if the cell is empty.
-     * @param placedButtons  A list of buttons representing the tiles placed during the AI's move.
-     *                       These buttons are cleared visually and logically.
      */
-    private static void undoAIMove(char[][] board, ArrayList<JButton> placedButtons) {
-        for (JButton button : placedButtons) {
+    private static void undoAIMove(char[][] board) {
+        ArrayList<JButton> masterPlacedButtons = ScrabbleController.getMasterPlacedButtons();
+        for (JButton button : masterPlacedButtons) {
             int row = (Integer) button.getClientProperty("row");
             int col = (Integer) button.getClientProperty("col");
             board[row][col] = '\0';
             button.setText("");
         }
 
-        placedButtons.clear();
+        ScrabbleController.clearMasterPlacedButtons(); // Clear the centralized list
     }
 
     /**
@@ -94,16 +91,19 @@ public class AIPlayer {
      *                 Tiles used for the word are removed, and new tiles are drawn to replace them.
      * @return True if the word was successfully placed on the board; false otherwise.
      */
-    private static boolean tryPlaceWordOnBoard(char[][] board, String word, List<Character> aiTiles) {
+    private static boolean tryPlaceWordOnBoard(char[][] board, String word, List<Character> aiTiles, JLabel[] playerScoresLabels) {
         Random random = new Random();
         int boardSize = board.length;
 
-        for (int attempt = 0; attempt < 50; attempt++) {
+        for (int attempt = 0; attempt < 150; attempt++) {
             boolean isHorizontal = random.nextBoolean();
             int row = random.nextInt(boardSize);
             int col = random.nextInt(boardSize);
 
-            ArrayList<JButton> placedButtonsDummy = new ArrayList<>();
+            // Clear previously placed tiles
+            ScrabbleController.clearMasterPlacedButtons();
+            ScrabbleController.clearPlacedTileCoordinates();
+
             boolean isValidPlacement = true;
 
             // Clear previous placements
@@ -118,58 +118,39 @@ public class AIPlayer {
                     break;
                 }
 
-                JButton dummyButton = new JButton();
-                dummyButton.putClientProperty("row", currentRow);
-                dummyButton.putClientProperty("col", currentCol);
-                dummyButton.setText(String.valueOf(word.charAt(i)));
-                placedButtonsDummy.add(dummyButton);
+                JButton button = new JButton(String.valueOf(word.charAt(i)));
+                button.putClientProperty("row", currentRow);
+                button.putClientProperty("col", currentCol);
+                ScrabbleController.addToMasterPlacedButtons(button);
+                ScrabbleController.setPlacedTileCoordinates(new Point(currentRow, currentCol));
             }
 
             if (!isValidPlacement) continue;
 
-            if (!Helpers.isWordPlacementValid(placedButtonsDummy, ScrabbleController.isFirstTurn(), false)) {
+            if (!Helpers.isWordPlacementValid(ScrabbleController.isFirstTurn(), false)) {
                 continue;
             }
 
-            // Place the word on the board and capture coordinates
+            // Place the word on the board
             for (int i = 0; i < word.length(); i++) {
                 int currentRow = isHorizontal ? row : row + i;
                 int currentCol = isHorizontal ? col + i : col;
-
                 board[currentRow][currentCol] = word.charAt(i);
-                ScrabbleController.setPlacedTileCoordinates(new Point(currentRow, currentCol));
             }
 
-            // Retrieve the coordinates of placed tiles
-            List<Point> placedCoordinates = ScrabbleController.getPlacedTileCoordinates();
-            System.out.println("Placed coordinates: " + placedCoordinates);
-
-            // Validate words formed and calculate score (existing logic)
-            Set<String> formedWords = Helpers.getAllWordsFormed(placedButtonsDummy);
+            // Validate words formed
+            Set<String> formedWords = Helpers.getAllWordsFormed();
             if (!Helpers.areAllWordsValid(formedWords, false)) {
                 System.out.println("Invalid words formed: " + formedWords);
-                undoAIMove(board, placedButtonsDummy);
+                undoAIMove(board); // Undo placement
                 continue;
             }
 
-// Scoring and updating logic (adjusted to show score for each word individually)
-            int totalScore = 0;
-            for (String formedWord : formedWords) {
-                // Calculate the score for each word
-                ScoreCalculation scoreCalculation = new ScoreCalculation(formedWord, placedButtonsDummy);
-                int wordScore = scoreCalculation.getTotalScore();
-
-                // Append each word's score separately in the history
-                ScrabbleController.getView().wordHistoryArea.append("AI placed: " + formedWord + " (" + wordScore + " points)\n");
-
-                // Add the word's score to the total score
-                totalScore += wordScore;
-            }
-
-            ScrabbleController.addScoreToPlayer(ScrabbleController.getCurrentPlayerIndex(), totalScore);
+            ButtonCommands.updateScoresAndDisplayWords(formedWords, ScrabbleController.getView().wordHistoryArea, playerScoresLabels);
+            ScrabbleController.clearMasterPlacedButtons(); // Clear only after a valid move
+            Helpers.updateOldTileCoordinates(); // Update old tile coordinates after AI places its tiles
 
             System.out.println("AI formed words: " + formedWords);
-            System.out.println("AI scored: " + totalScore + " points.");
 
             // Update AI tiles
             for (char c : word.toCharArray()) {

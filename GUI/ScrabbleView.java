@@ -18,7 +18,6 @@ public class ScrabbleView extends JFrame {
     // Board and Tiles Display
     private JPanel boardPanel;
     public static JButton[][] boardButtons;
-    private ArrayList<JButton> placedButtons = new ArrayList<>();
 
     // Control Panel Elements
     private JPanel controlPanel;
@@ -27,20 +26,18 @@ public class ScrabbleView extends JFrame {
     public JButton submitButton;
 
     // Player Information Display
-    private JLabel[] playerScoresLabels;
+    public JLabel[] playerScoresLabels;
     public JLabel turnLabel;
 
     // Tile Management Display
     private JPanel tilePanel;
     public JButton[] playerTileButtons;
     private JPanel aiTilePanel;
-    public JButton[] aiTileButtons;
     private Map<String, JButton[]> aiTileButtonsMap;
 
 
     // Word History Display
     public JTextArea wordHistoryArea;
-
     private JMenuBar menuBar;
     private JMenu gameMenu;
     private JMenuItem saveMenuItem;
@@ -105,6 +102,10 @@ public class ScrabbleView extends JFrame {
         ScrabbleController.saveGame(filename);
     }
 
+    public JTextArea getWordHistory() {
+        return wordHistoryArea;
+    }
+
     /**
      * Load a previously saved game state from a file.
      */
@@ -113,12 +114,20 @@ public class ScrabbleView extends JFrame {
         String filename = "game_save.dat";  // Use an appropriate file name
         ScrabbleController.loadGame(filename);
     }
+
+    public JLabel[] getplayerScoresLabels() {
+        return playerScoresLabels;
+    }
+
+
     /**
      * Initializes the game board panel with buttons for each tile.
      *
      * @param boardSize the size of the board (e.g., 15 for a 15x15 grid).
      */
+
     private void initializeBoardPanel(int boardSize) {
+
         boardPanel = new JPanel(new GridBagLayout());
         boardButtons = new JButton[boardSize][boardSize];
         GridBagConstraints gbc = new GridBagConstraints();
@@ -131,6 +140,7 @@ public class ScrabbleView extends JFrame {
 
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
+
                 boardButtons[i][j] = new JButton();
                 boardButtons[i][j].putClientProperty("row", i);
                 boardButtons[i][j].putClientProperty("col", j);
@@ -152,12 +162,11 @@ public class ScrabbleView extends JFrame {
                     boardButtons[i][j].setBackground(new Color(255, 255, 0)); // Starting tile
                 }
 
+                int finalI = i;
+                int finalJ = j;
+                boardButtons[i][j].addActionListener(e -> Helpers.placeLetterOnBoard(finalI, finalJ, boardButtons)); // Use field directly
                 boardButtons[i][j].setOpaque(true);
                 boardButtons[i][j].setBorder(BorderFactory.createLineBorder(Color.GRAY));
-
-                final int row = i;
-                final int col = j;
-                boardButtons[i][j].addActionListener(e -> Helpers.placeLetterOnBoard(row, col, boardButtons, placedButtons));
 
                 gbc.gridx = j;
                 gbc.gridy = i;
@@ -180,7 +189,7 @@ public class ScrabbleView extends JFrame {
         initializeScorePanel(controlGbc);
         initializeTurnLabel(controlGbc);
         initializeControlButtons(controlGbc);
-        initializeLegend(controlGbc); // Add the legend here
+        initializeLegend(controlGbc);
     }
 
     /**
@@ -271,8 +280,6 @@ public class ScrabbleView extends JFrame {
         controlPanel.add(scorePanel, controlGbc);
     }
 
-
-
     /**
      * Initializes the label that displays the current player's turn.
      *
@@ -291,20 +298,28 @@ public class ScrabbleView extends JFrame {
      * @param controlGbc the layout constraints for positioning within the control panel.
      */
     private void initializeControlButtons(GridBagConstraints controlGbc) {
+        ArrayList<JButton> buttonsToSubmit = ScrabbleController.getMasterPlacedButtons();
+
         passButton = createButton("Pass", e -> {
-            ButtonCommands.pass(placedButtons, playerTileButtons, turnLabel);
+            ButtonCommands.pass(playerTileButtons, turnLabel, playerScoresLabels);
             updatePlayerTiles();
         });
         controlGbc.gridy = 3;
         controlPanel.add(passButton, controlGbc);
 
-        clearButton = createButton("Clear", e -> ButtonCommands.clear(placedButtons, playerTileButtons));
+        System.out.println("Placed Buttons in initializeControlButtons: " + buttonsToSubmit);
+
+        clearButton = createButton("Clear", e -> ButtonCommands.clear(playerTileButtons));
         controlGbc.gridy = 4;
         controlPanel.add(clearButton, controlGbc);
 
         submitButton = createButton("Submit", e -> {
-            ButtonCommands.submit(this, wordHistoryArea, turnLabel, placedButtons, playerScoresLabels, playerTileButtons);
-            updatePlayerTiles();
+            if (!buttonsToSubmit.isEmpty()) {
+                ButtonCommands.submit(this, wordHistoryArea, turnLabel, playerScoresLabels, playerTileButtons);
+                updatePlayerTiles();
+            } else {
+                System.out.println("No buttons placed to submit!");
+            }
         });
         controlGbc.gridy = 5;
         controlPanel.add(submitButton, controlGbc);

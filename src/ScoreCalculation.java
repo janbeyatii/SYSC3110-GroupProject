@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.awt.Point;
+import java.util.List;
 
 import static src.Helpers.isDoubleLetter;
 import static src.Helpers.isTripleLetter;
@@ -23,11 +24,16 @@ public class ScoreCalculation {
      * The score is computed based on the positions of placed tiles on the GUI board.
      *
      * @param word           the word to be scored.
-     * @param placedButtons  an ArrayList of JButtons representing the placed tiles on the board.
      */
-    public ScoreCalculation(String word, ArrayList<JButton> placedButtons) {
+    public ScoreCalculation(String word) {
+        ArrayList<JButton> placedButtons = ScrabbleController.getMasterPlacedButtons();
+        List<Point> letterCoordinates = ScrabbleController.getPlacedTileCoordinates();
+
+        if (placedButtons.isEmpty() || letterCoordinates.isEmpty()) {
+            throw new IllegalArgumentException("No letter coordinates or placed buttons provided for scoring.");
+        }
+
         letterScores = new ArrayList<>();
-        letterCoordinates = (ArrayList<Point>) ScrabbleController.getPlacedTileCoordinates();  // Retrieve coordinates from the shared storage
         wordMultiplier = 1;  // Default word multiplier is 1 (no bonus)
 
         ArrayList<Character> score1 = new ArrayList<>(Arrays.asList('A', 'E', 'I', 'O', 'U', 'L', 'N', 'S', 'T', 'R'));
@@ -61,8 +67,19 @@ public class ScoreCalculation {
                 letterScore = 10;
             }
 
+            if (letterCoordinates.isEmpty()) {
+                throw new IllegalArgumentException("No letter coordinates provided for scoring.");
+            }
+            if (placedButtons.isEmpty()) {
+                throw new IllegalArgumentException("No placed buttons provided for scoring.");
+            }
+
             int originalLetterScore = letterScore; // Store original letter score before applying bonuses
             Point coordinates = letterCoordinates.get(k);  // Get the coordinates of the current letter
+
+            // Debugging: Check size of letterCoordinates and the current index
+            System.out.println("letterCoordinates size: " + letterCoordinates.size());
+            System.out.println("Current index (k): " + k);
 
             // Apply double/triple letter bonuses ONLY for the current letter
             if (isDoubleLetter(coordinates.x, coordinates.y)) {

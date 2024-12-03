@@ -16,52 +16,81 @@ public class GameState implements Serializable {
     private boolean firstTurn;
     private Set<String> oldTileCoordinates;
     private Set<String> placedTileCoordinates;
+    private String wordHistory;
 
     public GameState(List<String> playerNames, Map<String, List<Character>> playerTilesMap,
                      ArrayList<Integer> playerScores, char[][] boardState, boolean firstTurn,
-                     Set<String> oldTileCoordinates,Set<String> placedTileCoordinates) {
-        this.playerNames = playerNames;
-        this.playerTilesMap = playerTilesMap;
-        this.playerScores = playerScores;
-        this.boardState = boardState;
+                     Set<String> oldTileCoordinates, Set<String> placedTileCoordinates, String wordHistory) {
+        this.playerNames = new ArrayList<>(playerNames);
+        this.playerTilesMap = deepCopyPlayerTiles(playerTilesMap);
+        this.playerScores = new ArrayList<>(playerScores);
+        this.boardState = deepCopyBoard(boardState);
         this.firstTurn = firstTurn;
-        this.oldTileCoordinates = oldTileCoordinates;
-        this.placedTileCoordinates = placedTileCoordinates;
+        this.oldTileCoordinates = new HashSet<>(oldTileCoordinates);
+        this.placedTileCoordinates = new HashSet<>(placedTileCoordinates);
+        this.wordHistory = wordHistory;
 
     }
 
-    public Set<String> getPlacedTileCoordinates() {
-        return placedTileCoordinates;
+    // Deep copy for board state
+    private char[][] deepCopyBoard(char[][] original) {
+        char[][] copy = new char[original.length][original[0].length];
+        for (int i = 0; i < original.length; i++) {
+            System.arraycopy(original[i], 0, copy[i], 0, original[i].length);
+        }
+        return copy;
     }
 
-    // Add getter and setter for oldTileCoordinates
-    public Set<String> getOldTileCoordinates() {
-        return oldTileCoordinates;
+    // Deep copy for player tiles map
+    private Map<String, List<Character>> deepCopyPlayerTiles(Map<String, List<Character>> original) {
+        Map<String, List<Character>> copy = new HashMap<>();
+        for (Map.Entry<String, List<Character>> entry : original.entrySet()) {
+            copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
+        return copy;
     }
 
     // Getters for the GameState fields
     public ArrayList<String> getPlayerNames() {
-        return (ArrayList<String>) playerNames;
+        return new ArrayList<>(playerNames);
     }
 
     public Map<String, List<Character>> getPlayerTilesMap() {
-        return playerTilesMap;
+        return deepCopyPlayerTiles(playerTilesMap);
     }
 
-    public ArrayList<Integer>  getPlayerScores() {
-        return playerScores;
+    public ArrayList<Integer> getPlayerScores() {
+        return new ArrayList<>(playerScores);
     }
 
     public char[][] getBoardState() {
-        return boardState;
+        return deepCopyBoard(boardState);
+    }
+
+    public String getWordHistory() {
+        return wordHistory;
+    }
+
+    public void setWordHistory(String wordHistory) {
+        this.wordHistory = wordHistory;
     }
 
     public boolean isFirstTurn() {
         return firstTurn;
     }
+
     public void setFirstTurn(boolean firstTurn) {
         this.firstTurn = firstTurn;
     }
+
+    public Set<String> getOldTileCoordinates() {
+        return new HashSet<>(oldTileCoordinates);
+    }
+
+    public Set<String> getPlacedTileCoordinates() {
+        return new HashSet<>(placedTileCoordinates);
+    }
+
     // Save the game state to a file
     public static void saveGameState(GameState gameState, String filename) throws IOException {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
@@ -74,5 +103,19 @@ public class GameState implements Serializable {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
             return (GameState) in.readObject();
         }
+    }
+
+    // Method to create a deep copy of GameState for undo/redo functionality
+    public static GameState copy(GameState original) {
+        return new GameState(
+                original.getPlayerNames(),
+                original.getPlayerTilesMap(),
+                original.getPlayerScores(),
+                original.getBoardState(),
+                original.isFirstTurn(),
+                original.getOldTileCoordinates(),
+                original.getPlacedTileCoordinates(),
+                original.getWordHistory()
+        );
     }
 }
