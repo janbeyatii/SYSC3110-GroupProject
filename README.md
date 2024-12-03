@@ -52,4 +52,4 @@ The goal of Scrabble is to create words on the game board using letter tiles and
    Points are awarded based on the letter values (bonus squares will be availbale in milestone 3).
 
 5. **Winning**: 
-   The game ends when a player reaches 150 total points, good luck!
+   The game ends when a player reaches 100 total points, good luck!
