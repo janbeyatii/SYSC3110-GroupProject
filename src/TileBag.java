@@ -53,6 +53,10 @@ public class TileBag {
         List<Character> drawnTile = new ArrayList<>();
         Random random = new Random();
 
+        System.out.println("Starting draw: " + numTiles + " tiles requested.");
+        System.out.println("Tile counts before draw: " + tileCounts);
+        System.out.println("Total tiles available: " + totalTiles);
+
         for (int i = 0; i < numTiles; i++) {
             if (totalTiles == 0) break; // Stop if no more tiles are available
 
@@ -64,6 +68,9 @@ public class TileBag {
             updateTileCount(tile);
         }
         System.out.println("Drawing tiles: " + drawnTile);
+        System.out.println("Tiles drawn: " + drawnTile);
+        System.out.println("Tile counts after draw: " + tileCounts);
+        System.out.println("Total tiles remaining: " + totalTiles);
         return drawnTile;
     }
 
@@ -80,11 +87,15 @@ public class TileBag {
         for (Map.Entry<Character, Integer> entry : tileCounts.entrySet()) {
             char tile = entry.getKey();
             int count = entry.getValue();
-            for (int i = 0; i < count; i++) {
-                availableTiles.add(tile);
+            if (count > 0) { // Only include tiles with non-zero counts
+                for (int i = 0; i < count; i++) {
+                    availableTiles.add(tile);
+                }
             }
         }
-
+        if (availableTiles.isEmpty()) {
+            throw new IllegalStateException("No available tiles in the bag.");
+        }
         return availableTiles.get(random.nextInt(availableTiles.size()));
     }
 
@@ -97,18 +108,5 @@ public class TileBag {
     private void updateTileCount(char tile) {
         tileCounts.put(tile, tileCounts.get(tile) - 1);
         totalTiles--;
-    }
-
-    public static void removeUsedTiles(String word) {
-        String currentPlayer = getCurrentPlayerName();
-        List<Character> playerTiles = ScrabbleController.getPlayerTilesMap().get(currentPlayer);
-
-        for (char c : word.toCharArray()) {
-            playerTiles.remove((Character) c); // Remove each used tile
-        }
-
-        // Refill tiles to ensure the player has 7
-        int tilesNeeded = 7 - playerTiles.size();
-        playerTiles.addAll(tileBag.drawTiles(tilesNeeded));
     }
 }

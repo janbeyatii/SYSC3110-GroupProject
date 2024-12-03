@@ -1,14 +1,13 @@
 package GUI;
 
-import src.AIPlayer;
-import src.Helpers;
-import src.ScoreCalculation;
-import src.TileBag;
+import src.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * The ScrabbleController class manages game settings, player data, and board state for a Scrabble game.
@@ -20,6 +19,8 @@ public class ScrabbleController {
     private static int playercount;
     private static boolean isInitialized = false;
     private static boolean firstTurn = true;
+    private static Stack<GameState> undoStack = new Stack<>();
+    private static Stack<GameState> redoStack = new Stack<>();
 
     // Player Information
     private static ArrayList<String> playerNames = new ArrayList<>();
@@ -28,11 +29,11 @@ public class ScrabbleController {
     private static int currentPlayerIndex = 0;
 
     // Board and Tile Management
+    private static ArrayList<JButton> masterPlacedButtons = new ArrayList<>();
     public static char[][] board = new char[15][15];
     public static TileBag tileBag = new TileBag();
     private static List<Point> placedTileCoordinates = new ArrayList<>();
-    private static ArrayList<JButton> placedButtons = new ArrayList<>();
-    private static ScrabbleView view;
+    public static ScrabbleView view;
 
     /**
      * Constructor for the ScrabbleController class.
@@ -41,6 +42,18 @@ public class ScrabbleController {
      */
     public ScrabbleController(ScrabbleView view) {
         // Default Constructor
+    }
+
+    public static ArrayList<JButton> getMasterPlacedButtons() {
+        return masterPlacedButtons;
+    }
+
+    public static void addToMasterPlacedButtons(JButton button) {
+        masterPlacedButtons.add(button);
+    }
+
+    public static void clearMasterPlacedButtons() {
+        masterPlacedButtons.clear();
     }
 
     /**
@@ -54,7 +67,6 @@ public class ScrabbleController {
             playerNames = setupPlayers();
             playercount = playerNames.size();
             initializePlayerScores();
-
             System.out.println("Adding blank tiles to the player tile pool");
 
             for (String playerName : playerNames) {
@@ -87,6 +99,14 @@ public class ScrabbleController {
         return playerNames;
     }
 
+    public static Stack<GameState> getUndoStack() {
+        return undoStack;
+    }
+
+    public static Stack<GameState> getRedoStack() {
+        return redoStack;
+    }
+
     /**
      * Retrieves the index of the current player in the turn rotation.
      *
@@ -96,14 +116,6 @@ public class ScrabbleController {
         return currentPlayerIndex;
     }
 
-    /**
-     * Retrieves the list of buttons representing tiles that have been placed on the board during the current turn.
-     *
-     * @return An ArrayList of JButton objects representing placed tiles.
-     */
-    public static ArrayList<JButton> getPlacedButtons() {
-        return placedButtons;
-    }
 
     /**
      * Retrieves the ScrabbleView instance representing the game's GUI.
@@ -161,6 +173,9 @@ public class ScrabbleController {
         return placedTileCoordinates;
     }
 
+    public static void setPlacedTileCoordinates(Point p) {placedTileCoordinates.add(p);}
+    
+    public static void clearPlacedTileCoordinates() {placedTileCoordinates.clear();}
     /**
      * Retrieves the score of a player by their index.
      *
@@ -235,44 +250,36 @@ public class ScrabbleController {
 
     /**
      * Adds the coordinates of placed tiles to the game state.
-     *
-     * @param placedButtons A list of JButton objects representing the placed tiles.
      */
-    public static void addPlacedTiles(List<JButton> placedButtons) {
+    public static void addPlacedTiles() {
+        ArrayList<JButton> placedButtons = ScrabbleController.getMasterPlacedButtons();
         for (JButton button : placedButtons) {
             int row = (Integer) button.getClientProperty("row");
             int col = (Integer) button.getClientProperty("col");
             placedTileCoordinates.add(new Point(row, col));
         }
     }
-
+    // Get the board state
+    public static char[][] getBoard() {
+        return board;  // Access the current board state
+    }
     /**
      * Handles the AI player's turn, including word placement, scoring, and tile updates.
      */
-    private static void handleAITurn() {
+    private static void handleAITurn(JLabel[] playerScoresLabels) {
         String aiPlayerName = getCurrentPlayerName();
         List<Character> aiTiles = playerTilesMap.get(aiPlayerName);
 
-        Set<String> formedWords = AIPlayer.makeMove(board, aiTiles);
+
+        Set<String> formedWords = AIPlayer.makeMove(board, aiTiles,playerScoresLabels);
 
         if (!formedWords.isEmpty()) {
             for (String word : formedWords) {
-                ArrayList<JButton> placedButtonsDummy = new ArrayList<>();
 
                 for (int i = 0; i < word.length(); i++) {
                     JButton dummyButton = new JButton(String.valueOf(word.charAt(i)));
                     dummyButton.putClientProperty("row", 0); // Replace with the actual row if available
                     dummyButton.putClientProperty("col", i); // Replace with the actual column if available
-                    placedButtonsDummy.add(dummyButton);
-                }
-
-                ScoreCalculation scoreCalculation = new ScoreCalculation(word, placedButtonsDummy);
-                int wordScore = scoreCalculation.getTotalScore();
-
-                addScoreToPlayer(currentPlayerIndex, wordScore);
-
-                if (view != null) {
-                    view.wordHistoryArea.append(aiPlayerName + " placed: " + word + " (" + wordScore + " points)\n");
                 }
 
                 assert view != null;
@@ -294,7 +301,7 @@ public class ScrabbleController {
             view.turnLabel.setText("Turn: " + getCurrentPlayerName());
         }
 
-        switchToNextPlayer();
+        switchToNextPlayer(playerScoresLabels);
     }
 
     /**
@@ -309,12 +316,26 @@ public class ScrabbleController {
     /**
      * Switches to the next player's turn, including handling AI turns.
      */
-    public static void switchToNextPlayer() {
+    public static void switchToNextPlayer(JLabel[] playerScoresLabels) {
         currentPlayerIndex = (currentPlayerIndex + 1) % playercount;
 
         if (getCurrentPlayerName().startsWith("AI Player")) {
-            handleAITurn();
+            handleAITurn(playerScoresLabels);
         }
+    }
+
+    public static void setPlayerNames(ArrayList<String> names) {
+        playerNames = names;  // Set the list of player names in the controller
+    }
+
+    // Set the map of player tiles
+    public static void setPlayerTilesMap(Map<String, List<Character>> tilesMap) {
+        playerTilesMap = tilesMap;  // Set the map of player tiles
+    }
+
+    // Set the board state
+    public static void setBoard(char[][] newBoard) {
+        board = newBoard;  // Set the current board state
     }
 
     /**
@@ -372,6 +393,81 @@ public class ScrabbleController {
                 (i == 7) && (j == 3 || j == 11) ||
                 (i == 3 || i == 11) && (j == 7)) {
             ScrabbleView.boardButtons[i][j].setBackground(new Color(173, 216, 230));
+        }
+    }
+
+
+
+    // Save game state using the existing methods
+    public static void saveGame(String filename) {
+        try {
+            // Fetch game state using existing methods
+            List<String> playerNames = getPlayerNames();
+            Map<String, List<Character>> playerTilesMap = getPlayerTilesMap();
+            char[][] boardState = getBoard();
+            Set<String> oldTileCoordinates = Helpers.getOldTileCoordinates(); // Fetch old tiles.
+            Set<String> placedTileCoordinatesSet = new HashSet<>();
+            for (Point point : placedTileCoordinates) {
+                placedTileCoordinatesSet.add(point.x + "," + point.y);  // Store as a string representation
+            }
+            System.out.println("Saving player scores: " + ScrabbleController.playerScores);
+
+            ArrayList<Integer> playerScores = new ArrayList<>(ScrabbleController.playerScores);
+
+            // Retrieve word history as text
+            ScrabbleView view = getView(); // Get the view
+            String wordHistory = view.getWordHistory().getText(); // Fetch word history text
+
+
+            // Create GameState object
+            GameState gameState = new GameState(playerNames, playerTilesMap, playerScores,
+                    boardState, firstTurn,oldTileCoordinates,placedTileCoordinatesSet, wordHistory);
+
+            // Save the game state
+            GameState.saveGameState(gameState, filename);
+            System.out.println("Game state saved successfully.");
+        } catch (IOException e) {
+            System.err.println("Error saving game state: " + e.getMessage());
+        }
+    }
+
+    // Load game state using the existing methods
+    public static void loadGame(String filename) {
+        try {
+            // Load the game state from the file
+            GameState gameState = GameState.loadGameState(filename);
+
+            // Restore the game state using the loaded data
+
+            setPlayerNames(gameState.getPlayerNames());
+            setPlayerTilesMap(gameState.getPlayerTilesMap());
+            setBoard(gameState.getBoardState());
+            firstTurn = gameState.isFirstTurn();
+            Helpers.setOldTileCoordinates(gameState.getOldTileCoordinates()); // Restore old tiles.
+            Set<String> placedTileCoordinatesSet = gameState.getPlacedTileCoordinates();
+            placedTileCoordinates.clear();  // Clear current placed tiles
+            for (String coord : placedTileCoordinatesSet) {
+                String[] parts = coord.split(",");
+                int x = Integer.parseInt(parts[0]);
+                int y = Integer.parseInt(parts[1]);
+                placedTileCoordinates.add(new Point(x, y));
+            }
+            System.out.println("Loaded player scores: " + gameState.getPlayerScores());
+
+            playerScores = new ArrayList<>(gameState.getPlayerScores());
+
+
+            // Update the view (assuming ScrabbleView can refresh itself)
+
+            ScrabbleView view = getView();
+            view.updatePlayerTiles();
+            view.updateBoardDisplay();
+            view.updateAITiles();
+            view.getWordHistory().setText(gameState.getWordHistory()); // Set word history text
+
+            System.out.println("Game state loaded successfully.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading game state: " + e.getMessage());
         }
     }
 }

@@ -62,7 +62,7 @@ public class ButtonCommandsTests {
 
         ScrabbleController.board[7][7] = 'A';
 
-        ButtonCommands.clear(placedButtons, playerTileButtons);
+        ButtonCommands.clear(playerTileButtons);
 
         assertEquals("Board position should be cleared after using clear", "", scrabbleView.boardButtons[7][7].getText());
 

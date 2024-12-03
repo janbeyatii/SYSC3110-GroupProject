@@ -40,7 +40,7 @@ public class ScrabbleControllerTests {
         JButton button = new JButton();
         button.putClientProperty("row", 7);
         button.putClientProperty("col", 7);
-        ScrabbleController.addPlacedTiles(List.of(button));
+        ScrabbleController.addPlacedTiles();
 
         List<Point> placedTileCoordinates = ScrabbleController.getPlacedTileCoordinates();
         assertEquals("There should be one placed tile", 1, placedTileCoordinates.size());

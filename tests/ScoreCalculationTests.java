@@ -22,42 +22,42 @@ public class ScoreCalculationTests {
     @Test
     public void testScoreCalculationWithSingleLetter() {
         // Test a word with a single letter that scores 1 point
-        ScoreCalculation scoreCalculation = new ScoreCalculation("A", placedButtons);
+        ScoreCalculation scoreCalculation = new ScoreCalculation("A");
         assertEquals(1, scoreCalculation.getTotalScore());
     }
 
     @Test
     public void testScoreCalculationWithWord() {
         // Test a word "DOG" that scores 5 points (2+1+2)
-        ScoreCalculation scoreCalculation = new ScoreCalculation("DOG", placedButtons);
+        ScoreCalculation scoreCalculation = new ScoreCalculation("DOG");
         assertEquals(5, scoreCalculation.getTotalScore());
     }
 
     @Test
     public void testScoreCalculationWithHighScoringLetter() {
         // Test a word "QUIZ" that includes high-scoring letters (10+1+1+10 = 22)
-        ScoreCalculation scoreCalculation = new ScoreCalculation("QUIZ", placedButtons);
+        ScoreCalculation scoreCalculation = new ScoreCalculation("QUIZ");
         assertEquals(22, scoreCalculation.getTotalScore());
     }
 
     @Test
     public void testScoreCalculationWithMixedScores() {
         // Test a word "JAZZ" with mixed high scores (8+1+10+10 = 29)
-        ScoreCalculation scoreCalculation = new ScoreCalculation("JAZZ", placedButtons);
+        ScoreCalculation scoreCalculation = new ScoreCalculation("JAZZ");
         assertEquals(29, scoreCalculation.getTotalScore());
     }
 
     @Test
     public void testScoreCalculationWithLowerCaseLetters() {
         // Test that lowercase letters are scored correctly for "cat" (3+1+1 = 5)
-        ScoreCalculation scoreCalculation = new ScoreCalculation("cat", placedButtons);
+        ScoreCalculation scoreCalculation = new ScoreCalculation("cat");
         assertEquals(5, scoreCalculation.getTotalScore());
     }
 
     @Test
     public void testScoreCalculationWithEmptyWord() {
         // Test an empty word, expecting a score of 0
-        ScoreCalculation scoreCalculation = new ScoreCalculation("", placedButtons);
+        ScoreCalculation scoreCalculation = new ScoreCalculation("");
         assertEquals(0, scoreCalculation.getTotalScore());
     }
 
