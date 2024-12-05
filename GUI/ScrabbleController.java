@@ -35,7 +35,6 @@ public class ScrabbleController {
     public static TileBag tileBag = new TileBag();
     private static List<Point> placedTileCoordinates = new ArrayList<>();
     public static ScrabbleView view;
-
     /**
      * Constructor for the ScrabbleController class.
      *
@@ -66,8 +65,8 @@ public class ScrabbleController {
 
         if (!isInitialized) {
             // Initialize background music
-            BackgroundMusic backgroundMusic = new BackgroundMusic();
-            backgroundMusic.playMusic("music/tunes.mp3"); // Path to your music file
+            //BackgroundMusic backgroundMusic = new BackgroundMusic();
+            //backgroundMusic.playMusic("music/tunes.mp3"); // Path to your music file
 
             playerNames = setupPlayers();
             playercount = playerNames.size();
@@ -79,9 +78,9 @@ public class ScrabbleController {
                 List<Character> initialTiles = tileBag.drawTiles(7);
                 playerTilesMap.put(playerName, initialTiles);
             }
-
             isInitialized = true;
         }
+
     }
 
 
@@ -529,4 +528,119 @@ public class ScrabbleController {
             System.err.println("Error loading game state: " + e.getMessage());
         }
     }
+    /**
+     * Reverts the game to the previous turn by undoing the last move.
+     * This method uses the undo stack to restore the previous game state.
+     */
+    public static void undoLastMove() {
+        // Check if there is a previous state to undo
+        if (undoStack.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No moves to undo.");
+            return;
+        }
+
+        try {
+            // Ensure there's a valid state to save for redo before popping the undo stack
+            if (!undoStack.isEmpty()) {
+                redoStack.push(getCurrentGameState()); // Save current state to redo stack
+            }
+
+            // Pop the last state from the undo stack and restore it
+            GameState previousState = undoStack.pop();
+            restoreGameState(previousState);
+
+            // Update the GUI after restoring the state
+            if (view != null) {
+                view.updateBoardDisplay();
+                view.updatePlayerTiles();
+                view.turnLabel.setText("Turn: " + getCurrentPlayerName());
+            }
+
+            System.out.println("Undo successful. Reverted to the previous turn.");
+        } catch (Exception e) {
+            System.err.println("Error during undo operation: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Saves the current game state to the undo stack.
+     * Should be called before making a move.
+     */
+    public static void saveCurrentStateToUndoStack() {
+        try {
+            undoStack.push(getCurrentGameState());
+            System.out.println("Saved current state to undo stack.");
+        } catch (Exception e) {
+            System.err.println("Error saving current state to undo stack: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Gets the current game state.
+     *
+     * @return The current game state as a GameState object.
+     */
+    private static GameState getCurrentGameState() {
+        // Retrieve the current game state using existing data
+        return new GameState(
+                new ArrayList<>(playerNames),
+                new HashMap<>(playerTilesMap),
+                new ArrayList<>(playerScores),
+                copyBoard(board),
+                firstTurn,
+                Helpers.getOldTileCoordinates(),
+                new HashSet<>(getPlacedTileCoordinatesAsStringSet()),
+                view.getWordHistory().getText()
+        );
+    }
+
+    /**
+     * Restores the game state from the provided GameState object.
+     *
+     * @param gameState The GameState object to restore.
+     */
+    private static void restoreGameState(GameState gameState) {
+        setPlayerNames(gameState.getPlayerNames());
+        setPlayerTilesMap(gameState.getPlayerTilesMap());
+        setBoard(gameState.getBoardState());
+        firstTurn = gameState.isFirstTurn();
+        Helpers.setOldTileCoordinates(gameState.getOldTileCoordinates());
+
+        placedTileCoordinates.clear();
+        for (String coord : gameState.getPlacedTileCoordinates()) {
+            String[] parts = coord.split(",");
+            placedTileCoordinates.add(new Point(Integer.parseInt(parts[0]), Integer.parseInt(parts[1])));
+        }
+
+        playerScores = new ArrayList<>(gameState.getPlayerScores());
+        view.getWordHistory().setText(gameState.getWordHistory());
+    }
+
+    /**
+     * Copies the board state to prevent accidental modification of the original.
+     *
+     * @param originalBoard The original board to copy.
+     * @return A copy of the board.
+     */
+    private static char[][] copyBoard(char[][] originalBoard) {
+        char[][] boardCopy = new char[originalBoard.length][];
+        for (int i = 0; i < originalBoard.length; i++) {
+            boardCopy[i] = Arrays.copyOf(originalBoard[i], originalBoard[i].length);
+        }
+        return boardCopy;
+    }
+
+    /**
+     * Converts the placed tile coordinates to a set of string representations.
+     *
+     * @return A set of string representations of placed tile coordinates.
+     */
+    private static Set<String> getPlacedTileCoordinatesAsStringSet() {
+        Set<String> coordinatesSet = new HashSet<>();
+        for (Point point : placedTileCoordinates) {
+            coordinatesSet.add(point.x + "," + point.y);
+        }
+        return coordinatesSet;
+    }
+
 }

@@ -42,6 +42,8 @@ public class ScrabbleView extends JFrame {
     private JMenu gameMenu;
     private JMenuItem saveMenuItem;
     private JMenuItem loadMenuItem;
+    private JMenuItem undoMenuItem;
+    private JMenuItem redoMenuItem;
 
     /**
      * Constructs the ScrabbleView GUI, initializing the game board, control panel, and tile panel.
@@ -88,6 +90,12 @@ public class ScrabbleView extends JFrame {
         loadMenuItem = new JMenuItem("Load Game");
         loadMenuItem.addActionListener(e -> loadGame());
         gameMenu.add(loadMenuItem);
+
+        // Undo menu item
+        undoMenuItem = new JMenuItem("Undo");
+        undoMenuItem.addActionListener(e -> ScrabbleController.undoLastMove());
+        gameMenu.add(undoMenuItem);
+
 
         menuBar.add(gameMenu);
         setJMenuBar(menuBar);
