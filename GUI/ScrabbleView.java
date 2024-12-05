@@ -96,6 +96,10 @@ public class ScrabbleView extends JFrame {
         undoMenuItem.addActionListener(e -> ScrabbleController.undoLastMove());
         gameMenu.add(undoMenuItem);
 
+        // Redo menu item
+        redoMenuItem = new JMenuItem("Redo");
+        redoMenuItem.addActionListener(e -> ScrabbleController.redoLastMove());
+        gameMenu.add(redoMenuItem);
 
         menuBar.add(gameMenu);
         setJMenuBar(menuBar);

@@ -561,6 +561,39 @@ public class ScrabbleController {
             System.err.println("Error during undo operation: " + e.getMessage());
         }
     }
+    /**
+     * Redoes the last undone move by restoring the game state from the redo stack.
+     * This method uses the redo stack to reapply a previously undone game state.
+     */
+    public static void redoLastMove() {
+        // Check if there is a state to redo
+        if (redoStack.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "No moves to redo.");
+            return;
+        }
+
+        try {
+            // Ensure there's a valid state to save for undo before popping the redo stack
+            if (!redoStack.isEmpty()) {
+                undoStack.push(getCurrentGameState()); // Save current state to undo stack
+            }
+
+            // Pop the last state from the redo stack and restore it
+            GameState nextState = redoStack.pop();
+            restoreGameState(nextState);
+
+            // Update the GUI after restoring the state
+            if (view != null) {
+                view.updateBoardDisplay();
+                view.updatePlayerTiles();
+                view.turnLabel.setText("Turn: " + getCurrentPlayerName());
+            }
+
+            System.out.println("Redo successful. Reapplied the undone move.");
+        } catch (Exception e) {
+            System.err.println("Error during redo operation: " + e.getMessage());
+        }
+    }
 
     /**
      * Saves the current game state to the undo stack.
