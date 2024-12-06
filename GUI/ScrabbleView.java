@@ -114,6 +114,11 @@ public class ScrabbleView extends JFrame {
         ScrabbleController.saveGame(filename);
     }
 
+    /**
+     * Retrieves the text area displaying the word history in the game.
+     *
+     * @return the JTextArea object that contains the word history.
+     */
     public JTextArea getWordHistory() {
         return wordHistoryArea;
     }
@@ -126,11 +131,6 @@ public class ScrabbleView extends JFrame {
         String filename = "game_save.dat";  // Use an appropriate file name
         ScrabbleController.loadGame(filename);
     }
-
-    public JLabel[] getplayerScoresLabels() {
-        return playerScoresLabels;
-    }
-
 
     /**
      * Initializes the game board panel with buttons for each tile.

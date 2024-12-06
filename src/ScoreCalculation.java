@@ -16,7 +16,6 @@ import static src.Helpers.isTripleWord;
 public class ScoreCalculation {
     private int totalScore;
     private ArrayList<Integer> letterScores;
-    private ArrayList<Point> letterCoordinates;  // To store coordinates of placed letters
     private int wordMultiplier;  // Keeps track of word score multiplier (for double/triple word)
 
     /**

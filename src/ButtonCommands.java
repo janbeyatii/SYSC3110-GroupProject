@@ -93,6 +93,19 @@ public class ButtonCommands {
         Helpers.updateScores(playerScoresLabels);
     }
 
+    /**
+     * Resets the game state after detecting an invalid tile placement.
+     *
+     * <p>This method performs the following actions:
+     * <ul>
+     *     <li>Clears the board positions and button text for the tiles placed in invalid positions.</li>
+     *     <li>Re-enables the player's tile buttons to allow re-placement.</li>
+     *     <li>Clears the master placed buttons list to reset tracking of placed tiles.</li>
+     * </ul>
+     *
+     * @param playerTileButtons an array of JButton objects representing the player's tile rack.
+     * @param placedButtons an ArrayList of JButton objects representing tiles that were placed on the board.
+     */
     private static void resetInvalidPlacement(JButton[] playerTileButtons, ArrayList<JButton> placedButtons) {
         for (JButton button : placedButtons) {
             int row = (Integer) button.getClientProperty("row");
@@ -186,7 +199,4 @@ public class ButtonCommands {
             ScrabbleController.showWinningAnimation();
         }
     }
-
-
-
 }

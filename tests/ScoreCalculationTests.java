@@ -1,64 +1,92 @@
 package tests;
 
+import GUI.ScrabbleController;
 import org.junit.Before;
 import org.junit.Test;
 import src.ScoreCalculation;
 
 import javax.swing.JButton;
+import java.awt.*;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
 public class ScoreCalculationTests {
 
-    private ArrayList<JButton> placedButtons;
-
     @Before
     public void setUp() {
-        // Initialize an empty list of placed buttons for each test case
-        placedButtons = new ArrayList<>();
+        // Clear any previous data from ScrabbleController
+        ScrabbleController.getMasterPlacedButtons().clear();
+        ScrabbleController.getPlacedTileCoordinates().clear();
     }
 
     @Test
     public void testScoreCalculationWithSingleLetter() {
-        // Test a word with a single letter that scores 1 point
+        // Mock data for the letter "A" placed at (0, 0)
+        mockTilePlacement("A", new Point(0, 0));
+
+        // Create ScoreCalculation and verify score
         ScoreCalculation scoreCalculation = new ScoreCalculation("A");
         assertEquals(1, scoreCalculation.getTotalScore());
     }
 
     @Test
     public void testScoreCalculationWithWord() {
-        // Test a word "DOG" that scores 5 points (2+1+2)
+        // Mock data for the word "DOG" placed horizontally
+        mockTilePlacement("DOG", new Point(0, 0), new Point(1, 0), new Point(2, 0));
+
+        // Create ScoreCalculation and verify score
         ScoreCalculation scoreCalculation = new ScoreCalculation("DOG");
-        assertEquals(5, scoreCalculation.getTotalScore());
+        assertEquals(5, scoreCalculation.getTotalScore()); // D(2) + O(1) + G(2) = 5
     }
 
     @Test
     public void testScoreCalculationWithHighScoringLetter() {
-        // Test a word "QUIZ" that includes high-scoring letters (10+1+1+10 = 22)
+        // Mock data for the word "QUIZ" placed horizontally
+        mockTilePlacement("QUIZ", new Point(0, 0), new Point(1, 0), new Point(2, 0), new Point(3, 0));
+
+        // Create ScoreCalculation and verify score
         ScoreCalculation scoreCalculation = new ScoreCalculation("QUIZ");
-        assertEquals(22, scoreCalculation.getTotalScore());
+        assertEquals(22, scoreCalculation.getTotalScore()); // Q(10) + U(1) + I(1) + Z(10) = 22
     }
 
     @Test
     public void testScoreCalculationWithMixedScores() {
-        // Test a word "JAZZ" with mixed high scores (8+1+10+10 = 29)
+        // Mock data for the word "JAZZ" placed horizontally
+        mockTilePlacement("JAZZ", new Point(0, 0), new Point(1, 0), new Point(2, 0), new Point(3, 0));
+
+        // Create ScoreCalculation and verify score
         ScoreCalculation scoreCalculation = new ScoreCalculation("JAZZ");
-        assertEquals(29, scoreCalculation.getTotalScore());
+        assertEquals(29, scoreCalculation.getTotalScore()); // J(8) + A(1) + Z(10) + Z(10) = 29
     }
 
     @Test
     public void testScoreCalculationWithLowerCaseLetters() {
-        // Test that lowercase letters are scored correctly for "cat" (3+1+1 = 5)
+        // Mock data for the word "cat" placed horizontally
+        mockTilePlacement("cat", new Point(0, 0), new Point(1, 0), new Point(2, 0));
+
+        // Create ScoreCalculation and verify score
         ScoreCalculation scoreCalculation = new ScoreCalculation("cat");
-        assertEquals(5, scoreCalculation.getTotalScore());
+        assertEquals(5, scoreCalculation.getTotalScore()); // c(3) + a(1) + t(1) = 5
     }
 
     @Test
     public void testScoreCalculationWithEmptyWord() {
-        // Test an empty word, expecting a score of 0
+        // No tiles placed for an empty word
+        // Create ScoreCalculation and verify score
         ScoreCalculation scoreCalculation = new ScoreCalculation("");
         assertEquals(0, scoreCalculation.getTotalScore());
     }
 
+    // Helper method to mock tile placements
+    private void mockTilePlacement(String word, Point... coordinates) {
+        ArrayList<JButton> buttons = ScrabbleController.getMasterPlacedButtons();
+        ArrayList<Point> points = (ArrayList<Point>) ScrabbleController.getPlacedTileCoordinates();
+
+        for (int i = 0; i < word.length(); i++) {
+            JButton button = new JButton(String.valueOf(word.charAt(i)));
+            buttons.add(button);
+            points.add(coordinates[i]);
+        }
+    }
 }

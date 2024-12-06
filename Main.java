@@ -30,7 +30,7 @@ public class Main {
                     "Milad Zazai - 101185228\n" +
                     "Kaif Ali - 101180909\n");
 
-            String wordListFilePath = "wordLists/wordlist.txt";
+            String wordListFilePath = "resources/wordlist.txt";
             WordValidity.loadWordsFromFile(wordListFilePath);
 
             // Initialize game settings and players

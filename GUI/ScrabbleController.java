@@ -44,17 +44,31 @@ public class ScrabbleController {
         // Default Constructor
     }
 
+    /**
+     * Retrieves the list of all placed buttons on the Scrabble board.
+     *
+     * @return an ArrayList of JButton objects representing the placed tiles.
+     */
     public static ArrayList<JButton> getMasterPlacedButtons() {
         return masterPlacedButtons;
     }
 
+    /**
+     * Adds a JButton representing a tile to the list of placed buttons on the Scrabble board.
+     *
+     * @param button the JButton to be added to the list of placed tiles.
+     */
     public static void addToMasterPlacedButtons(JButton button) {
         masterPlacedButtons.add(button);
     }
 
+    /**
+     * Clears all placed buttons from the Scrabble board, resetting the list of placed tiles.
+     */
     public static void clearMasterPlacedButtons() {
         masterPlacedButtons.clear();
     }
+
 
     /**
      * Initializes game settings, such as player names, scores, and tiles, and sets up the game state.
@@ -64,9 +78,9 @@ public class ScrabbleController {
         System.out.println("Initializing players: " + playerNames.size());
 
         if (!isInitialized) {
-            // Initialize background music
-            //BackgroundMusic backgroundMusic = new BackgroundMusic();
-            //backgroundMusic.playMusic("music/tunes.mp3"); // Path to your music file
+            //Initialize background music
+            BackgroundMusic backgroundMusic = new BackgroundMusic();
+            backgroundMusic.playMusic("resources/tunes.mp3");
 
             playerNames = setupPlayers();
             playercount = playerNames.size();
@@ -329,19 +343,33 @@ public class ScrabbleController {
         }
     }
 
+    /**
+     * Sets the list of player names in the game.
+     *
+     * @param names an ArrayList of player names to be used in the game.
+     */
     public static void setPlayerNames(ArrayList<String> names) {
         playerNames = names;  // Set the list of player names in the controller
     }
 
-    // Set the map of player tiles
+    /**
+     * Sets the map of player tiles, associating each player's name with their respective list of tiles.
+     *
+     * @param tilesMap a map where the key is the player's name and the value is a list of tiles (characters) they possess.
+     */
     public static void setPlayerTilesMap(Map<String, List<Character>> tilesMap) {
         playerTilesMap = tilesMap;  // Set the map of player tiles
     }
 
-    // Set the board state
+    /**
+     * Updates the current state of the Scrabble board.
+     *
+     * @param newBoard a 2D character array representing the updated state of the board.
+     */
     public static void setBoard(char[][] newBoard) {
         board = newBoard;  // Set the current board state
     }
+
 
     /**
      * Sets the triple word score tiles on the board.
@@ -401,6 +429,10 @@ public class ScrabbleController {
         }
     }
 
+    /**
+     * Displays a winning animation with confetti and a "YOU WIN" message.
+     * The animation lasts for 6 seconds before closing the application.
+     */
     public static void showWinningAnimation() {
         JFrame confettiFrame = new JFrame("Congratulations!");
         confettiFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -455,8 +487,11 @@ public class ScrabbleController {
         }).start();
     }
 
-
-    // Save game state using the existing methods
+    /**
+     * Saves the current game state to a file.
+     *
+     * @param filename the name of the file where the game state will be saved.
+     */
     public static void saveGame(String filename) {
         try {
             // Fetch game state using existing methods
@@ -466,20 +501,17 @@ public class ScrabbleController {
             Set<String> oldTileCoordinates = Helpers.getOldTileCoordinates(); // Fetch old tiles.
             Set<String> placedTileCoordinatesSet = new HashSet<>();
             for (Point point : placedTileCoordinates) {
-                placedTileCoordinatesSet.add(point.x + "," + point.y);  // Store as a string representation
+                placedTileCoordinatesSet.add(point.x + "," + point.y); // Store as a string representation
             }
-            System.out.println("Saving player scores: " + ScrabbleController.playerScores);
-
             ArrayList<Integer> playerScores = new ArrayList<>(ScrabbleController.playerScores);
 
             // Retrieve word history as text
-            ScrabbleView view = getView(); // Get the view
-            String wordHistory = view.getWordHistory().getText(); // Fetch word history text
-
+            ScrabbleView view = getView();
+            String wordHistory = view.getWordHistory().getText();
 
             // Create GameState object
             GameState gameState = new GameState(playerNames, playerTilesMap, playerScores,
-                    boardState, firstTurn,oldTileCoordinates,placedTileCoordinatesSet, wordHistory);
+                    boardState, firstTurn, oldTileCoordinates, placedTileCoordinatesSet, wordHistory);
 
             // Save the game state
             GameState.saveGameState(gameState, filename);
@@ -489,34 +521,33 @@ public class ScrabbleController {
         }
     }
 
-    // Load game state using the existing methods
+    /**
+     * Loads the game state from a file and restores it.
+     *
+     * @param filename the name of the file from which the game state will be loaded.
+     */
     public static void loadGame(String filename) {
         try {
             // Load the game state from the file
             GameState gameState = GameState.loadGameState(filename);
 
             // Restore the game state using the loaded data
-
             setPlayerNames(gameState.getPlayerNames());
             setPlayerTilesMap(gameState.getPlayerTilesMap());
             setBoard(gameState.getBoardState());
             firstTurn = gameState.isFirstTurn();
             Helpers.setOldTileCoordinates(gameState.getOldTileCoordinates()); // Restore old tiles.
             Set<String> placedTileCoordinatesSet = gameState.getPlacedTileCoordinates();
-            placedTileCoordinates.clear();  // Clear current placed tiles
+            placedTileCoordinates.clear(); // Clear current placed tiles
             for (String coord : placedTileCoordinatesSet) {
                 String[] parts = coord.split(",");
                 int x = Integer.parseInt(parts[0]);
                 int y = Integer.parseInt(parts[1]);
                 placedTileCoordinates.add(new Point(x, y));
             }
-            System.out.println("Loaded player scores: " + gameState.getPlayerScores());
-
             playerScores = new ArrayList<>(gameState.getPlayerScores());
 
-
-            // Update the view (assuming ScrabbleView can refresh itself)
-
+            // Update the view
             ScrabbleView view = getView();
             view.updatePlayerTiles();
             view.updateBoardDisplay();
@@ -528,6 +559,8 @@ public class ScrabbleController {
             System.err.println("Error loading game state: " + e.getMessage());
         }
     }
+
+
     /**
      * Reverts the game to the previous turn by undoing the last move.
      * This method uses the undo stack to restore the previous game state.
