@@ -4,9 +4,6 @@ import GUI.*;
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
-import java.util.List;
-
-import static GUI.ScrabbleController.view;
 
 /**
  * Utility class for managing tile selection, word placement, word validation, and score updates in the Scrabble game.
@@ -66,16 +63,14 @@ public class Helpers {
             JButton button = boardButtons[row][col];
             button.putClientProperty("row", row);
             button.putClientProperty("col", col);
-            ScrabbleController.addToMasterPlacedButtons(button); // Update the master list
+            ScrabbleController.addToMasterPlacedButtons(button);
 
             // Reset the selected letter and previous button
             selectedLetter = null;
             previouslySelectedButton = null;
 
-            // Track the placement coordinates
             ScrabbleController.setPlacedTileCoordinates(new Point(row, col));
 
-            // Debugging: Logs to verify placement
             System.out.println("Letter placed: " + button.getText() + " at (" + row + ", " + col + ")");
             System.out.println("Master Placed Buttons: " + ScrabbleController.getMasterPlacedButtons());
             System.out.println("Placed Coordinates: " + ScrabbleController.getPlacedTileCoordinates());
@@ -85,37 +80,65 @@ public class Helpers {
         }
     }
 
+    /**
+     * Checks if the given board position is a double word bonus square.
+     *
+     * @param row the row index of the square.
+     * @param col the column index of the square.
+     * @return {@code true} if the square is a double word bonus square, otherwise {@code false}.
+     */
+    static boolean isDoubleWord(int row, int col) {
+        return ((row == 1) && (col == 1 || col == 13) ||
+                (row == 2) && (col == 2 || col == 12) ||
+                (row == 3) && (col == 3 || col == 11) ||
+                (row == 4) && (col == 4 || col == 10) ||
+                (row == 10) && (col == 4 || col == 10) ||
+                (row == 11) && (col == 3 || col == 11) ||
+                (row == 12) && (col == 2 || col == 12) ||
+                (row == 13) && (col == 1 || col == 13));
+    }
 
-// Helper methods for bonus checks
-static boolean isDoubleWord(int row, int col) {
-    return ((row == 1) && (col == 1 || col == 13) ||
-            (row == 2) && (col == 2 || col == 12) ||
-            (row == 3) && (col == 3 || col == 11) ||
-            (row == 4) && (col == 4 || col == 10) ||
-            (row == 10) && (col == 4 || col == 10) ||
-            (row == 11) && (col == 3 || col == 11) ||
-            (row == 12) && (col == 2 || col == 12) ||
-            (row == 13) && (col == 1 || col == 13));
-}
+    /**
+     * Checks if the given board position is a triple word bonus square.
+     *
+     * @param row the row index of the square.
+     * @param col the column index of the square.
+     * @return {@code true} if the square is a triple word bonus square, otherwise {@code false}.
+     */
+    static boolean isTripleWord(int row, int col) {
+        return ((row == 0 || row == 7 || row == 14) && (col == 0 || col == 14) ||
+                (row == 0 || row == 14) && (col == 7));
+    }
 
-static boolean isTripleWord(int row, int col) {
-    return ((row == 0 || row == 7 || row == 14) && (col == 0 || col == 14) ||
-            (row == 0 || row == 14) && (col == 7));
-}
+    /**
+     * Checks if the given board position is a double letter bonus square.
+     *
+     * @param row the row index of the square.
+     * @param col the column index of the square.
+     * @return {@code true} if the square is a double letter bonus square, otherwise {@code false}.
+     */
+    static boolean isDoubleLetter(int row, int col) {
+        return ((row == 0 || row == 14) && (col == 3 || col == 11) ||
+                (row == 2 || row == 12) && (col == 6 || col == 8) ||
+                (row == 3 || row == 11) && (col == 0 || col == 14) ||
+                (row == 6 || row == 8) && (col == 2 || col == 6 || col == 8 || col == 12) ||
+                (row == 7) && (col == 3 || col == 11) ||
+                (row == 3 || row == 11) && (col == 7));
+    }
 
-static boolean isDoubleLetter(int row, int col) {
-    return ((row == 0 || row == 14) && (col == 3 || col == 11) ||
-            (row == 2 || row == 12) && (col == 6 || col == 8) ||
-            (row == 3 || row == 11) && (col == 0 || col == 14) ||
-            (row == 6 || row == 8) && (col == 2 || col == 6 || col == 8 || col == 12) ||
-            (row == 7) && (col == 3 || col == 11) ||
-            (row == 3 || row == 11) && (col == 7));
-}
+    /**
+     * Checks if the given board position is a triple letter bonus square.
+     *
+     * @param row the row index of the square.
+     * @param col the column index of the square.
+     * @return {@code true} if the square is a triple letter bonus square, otherwise {@code false}.
+     */
+    static boolean isTripleLetter(int row, int col) {
+        return ((row == 1 || row == 5 || row == 9 || row == 13) && (col == 5 || col == 9) ||
+                (row == 5 || row == 9) && (col == 1 || col == 13));
+    }
 
-static boolean isTripleLetter(int row, int col) {
-    return ((row == 1 || row == 5 || row == 9 || row == 13) && (col == 5 || col == 9) ||
-            (row == 5 || row == 9) && (col == 1 || col == 13));
-}
+
     /**
      * Updates the list of coordinates for tiles that are already placed on the Scrabble board.
      * This method clears the existing list and repopulates it with the coordinates of all non-empty cells.
@@ -132,10 +155,20 @@ static boolean isTripleLetter(int row, int col) {
         }
     }
 
+    /**
+     * Retrieves the set of coordinates for old tiles on the board.
+     *
+     * @return a new HashSet containing the old tile coordinates to prevent external modification.
+     */
     public static Set<String> getOldTileCoordinates() {
         return new HashSet<>(oldTileCoordinates); // Return a copy to avoid external modification.
     }
 
+    /**
+     * Updates the set of coordinates for old tiles on the board.
+     *
+     * @param coordinates a set of string representations of coordinates (e.g., "x,y") to set as the old tile coordinates.
+     */
     public static void setOldTileCoordinates(Set<String> coordinates) {
         oldTileCoordinates.clear();
         oldTileCoordinates.addAll(coordinates);
@@ -277,7 +310,19 @@ static boolean isTripleLetter(int row, int col) {
         return uniqueWordsFormed;
     }
 
-
+    /**
+     * Checks if the given word is newly formed using the tiles placed in the current move.
+     *
+     * <p>This method ensures that:
+     * <ul>
+     *   <li>The word is not null or empty.</li>
+     *   <li>All tiles in the word come from the buttons in the {@code placedButtons} list.</li>
+     * </ul>
+     *
+     * @param word the word to check.
+     * @param placedButtons an ArrayList of JButton objects representing the tiles placed in the current move.
+     * @return {@code true} if the word is new and entirely formed by the current placement; otherwise, {@code false}.
+     */
     private static boolean isWordNew(String word, ArrayList<JButton> placedButtons) {
         // Ensure the word is not null or empty
         if (word == null || word.isEmpty()) {
@@ -288,7 +333,7 @@ static boolean isTripleLetter(int row, int col) {
         for (JButton button : placedButtons) {
             String tileText = button.getText();
             if (tileText == null || tileText.isEmpty()) {
-                continue; // Skip empty tiles
+                continue; // Skip
             }
             char tile = tileText.charAt(0);
             if (!word.contains(String.valueOf(tile))) {
@@ -298,8 +343,6 @@ static boolean isTripleLetter(int row, int col) {
 
         return true; // All tiles in the word are newly placed
     }
-
-
 
     /**
      * Validates all words formed by checking each word against the dictionary.
