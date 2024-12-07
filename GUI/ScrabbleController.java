@@ -105,7 +105,7 @@ public class ScrabbleController {
      * Load custom board configuration during game initialization
      */
     public static void initializeCustomBoard(String configFilePath) {
-    List<PremiumSquare> premiumSquares = BoardConfigLoader.loadFromJSON(configFilePath);
+    List<PremiumSquare> premiumSquares = BoardConfigParser.loadFromJSON(configFilePath);
     for (PremiumSquare square : premiumSquares) {
         int row = square.getRow();
         int col = square.getCol();
