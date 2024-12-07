@@ -1,3 +1,5 @@
+package src;
+
 public class PremiumSquare {
     private int row;
     private int col;

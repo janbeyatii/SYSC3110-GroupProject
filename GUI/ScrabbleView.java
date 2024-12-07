@@ -1,6 +1,8 @@
 package GUI;
 
 import src.*;
+import src.PremiumSquare;
+import src.BoardConfigLoader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -149,6 +151,8 @@ public class ScrabbleView extends JFrame {
 
         int middle = boardSize / 2;
         Dimension buttonSize = new Dimension(40, 40);
+        
+        List<PremiumSquare> premiumSquares = BoardConfigLoader.loadFromJSON("boardConfig.json");
 
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {
@@ -164,6 +168,19 @@ public class ScrabbleView extends JFrame {
                 boardButtons[i][j].setFont(new Font("Arial", Font.BOLD, 18));
                 boardButtons[i][j].setHorizontalAlignment(SwingConstants.CENTER);
                 boardButtons[i][j].setBackground(Color.LIGHT_GRAY);
+
+                for (PremiumSquare square : premiumSquares) {
+                if (square.getRow() == i && square.getCol() == j) {
+                    if (square.getType().equals("Triple Word")) {
+                        boardButtons[i][j].setBackground(Color.RED);
+                    } else if (square.getType().equals("Double Letter")) {
+                        boardButtons[i][j].setBackground(Color.BLUE);
+                    } else if (square.getType().equals("Star")) {
+                        boardButtons[i][j].setBackground(Color.YELLOW);
+                    }
+                    break;
+                }
+            }
 
                 ScrabbleController.doubleword(i,j);
                 ScrabbleController.tripleword(i,j);

@@ -1,6 +1,8 @@
 package GUI;
 
 import src.*;
+import src.PremiumSquare;
+import src.BoardConfigLoader;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -92,10 +94,32 @@ public class ScrabbleController {
                 List<Character> initialTiles = tileBag.drawTiles(7);
                 playerTilesMap.put(playerName, initialTiles);
             }
+
+            ScrabbleController.initializeCustomBoard("boardConfig.json");
             isInitialized = true;
         }
 
     }
+
+    /**
+     * Load custom board configuration during game initialization
+     */
+    public static void initializeCustomBoard(String configFilePath) {
+    List<PremiumSquare> premiumSquares = BoardConfigLoader.loadFromJSON(configFilePath);
+    for (PremiumSquare square : premiumSquares) {
+        int row = square.getRow();
+        int col = square.getCol();
+        String type = square.getType();
+
+        if (type.equals("Triple Word")) {
+            ScrabbleView.boardButtons[row][col].setBackground(Color.RED);
+        } else if (type.equals("Double Letter")) {
+            ScrabbleView.boardButtons[row][col].setBackground(Color.BLUE);
+        } else if (type.equals("Star")) {
+            ScrabbleView.boardButtons[row][col].setBackground(Color.YELLOW);
+        }
+    }
+}
 
 
     /**
