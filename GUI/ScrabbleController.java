@@ -95,7 +95,7 @@ public class ScrabbleController {
                 playerTilesMap.put(playerName, initialTiles);
             }
 
-            ScrabbleController.initializeCustomBoard("boardConfig.json");
+            //ScrabbleController.initializeCustomBoard("boardConfig.json");
             isInitialized = true;
         }
 
@@ -104,7 +104,11 @@ public class ScrabbleController {
     /**
      * Load custom board configuration during game initialization
      */
-    public static void initializeCustomBoard(String configFilePath) {
+
+
+    /** 
+     * kaif ali
+     * public static void initializeCustomBoard(String configFilePath) {
     List<PremiumSquare> premiumSquares = BoardConfigParser.loadFromJSON(configFilePath);
     for (PremiumSquare square : premiumSquares) {
         int row = square.getRow();
@@ -120,6 +124,11 @@ public class ScrabbleController {
         }
     }
 }
+    
+    */
+    
+
+
 
 
     /**

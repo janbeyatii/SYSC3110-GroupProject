@@ -169,7 +169,7 @@ public class ScrabbleView extends JFrame {
                 boardButtons[i][j].setHorizontalAlignment(SwingConstants.CENTER);
                 boardButtons[i][j].setBackground(Color.LIGHT_GRAY);
 
-                for (PremiumSquare square : premiumSquares) {
+                /**for (PremiumSquare square : premiumSquares) {
                 if (square.getRow() == i && square.getCol() == j) {
                     if (square.getType().equals("Triple Word")) {
                         boardButtons[i][j].setBackground(Color.RED);
@@ -181,6 +181,10 @@ public class ScrabbleView extends JFrame {
                     break;
                 }
             }
+                 * 
+                 */
+
+                
 
                 ScrabbleController.doubleword(i,j);
                 ScrabbleController.tripleword(i,j);
