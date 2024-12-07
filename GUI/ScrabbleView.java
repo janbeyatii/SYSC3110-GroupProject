@@ -42,6 +42,8 @@ public class ScrabbleView extends JFrame {
     private JMenu gameMenu;
     private JMenuItem saveMenuItem;
     private JMenuItem loadMenuItem;
+    private JMenuItem undoMenuItem;
+    private JMenuItem redoMenuItem;
 
     /**
      * Constructs the ScrabbleView GUI, initializing the game board, control panel, and tile panel.
@@ -89,6 +91,16 @@ public class ScrabbleView extends JFrame {
         loadMenuItem.addActionListener(e -> loadGame());
         gameMenu.add(loadMenuItem);
 
+        // Undo menu item
+        undoMenuItem = new JMenuItem("Undo");
+        undoMenuItem.addActionListener(e -> ScrabbleController.undoLastMove());
+        gameMenu.add(undoMenuItem);
+
+        // Redo menu item
+        redoMenuItem = new JMenuItem("Redo");
+        redoMenuItem.addActionListener(e -> ScrabbleController.redoLastMove());
+        gameMenu.add(redoMenuItem);
+
         menuBar.add(gameMenu);
         setJMenuBar(menuBar);
     }
@@ -102,6 +114,11 @@ public class ScrabbleView extends JFrame {
         ScrabbleController.saveGame(filename);
     }
 
+    /**
+     * Retrieves the text area displaying the word history in the game.
+     *
+     * @return the JTextArea object that contains the word history.
+     */
     public JTextArea getWordHistory() {
         return wordHistoryArea;
     }
@@ -114,11 +131,6 @@ public class ScrabbleView extends JFrame {
         String filename = "game_save.dat";  // Use an appropriate file name
         ScrabbleController.loadGame(filename);
     }
-
-    public JLabel[] getplayerScoresLabels() {
-        return playerScoresLabels;
-    }
-
 
     /**
      * Initializes the game board panel with buttons for each tile.

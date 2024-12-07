@@ -1,14 +1,11 @@
 package src;
 
-import GUI.ScrabbleController;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static GUI.ScrabbleController.*;
 
 /**
  * The TileBag class represents the collection of tiles used in a Scrabble game.

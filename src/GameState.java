@@ -1,10 +1,13 @@
 package src;
 
-import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
 
+/**
+ * Represents the state of the Scrabble game, including player information, board state,
+ * and other relevant game details. Provides methods to save and load the game state.
+ */
 public class GameState implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -18,6 +21,18 @@ public class GameState implements Serializable {
     private Set<String> placedTileCoordinates;
     private String wordHistory;
 
+    /**
+     * Constructs a new GameState object with the specified parameters.
+     *
+     * @param playerNames a list of player names.
+     * @param playerTilesMap a map associating player names with their respective tiles.
+     * @param playerScores a list of scores for each player.
+     * @param boardState the current state of the game board as a 2D character array.
+     * @param firstTurn a boolean indicating if it's the first turn of the game.
+     * @param oldTileCoordinates a set of coordinates for old tiles on the board.
+     * @param placedTileCoordinates a set of coordinates for tiles placed during the current turn.
+     * @param wordHistory a string representing the history of played words.
+     */
     public GameState(List<String> playerNames, Map<String, List<Character>> playerTilesMap,
                      ArrayList<Integer> playerScores, char[][] boardState, boolean firstTurn,
                      Set<String> oldTileCoordinates, Set<String> placedTileCoordinates, String wordHistory) {
@@ -32,7 +47,12 @@ public class GameState implements Serializable {
 
     }
 
-    // Deep copy for board state
+    /**
+     * Creates a deep copy of a 2D character array representing the game board.
+     *
+     * @param original the original 2D character array.
+     * @return a deep copy of the 2D character array.
+     */
     private char[][] deepCopyBoard(char[][] original) {
         char[][] copy = new char[original.length][original[0].length];
         for (int i = 0; i < original.length; i++) {
@@ -41,7 +61,12 @@ public class GameState implements Serializable {
         return copy;
     }
 
-    // Deep copy for player tiles map
+    /**
+     * Creates a deep copy of the player tiles map.
+     *
+     * @param original the original map associating player names with their tiles.
+     * @return a deep copy of the player tiles map.
+     */
     private Map<String, List<Character>> deepCopyPlayerTiles(Map<String, List<Character>> original) {
         Map<String, List<Character>> copy = new HashMap<>();
         for (Map.Entry<String, List<Character>> entry : original.entrySet()) {
@@ -50,72 +75,102 @@ public class GameState implements Serializable {
         return copy;
     }
 
-    // Getters for the GameState fields
+    /**
+     * Retrieves the list of player names.
+     *
+     * @return a new ArrayList containing the player names.
+     */
     public ArrayList<String> getPlayerNames() {
         return new ArrayList<>(playerNames);
     }
 
+    /**
+     * Retrieves the map of player tiles.
+     *
+     * @return a deep copy of the player tiles map.
+     */
     public Map<String, List<Character>> getPlayerTilesMap() {
         return deepCopyPlayerTiles(playerTilesMap);
     }
 
+    /**
+     * Retrieves the list of player scores.
+     *
+     * @return a new ArrayList containing the player scores.
+     */
     public ArrayList<Integer> getPlayerScores() {
         return new ArrayList<>(playerScores);
     }
 
+    /**
+     * Retrieves the current state of the game board.
+     *
+     * @return a deep copy of the 2D character array representing the board state.
+     */
     public char[][] getBoardState() {
         return deepCopyBoard(boardState);
     }
 
+    /**
+     * Retrieves the history of played words.
+     *
+     * @return a string representing the word history.
+     */
     public String getWordHistory() {
         return wordHistory;
     }
 
-    public void setWordHistory(String wordHistory) {
-        this.wordHistory = wordHistory;
-    }
-
+    /**
+     * Checks if it is the first turn of the game.
+     *
+     * @return {@code true} if it is the first turn, otherwise {@code false}.
+     */
     public boolean isFirstTurn() {
         return firstTurn;
     }
 
-    public void setFirstTurn(boolean firstTurn) {
-        this.firstTurn = firstTurn;
-    }
-
+    /**
+     * Retrieves the set of coordinates for old tiles on the board.
+     *
+     * @return a new HashSet containing the old tile coordinates.
+     */
     public Set<String> getOldTileCoordinates() {
         return new HashSet<>(oldTileCoordinates);
     }
 
+    /**
+     * Retrieves the set of coordinates for tiles placed during the current turn.
+     *
+     * @return a new HashSet containing the placed tile coordinates.
+     */
     public Set<String> getPlacedTileCoordinates() {
         return new HashSet<>(placedTileCoordinates);
     }
 
-    // Save the game state to a file
+    /**
+     * Saves the current game state to a file.
+     *
+     * @param gameState the GameState object to save.
+     * @param filename the name of the file to save the game state to.
+     * @throws IOException if an I/O error occurs while saving the file.
+     */
     public static void saveGameState(GameState gameState, String filename) throws IOException {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             out.writeObject(gameState);
         }
     }
 
-    // Load the game state from a file
+    /**
+     * Loads a saved game state from a file.
+     *
+     * @param filename the name of the file to load the game state from.
+     * @return the loaded GameState object.
+     * @throws IOException if an I/O error occurs while loading the file.
+     * @throws ClassNotFoundException if the class of the serialized object cannot be found.
+     */
     public static GameState loadGameState(String filename) throws IOException, ClassNotFoundException {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
             return (GameState) in.readObject();
         }
-    }
-
-    // Method to create a deep copy of GameState for undo/redo functionality
-    public static GameState copy(GameState original) {
-        return new GameState(
-                original.getPlayerNames(),
-                original.getPlayerTilesMap(),
-                original.getPlayerScores(),
-                original.getBoardState(),
-                original.isFirstTurn(),
-                original.getOldTileCoordinates(),
-                original.getPlacedTileCoordinates(),
-                original.getWordHistory()
-        );
     }
 }

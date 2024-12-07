@@ -39,13 +39,13 @@ public class BackgroundMusic {
      * Stop the currently playing music.
      */
     public void stopMusic() {
-        isPlaying = false; // Stop the loop
+        isPlaying = false;
         if (player != null) {
-            player.close(); // Close the player
+            player.close();
         }
         if (musicThread != null && musicThread.isAlive()) {
             try {
-                musicThread.join(); // Wait for the thread to finish
+                musicThread.join();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

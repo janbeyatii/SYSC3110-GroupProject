@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.util.*;
 
 import static GUI.ScrabbleController.clearPlacedTileCoordinates;
+import static GUI.ScrabbleController.saveCurrentStateToUndoStack;
+
 /**
  * This class contains commands for handling button actions such as submitting, passing, and clearing moves in the Scrabble game.
  */
@@ -31,6 +33,7 @@ public class ButtonCommands {
      * @param playerTileButtons  the array of JButton elements representing the player's tile rack.
      */
     public static void submit(ScrabbleView view, JTextArea wordHistoryArea, JLabel turnLabel, JLabel[] playerScoresLabels, JButton[] playerTileButtons) {
+        saveCurrentStateToUndoStack();
         boolean isFirstTurn = ScrabbleController.isFirstTurn();
         ArrayList<JButton> placedButtons = ScrabbleController.getMasterPlacedButtons();
 
@@ -82,14 +85,27 @@ public class ButtonCommands {
         ScrabbleController.clearMasterPlacedButtons();
         Helpers.updateOldTileCoordinates();
         clearPlacedTileCoordinates();
-
         view.updateBoardDisplay();
+
         ScrabbleController.switchToNextPlayer(playerScoresLabels);
         turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
 
         Helpers.updateScores(playerScoresLabels);
     }
 
+    /**
+     * Resets the game state after detecting an invalid tile placement.
+     *
+     * <p>This method performs the following actions:
+     * <ul>
+     *     <li>Clears the board positions and button text for the tiles placed in invalid positions.</li>
+     *     <li>Re-enables the player's tile buttons to allow re-placement.</li>
+     *     <li>Clears the master placed buttons list to reset tracking of placed tiles.</li>
+     * </ul>
+     *
+     * @param playerTileButtons an array of JButton objects representing the player's tile rack.
+     * @param placedButtons an ArrayList of JButton objects representing tiles that were placed on the board.
+     */
     private static void resetInvalidPlacement(JButton[] playerTileButtons, ArrayList<JButton> placedButtons) {
         for (JButton button : placedButtons) {
             int row = (Integer) button.getClientProperty("row");
@@ -117,6 +133,7 @@ public class ButtonCommands {
      * @param turnLabel         the JLabel showing the current player's turn.
      */
     public static void pass(JButton[] playerTileButtons, JLabel turnLabel, JLabel[] playerScoresLabels) {
+        saveCurrentStateToUndoStack();
         clear(playerTileButtons);
         ScrabbleController.switchToNextPlayer(playerScoresLabels);
         turnLabel.setText("Turn: " + ScrabbleController.getCurrentPlayerName());
@@ -128,6 +145,7 @@ public class ButtonCommands {
      * @param playerTileButtons the array of JButton elements representing the player's tile rack.
      */
     public static void clear(JButton[] playerTileButtons) {
+        saveCurrentStateToUndoStack();
         ArrayList<JButton> placedButtons = ScrabbleController.getMasterPlacedButtons();
         for (JButton button : placedButtons) {
             int row = (Integer) button.getClientProperty("row");
@@ -181,7 +199,4 @@ public class ButtonCommands {
             ScrabbleController.showWinningAnimation();
         }
     }
-
-
-
 }
