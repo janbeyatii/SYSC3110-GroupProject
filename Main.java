@@ -26,9 +26,7 @@ public class Main {
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            JOptionPane.showMessageDialog(null,"Welcome to Scrabble Game\n" + "Created by:\n" +"Jan Beyati - 101186335\n" +
-                    "Milad Zazai - 101185228\n" +
-                    "Kaif Ali - 101180909\n");
+            JOptionPane.showMessageDialog(null,"Welcome to Scrabble Game\n");
 
             String wordListFilePath = "resources/wordlist.txt";
             WordValidity.loadWordsFromFile(wordListFilePath);

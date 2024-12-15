@@ -2,7 +2,6 @@ package GUI;
 
 import src.*;
 import src.PremiumSquare;
-import src.BoardConfigLoader;
 
 import javax.swing.*;
 import javax.swing.Timer;

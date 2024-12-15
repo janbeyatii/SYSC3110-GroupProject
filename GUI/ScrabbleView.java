@@ -2,7 +2,6 @@ package GUI;
 
 import src.*;
 import src.PremiumSquare;
-import src.BoardConfigLoader;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,7 +53,7 @@ public class ScrabbleView extends JFrame {
      * @param tileCharacters the initial list of characters for the player's tile rack.
      */
     public ScrabbleView(int boardSize, ArrayList<Character> tileCharacters) {
-        setTitle("SYSC3110 Group20 Scrabble Game");
+        setTitle("SYSC3110 Scrabble Game");
         setSize(950, 750);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -152,7 +151,7 @@ public class ScrabbleView extends JFrame {
         int middle = boardSize / 2;
         Dimension buttonSize = new Dimension(40, 40);
         
-        List<PremiumSquare> premiumSquares = BoardConfigLoader.loadFromJSON("boardConfig.json");
+       // List<PremiumSquare> premiumSquares = BoardConfigLoader.loadFromJSON("boardConfig.json");
 
         for (int i = 0; i < boardSize; i++) {
             for (int j = 0; j < boardSize; j++) {

@@ -1,5 +1,5 @@
 package src;
-
+/*
 import GUI.ScrabbleController;
 import org.json.*;
 import java.nio.file.Files;
@@ -29,3 +29,4 @@ public class BoardConfigParser {
         return premiumSquares;
     }
 }
+*/
