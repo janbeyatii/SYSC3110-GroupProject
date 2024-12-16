@@ -8,11 +8,6 @@ Welcome to our Scrabble game! This repository contains the progress and implemen
 - [Rules](#rules)
 - [How To Play](#how-to-play)
 
-## Project Members
-- **Kaif Ali** - 101180909
-- **Milad Zazai** - 101185228
-- **Jan Beyati** - 101186335
-
 ### Objective
 The goal of Scrabble is to create words on the game board using letter tiles and score points. The player with the most points at the end of the game wins!
 
